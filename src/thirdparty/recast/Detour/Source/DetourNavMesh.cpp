@@ -858,16 +858,6 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 						rdDistancePtLine2D(baseTriVerts[l], basePolySpos, basePolyEpos) >= detailEdgeAlignThresh)
 						continue;
 
-					const float* baseDetailPolyEdgeSpos = baseTriVerts[m];
-					const float* baseDetailPolyEdgeEpos = baseTriVerts[l];
-
-					float baseTmin;
-					float baseTmax;
-					rdCalcSubEdgeArea2D(basePolySpos, basePolyEpos, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, baseTmin, baseTmax);
-
-					float basePolyEdgeMid[3];
-					rdVsad(basePolyEdgeMid, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, 0.5f);
-
 					const int MAX_NEIS = 32; // Max neighbors
 					dtMeshTile* neis[MAX_NEIS];
 
@@ -899,11 +889,21 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 						neis[0] = baseTile;
 					}
 
+					const float* baseDetailPolyEdgeSpos = baseTriVerts[m];
+					const float* baseDetailPolyEdgeEpos = baseTriVerts[l];
+
+					float basePolyEdgeMid[3];
+					rdVsad(basePolyEdgeMid, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, 0.5f);
+
 					float baseEdgeDir[3];
 					rdVsub(baseEdgeDir, baseDetailPolyEdgeEpos, baseDetailPolyEdgeSpos);
 
 					float baseEdgeNorm[3];
 					rdCalcEdgeNormal2D(baseEdgeDir, baseEdgeNorm);
+
+					float baseTmin;
+					float baseTmax;
+					rdCalcSubEdgeArea2D(basePolySpos, basePolyEpos, baseDetailPolyEdgeSpos, baseDetailPolyEdgeEpos, baseTmin, baseTmax);
 
 					for (int n = nneis - 1; n >= 0; --n)
 					{
@@ -999,10 +999,6 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 										const float* landDetailPolyEdgeSpos = landTriVerts[s];
 										const float* landDetailPolyEdgeEpos = landTriVerts[r];
 
-										float landTmin;
-										float landTmax;
-										rdCalcSubEdgeArea2D(landPolySpos, landPolyEpos, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, landTmin, landTmax);
-
 										float landPolyEdgeMid[3];
 										rdVsad(landPolyEdgeMid, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, 0.5f);
 
@@ -1054,13 +1050,17 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 											: rdClassifyPointInsideBounds(landPolyEdgeMid, landHeader->bmin, landHeader->bmax);
 										const unsigned char baseSide = rdOppositeTile(landSide);
 
-										float newBaseTmin;
-										float newBaseTmax;
-										alignPortalLimits(basePolyEdgeMid, baseEdgeNorm, landPolyEdgeMid, baseTmin, baseTmax, newBaseTmin, newBaseTmax, params.maxPortalAlign);
+										float landTmin;
+										float landTmax;
+										rdCalcSubEdgeArea2D(landPolySpos, landPolyEpos, landDetailPolyEdgeSpos, landDetailPolyEdgeEpos, landTmin, landTmax);
 
 										float newLandTmin;
 										float newLandTmax;
 										alignPortalLimits(landPolyEdgeMid, landEdgeNorm, basePolyEdgeMid, landTmin, landTmax, newLandTmin, newLandTmax, params.maxPortalAlign);
+
+										float newBaseTmin;
+										float newBaseTmax;
+										alignPortalLimits(basePolyEdgeMid, baseEdgeNorm, landPolyEdgeMid, baseTmin, baseTmax, newBaseTmin, newBaseTmax, params.maxPortalAlign);
 
 										const unsigned int forwardIdx = baseTile->allocLink();
 										const unsigned int reverseIdx = landTile->allocLink();

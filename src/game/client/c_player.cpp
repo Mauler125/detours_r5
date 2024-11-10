@@ -14,8 +14,16 @@ bool C_Player::CheckMeleeWeapon()
         && *(float*)&pWeapon->m_modVars[600] > (float)(m_currentFramePlayer__timeBase - m_melee.attackLastHitNonWorldEntity);
 }
 
+static ConVar in_old_curve_look("in_useoldcurvelook", "0", FCVAR_RELEASE, "Use the old curve look implementation.");
+
 void C_Player::CurveLook(C_Player* player, CInput::UserInput_t* input, float a3, float a4, float a5, int a6, float inputSampleFrametime, bool runAimAssist, JoyAngle_t* a9)
 {
+    if (in_old_curve_look.GetBool())
+    {
+        C_Player__CurveLook(player, input, a3, a4, a5, a6, inputSampleFrametime, runAimAssist, a9);
+        return;
+    }
+
     float v11; // xmm7_4
     float v12; // xmm11_4
     float v13; // xmm14_4

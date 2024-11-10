@@ -287,9 +287,13 @@ bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSyst
             CBanSystem::Banned_t banned(reason ? reason : "#DISCONNECT_BANNED", nuc);
             (*outBannedVec)->AddToTail(banned);
         }
-    }
 
-    return true;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -271,29 +271,25 @@ bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSyst
 
     const rapidjson::Value::ConstArray bannedPlayers = bannedPlayersIt->value.GetArray();
 
-    if (!bannedPlayers.Empty())
-    {
-        *outBannedVec = new CBanSystem::BannedList_t();
-        Assert(*outBannedVec);
-
-        for (const rapidjson::Value& obj : bannedPlayers)
-        {
-            const char* reason = nullptr;
-            JSON_GetValue(obj, "reason", JSONFieldType_e::kString, reason);
-
-            NucleusID_t nuc = NULL;
-            JSON_GetValue(obj, "id", JSONFieldType_e::kUint64, nuc);
-
-            CBanSystem::Banned_t banned(reason ? reason : "#DISCONNECT_BANNED", nuc);
-            (*outBannedVec)->AddToTail(banned);
-        }
-
-        return true;
-    }
-    else
-    {
+    if (bannedPlayers.Empty())
         return false;
+
+    *outBannedVec = new CBanSystem::BannedList_t();
+    Assert(*outBannedVec);
+
+    for (const rapidjson::Value& obj : bannedPlayers)
+    {
+        const char* reason = nullptr;
+        JSON_GetValue(obj, "reason", JSONFieldType_e::kString, reason);
+
+        NucleusID_t nuc = NULL;
+        JSON_GetValue(obj, "id", JSONFieldType_e::kUint64, nuc);
+
+        CBanSystem::Banned_t banned(reason ? reason : "#DISCONNECT_BANNED", nuc);
+        (*outBannedVec)->AddToTail(banned);
     }
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------

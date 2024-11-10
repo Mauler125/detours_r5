@@ -156,19 +156,22 @@ void Detour_HotSwap()
     Assert(ThreadInMainOrServerFrameThread());
     g_pServerScript->ExecuteCodeCallback("CodeCallback_OnNavMeshHotSwapBegin");
 
-    const dtNavMesh* queryNav = g_pNavMeshQuery->getAttachedNavMesh();
+    const dtNavMesh* const queryNav = g_pNavMeshQuery->getAttachedNavMesh();
     NavMeshType_e queryNavType = NAVMESH_INVALID;
 
-    // Figure out which NavMesh type is attached to the global query.
-    for (int i = 0; i < NAVMESH_COUNT; i++)
+    if (queryNav)
     {
-        const NavMeshType_e in = (NavMeshType_e)i;
+        // Figure out which NavMesh type is attached to the global query.
+        for (int i = 0; i < NAVMESH_COUNT; i++)
+        {
+            const NavMeshType_e in = (NavMeshType_e)i;
 
-        if (queryNav != Detour_GetNavMeshByType(in))
-            continue;
+            if (queryNav != Detour_GetNavMeshByType(in))
+                continue;
 
-        queryNavType = in;
-        break;
+            queryNavType = in;
+            break;
+        }
     }
 
     // Free and re-init NavMesh.
@@ -182,7 +185,7 @@ void Detour_HotSwap()
     // Attach the new NavMesh to the global Detour query.
     if (queryNavType != NAVMESH_INVALID)
     {
-        const dtNavMesh* newQueryNav = Detour_GetNavMeshByType(queryNavType);
+        const dtNavMesh* const newQueryNav = Detour_GetNavMeshByType(queryNavType);
 
         if (newQueryNav)
             g_pNavMeshQuery->attachNavMeshUnsafe(newQueryNav);

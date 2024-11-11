@@ -92,34 +92,21 @@ string Format(const char* szFormat, ...);
 /////////////////////////////////////////////////////////////////////////////
 // Array
 template <typename Iter, typename Compare>
-Iter ExtremeElementABS(Iter first, Iter last, Compare compare)
+inline Iter ExtremeElement(Iter first, Iter last, Compare compare)
 {
-    using ValueType = typename std::iterator_traits<Iter>::value_type;
-    auto abs_compare = [compare](ValueType a, ValueType b)
-    {
-        if constexpr (std::is_signed_v<ValueType>)
-        {
-            return compare(abs(a), abs(b));
-        }
-        else
-        {
-            return compare(a, b);
-        }
-    };
-
-    return std::min_element(first, last, abs_compare);
+    return std::min_element(first, last, compare);
 }
 
 template <typename Iter> // Return lowest element in array.
-Iter MinElementABS(Iter first, Iter last)
+inline Iter MinElement(Iter first, Iter last)
 {
-    return ExtremeElementABS(first, last, std::less<>());
+    return ExtremeElement(first, last, std::less<>());
 }
 
 template <typename Iter> // Return highest element in array.
-Iter MaxElementABS(Iter first, Iter last)
+inline Iter MaxElement(Iter first, Iter last)
 {
-    return ExtremeElementABS(first, last, std::greater<>());
+    return ExtremeElement(first, last, std::greater<>());
 }
 
 /////////////////////////////////////////////////////////////////////////////

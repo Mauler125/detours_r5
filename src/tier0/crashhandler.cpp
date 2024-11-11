@@ -379,7 +379,7 @@ void CCrashHandler::FormatFPU(const char* const pszRegister, const M128A* const 
 		*reinterpret_cast<const FLOAT*>(&nVec[2]),
 		*reinterpret_cast<const FLOAT*>(&nVec[3]));
 
-	const DWORD nHighest = *MaxElementABS(std::begin(nVec), std::end(nVec));
+	const DWORD nHighest = *MaxElement(std::begin(nVec), std::end(nVec));
 
 	if (nHighest >= 1000000)
 	{

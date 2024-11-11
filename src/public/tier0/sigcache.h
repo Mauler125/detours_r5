@@ -7,7 +7,7 @@
 #define SIGDB_DICT_SIZE 20
 
 #define SIGDB_MAJOR_VERSION 0x2 // Increment when library changes are made.
-#define SIGDB_MINOR_VERSION 0xD // Increment when SDK updates are released.
+#define SIGDB_MINOR_VERSION 0xE // Increment when SDK updates are released.
 
 class CSigCache
 {

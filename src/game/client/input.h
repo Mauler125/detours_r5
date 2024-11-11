@@ -159,7 +159,7 @@ public:
 		bool m_bUnknownBool1B2;
 		float m_flUnknownFloat1B4;
 		float m_flUnknownFloat1B8;
-		Vector3D m_vecUnknown1BC;
+		QAngle m_angUnknown1BC;
 		QAngle m_angUnknown1C8;
 		bool m_bUnknown1D4;
 		bool m_bUnknown1D5;

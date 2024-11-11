@@ -26,7 +26,7 @@
 #define C2S_CHALLENGE           'H' // + challenge value
 #define S2C_CHALLENGE           'I' // + challenge value
 
-#define S2C_CONNACCEPT          'J'
+#define S2C_CONNACCEPT          'J' // special protocol for accepted connections
 #define S2C_CONNREJECT          'K' // special protocol for rejected connections
 
 // Generic Ping Request

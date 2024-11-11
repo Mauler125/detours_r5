@@ -19,6 +19,7 @@ add_sources( SOURCE_GROUP "Include"
 	"include/decode.h"
 	"include/encode.h"
 	"include/retcodes.h"
+	"include/timehelper.h"
 	"include/util.h"
 	"include/version.h"
 )

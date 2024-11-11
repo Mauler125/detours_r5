@@ -30,12 +30,12 @@ extern "C" {
 /**
  * Current l8w8jwt version number.
  */
-#define L8W8JWT_VERSION 220
+#define L8W8JWT_VERSION 240
 
 /**
  * Current l8w8jwt version number (as a human-readable string).
  */
-#define L8W8JWT_VERSION_STR "2.2.0"
+#define L8W8JWT_VERSION_STR "2.4.0"
 
 #if defined(_WIN32) && defined(L8W8JWT_DLL)
 #ifdef L8W8JWT_BUILD_DLL
@@ -55,18 +55,19 @@ extern "C" {
 #define L8W8JWT_SMALL_STACK 0
 #endif
 
+#ifndef L8W8JWT_PLATFORM_TIME_ALT
+/**
+ * Set this pre-processor definition to \c 1 if you need to 
+ * provide custom implementation of system time API.
+ */
+#define L8W8JWT_PLATFORM_TIME_ALT 0
+#endif
+
 /**
  * Free memory that was allocated by L8W8JWT.
  * @param mem The memory to free.
  */
 L8W8JWT_API void l8w8jwt_free(void* mem);
-
-/**
- * Zero memory securely.
- * @param mem The memory to zero.
- * @param len The length to zero.
- */
-L8W8JWT_API void l8w8jwt_zero(void* buf, size_t len);
 
 /**
  * Gets the l8w8jwt version number as an integer.

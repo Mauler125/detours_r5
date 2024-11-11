@@ -31,7 +31,7 @@ extern "C" {
 #include "claim.h"
 #include "version.h"
 #include "retcodes.h"
-#include <time.h>
+#include "timehelper.h"
 #include <stddef.h>
 
 #ifndef L8W8JWT_MAX_KEY_SIZE
@@ -100,7 +100,7 @@ L8W8JWT_API struct l8w8jwt_encoding_params
      * otherwise it will be set to whatever random value was in the memory where this variable resides.
      * @see https://tools.ietf.org/html/rfc7519#section-4.1.4
      */
-    time_t exp;
+    l8w8jwt_time_t exp;
 
     /**
      * "Not before" time claim; specifies when this token should start being valid (in seconds since Unix epoch). <p>
@@ -108,7 +108,7 @@ L8W8JWT_API struct l8w8jwt_encoding_params
      * otherwise it will be set to whatever random value was in the memory where this variable resides.
      * @see https://tools.ietf.org/html/rfc7519#section-4.1.5
      */
-    time_t nbf;
+    l8w8jwt_time_t nbf;
 
     /**
      * "Issued at" timestamp claim; specifies when this token was emitted (in seconds since Unix epoch). <p>
@@ -116,7 +116,7 @@ L8W8JWT_API struct l8w8jwt_encoding_params
      * otherwise it will be set to whatever random value was in the memory where this variable resides.
      * @see https://tools.ietf.org/html/rfc7519#section-4.1.6
      */
-    time_t iat;
+    l8w8jwt_time_t iat;
 
     /**
      * [OPTIONAL] Array of additional claims to include in the JWT's header like for example "kid" or "cty"; pass <code>NULL</code> if you don't wish to add any! <p>

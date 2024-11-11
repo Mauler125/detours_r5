@@ -25,45 +25,86 @@ extern "C" {
 
 #include <string.h>
 #include <mbedtls/md.h>
+#include <mbedtls/platform_util.h>
 
 void l8w8jwt_free_claims(struct l8w8jwt_claim* claims, const size_t claims_count)
 {
-    if (claims != NULL && claims_count > 0)
+    if (claims == NULL)
     {
-        for (struct l8w8jwt_claim* claim = claims; claim < claims + claims_count; ++claim)
+        return;
+    }
+
+    for (struct l8w8jwt_claim* claim = claims; claim < claims + claims_count; ++claim)
+    {
+        if (claim == NULL)
         {
-            if (claim == NULL)
-                continue;
-
-            l8w8jwt_zero(claim->key, claim->key_length);
-            l8w8jwt_zero(claim->value, claim->value_length);
-
-            l8w8jwt_free(claim->key);
-            l8w8jwt_free(claim->value);
+            continue;
         }
 
-        l8w8jwt_zero(claims, claims_count * sizeof(struct l8w8jwt_claim));
-        l8w8jwt_free(claims);
+        mbedtls_platform_zeroize(claim->key, claim->key_length);
+        mbedtls_platform_zeroize(claim->value, claim->value_length);
+
+        l8w8jwt_free(claim->key);
+        l8w8jwt_free(claim->value);
     }
+
+    if (claims_count != 0)
+    {
+        mbedtls_platform_zeroize(claims, claims_count * sizeof(struct l8w8jwt_claim));
+    }
+
+    l8w8jwt_free(claims);
 }
 
 static inline void l8w8jwt_escape_claim_string(struct chillbuff* stringbuilder, const char* string, const size_t string_length)
 {
+    static const char* escape_table[] = {
+        "\\u0000", "\\u0001", "\\u0002", "\\u0003", "\\u0004", "\\u0005", "\\u0006", "\\u0007",
+        "\\b", "\\t", "\\n", "\\u000b", "\\f", "\\r", "\\u000e", "\\u000f",
+        "\\u0010", "\\u0011", "\\u0012", "\\u0013", "\\u0014", "\\u0015", "\\u0016", "\\u0017",
+        "\\u0018", "\\u0019", "\\u001a", "\\u001b", "\\u001c", "\\u001d", "\\u001e", "\\u001f",
+        NULL, NULL, "\\\"", NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, "\\/",
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, "\\\\", NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, "\\u007f",
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+    };
+
     for (size_t i = 0; i < string_length; ++i)
     {
         const char c = string[i];
+        const char* e = escape_table[c];
 
-        switch (c)
+        if (e)
         {
-            case '\\':
-                chillbuff_push_back(stringbuilder, "\\\\", 2);
-                break;
-            case '\"':
-                chillbuff_push_back(stringbuilder, "\\\"", 2);
-                break;
-            default:
-                chillbuff_push_back(stringbuilder, &c, 1);
-                break;
+            chillbuff_push_back(stringbuilder, e, strlen(e));
+        }
+        else
+        {
+            chillbuff_push_back(stringbuilder, &c, 1);
         }
     }
 }
@@ -110,15 +151,20 @@ int l8w8jwt_write_claims(struct chillbuff* stringbuilder, struct l8w8jwt_claim* 
         chillbuff_push_back(stringbuilder, "\":", 2);
 
         if (claim->type == L8W8JWT_CLAIM_TYPE_STRING)
+        {
             chillbuff_push_back(stringbuilder, "\"", 1);
 
-        chillbuff_clear(&escape_buffer);
-        l8w8jwt_escape_claim_string(&escape_buffer, claim->value, value_length);
+            chillbuff_clear(&escape_buffer);
+            l8w8jwt_escape_claim_string(&escape_buffer, claim->value, value_length);
 
-        chillbuff_push_back(stringbuilder, escape_buffer.array,escape_buffer.length);
+            chillbuff_push_back(stringbuilder, escape_buffer.array, escape_buffer.length);
 
-        if (claim->type == L8W8JWT_CLAIM_TYPE_STRING)
             chillbuff_push_back(stringbuilder, "\"", 1);
+        }
+        else
+        {
+            chillbuff_push_back(stringbuilder, claim->value, value_length);
+        }
 
         first = 0;
     }

@@ -11,17 +11,16 @@
 // The executable exports table has been restructured; the exported function
 // 'GetDenuvoTimeTicketRequest' has been swapped with 'CreateGlobalMemAlloc',
 // the exported 'IEngineAPI' interface accessor has been replaced with
-// 'g_pMemAllocSingleton', and the exported function 'LauncherMain' has been
-// swapped with 'WinMain', so we can obtain the addresses without hardcoding.
+// 'g_pMemAllocSingleton', so we can obtain the addresses without hardcoding.
 // 
 // These changes allow us to load the SDK in the following order:
 // - Create game process
 // - Import this loader stub by its dummy export.
-// - Immediately hook 'WinMain', by getting a pointer to it from its exports.
+// - Immediately hook 'LauncherMain' by getting the address from the exports.
 // - Determine if, and which SDK module to load.
 // 
-// Since WinMain is called before anything of the game is, we can still hook
-// and modify anything of the game before it starts. With the above order of
+// Since LauncherMain is called before anything of the game is, we can still
+// hook and modify anything of the game before it starts. With this order of
 // initialization, we can now replace the standard memalloc system with that
 // of the game, by:
 // 

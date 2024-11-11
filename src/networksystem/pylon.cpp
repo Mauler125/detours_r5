@@ -135,7 +135,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& outGameServer,
 
     rapidjson::Document::ConstMemberIterator serversIt;
 
-    if (!JSON_GetIterator(responseJson, "servers", JSONFieldType_e::kArray, serversIt))
+    if (!JSON_GetIterator(responseJson, "server", JSONFieldType_e::kObject, serversIt))
     {
         outMessage = Format("Invalid response with status: %d", int(status));
         return false;

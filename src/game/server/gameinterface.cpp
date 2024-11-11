@@ -168,13 +168,13 @@ void CServerGameClients::_ProcessUserCmds(CServerGameClients* thisp, edict_t edi
 	Assert(numCmds >= 0);
 	Assert((totalCmds - numCmds) >= 0);
 
-	CPlayer* pPlayer = UTIL_PlayerByIndex(edict);
+	CPlayer* const pPlayer = UTIL_PlayerByIndex(edict);
 
 	// Too many commands?
 	if (totalCmds < 0 || totalCmds >= (MAX_BACKUP_COMMANDS_PROCESS - 1) ||
 		numCmds < 0 || numCmds > totalCmds)
 	{
-		CClient* pClient = g_pServer->GetClient(edict-1);
+		const CClient* const pClient = g_pServer->GetClient(edict-1);
 
 		Warning(eDLL_T::SERVER, "%s: Player '%s' sent too many cmds (%i)\n", __FUNCTION__, pClient->GetServerName(), totalCmds);
 		buf->SetOverflowFlag();

@@ -47,9 +47,7 @@ int CServer::GetNumHumanPlayers(void) const
 	int nHumans = 0;
 	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
-		CClient* pClient = g_pServer->GetClient(i);
-		if (!pClient)
-			continue;
+		const CClient* const pClient = g_pServer->GetClient(i);
 
 		if (pClient->IsHumanPlayer())
 			nHumans++;
@@ -67,9 +65,7 @@ int CServer::GetNumFakeClients(void) const
 	int nBots = 0;
 	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
-		CClient* pClient = g_pServer->GetClient(i);
-		if (!pClient)
-			continue;
+		const CClient* const pClient = g_pServer->GetClient(i);
 
 		if (pClient->IsConnected() && pClient->IsFakeClient())
 			nBots++;
@@ -87,9 +83,7 @@ int CServer::GetNumClients(void) const
 	int nClients = 0;
 	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
-		CClient* pClient = g_pServer->GetClient(i);
-		if (!pClient)
-			continue;
+		const CClient* const pClient = g_pServer->GetClient(i);
 
 		if (pClient->IsConnected())
 			nClients++;

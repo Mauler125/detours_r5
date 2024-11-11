@@ -24,13 +24,11 @@ void Physics_RunBotSimulation(bool bSimulating)
 
 	for (int i = 0; i < g_ServerGlobalVariables->maxClients; i++)
 	{
-		CClient* pClient = g_pServer->GetClient(i);
-		if (!pClient)
-			continue;
+		const CClient* const pClient = g_pServer->GetClient(i);
 
 		if (pClient->IsActive() && pClient->IsFakeClient())
 		{
-			CPlayer* pPlayer = UTIL_PlayerByIndex(pClient->GetHandle());
+			CPlayer* const pPlayer = UTIL_PlayerByIndex(pClient->GetHandle());
 			if (pPlayer)
 				pPlayer->RunNullCommand();
 		}

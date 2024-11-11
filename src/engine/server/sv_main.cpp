@@ -79,10 +79,6 @@ void SV_CheckClientsForBan(const CBanSystem::BannedList_t* const pBannedVec /*= 
 	for (int c = 0; c < gpGlobals->maxClients; c++) // Loop through all possible client instances.
 	{
 		CClient* const pClient = g_pServer->GetClient(c);
-
-		if (!pClient)
-			continue;
-
 		const CNetChan* const pNetChan = pClient->GetNetChan();
 
 		if (!pNetChan)
@@ -199,9 +195,6 @@ void SV_BroadcastVoiceData(CClient* const cl, const int nBytes, char* const data
 	{
 		CClient* const pClient = g_pServer->GetClient(i);
 
-		if (!pClient)
-			continue;
-
 		// is this client fully connected
 		if (pClient->GetSignonState() != SIGNONSTATE::SIGNONSTATE_FULL)
 			continue;
@@ -245,9 +238,6 @@ void SV_BroadcastDurangoVoiceData(CClient* const cl, const int nBytes, char* con
 	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
 		CClient* const pClient = g_pServer->GetClient(i);
-
-		if (!pClient)
-			continue;
 
 		// is this client fully connected
 		if (pClient->GetSignonState() != SIGNONSTATE::SIGNONSTATE_FULL)

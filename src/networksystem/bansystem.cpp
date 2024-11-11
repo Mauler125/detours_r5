@@ -314,11 +314,9 @@ void CBanSystem::AuthorPlayerByName(const char* playerName, const bool shouldBan
 
 	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
-		CClient* pClient = g_pServer->GetClient(i);
-		if (!pClient)
-			continue;
+		CClient* const pClient = g_pServer->GetClient(i);
+		const CNetChan* const pNetChan = pClient->GetNetChan();
 
-		const CNetChan* pNetChan = pClient->GetNetChan();
 		if (!pNetChan)
 			continue;
 
@@ -365,11 +363,9 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 
 	for (int i = 0; i < gpGlobals->maxClients; i++)
 	{
-		CClient* pClient = g_pServer->GetClient(i);
-		if (!pClient)
-			continue;
+		CClient* const pClient = g_pServer->GetClient(i);
+		const CNetChan* const pNetChan = pClient->GetNetChan();
 
-		const CNetChan* pNetChan = pClient->GetNetChan();
 		if (!pNetChan)
 			continue;
 

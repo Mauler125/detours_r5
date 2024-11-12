@@ -150,6 +150,7 @@ Editor::Editor() :
 	m_filterWalkableLowHeightSpans(true),
 	m_buildTraversePortals(true),
 	m_traverseRayDynamicOffset(true),
+	m_traverseLinkSinglePortalPerPolyPair(false),
 	m_collapseLinkedPolyGroups(false),
 	m_buildBvTree(true),
 	m_selectedNavMeshType(NAVMESH_SMALL),
@@ -470,6 +471,8 @@ void Editor::handleCommonSettings()
 		renderTraverseTableFineTuners();
 
 	ImGui::Checkbox("Build Traverse Portals", &m_buildTraversePortals);
+
+	ImGui::Checkbox("Single Portal Per Poly Pair", &m_traverseLinkSinglePortalPerPolyPair);
 
 	ImGui::Checkbox("Collapse Linked Poly Groups", &m_collapseLinkedPolyGroups);
 
@@ -900,7 +903,7 @@ static int addToPolyMap(void* userData, const dtPolyRef basePolyRef, const dtPol
 
 	try
 	{
-		auto ret = editor->getTraverseLinkPolyMap().emplace(TraverseLinkPolyPair(basePolyRef, landPolyRef), traverseTypeBit);
+		const auto ret = editor->getTraverseLinkPolyMap().emplace(TraverseLinkPolyPair(basePolyRef, landPolyRef), traverseTypeBit);
 		if (!ret.second)
 		{
 			rdAssert(ret.second); // Called 'addToPolyMap' while poly link already exists.
@@ -925,6 +928,7 @@ void Editor::createTraverseLinkParams(dtTraverseLinkConnectParams& params)
 	params.userData = this;
 	params.minEdgeOverlap = m_traverseEdgeMinOverlap;
 	params.maxPortalAlign = m_traversePortalMaxAlign;
+	params.singlePortalPerPair = m_traverseLinkSinglePortalPerPolyPair;
 }
 
 bool Editor::createTraverseLinks()

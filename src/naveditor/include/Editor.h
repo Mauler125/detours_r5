@@ -247,6 +247,7 @@ protected:
 	bool m_filterWalkableLowHeightSpans;
 	bool m_buildTraversePortals;
 	bool m_traverseRayDynamicOffset;
+	bool m_traverseLinkSinglePortalPerPolyPair;
 	bool m_collapseLinkedPolyGroups;
 	bool m_buildBvTree;
 

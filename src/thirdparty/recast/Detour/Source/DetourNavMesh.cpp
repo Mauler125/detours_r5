@@ -1026,9 +1026,11 @@ dtStatus dtNavMesh::connectTraverseLinks(const dtTileRef tileRef, const dtTraver
 
 										unsigned int* const linkedTraverseType = params.findPolyLink(params.userData, basePolyRef, landPolyRef);
 
-										// These 2 polygons are already linked with the same traverse type.
+										if (params.singlePortalPerPair && linkedTraverseType)
+											continue; // User has specified to limit link count between 2 polygons to 1.
+
 										if (linkedTraverseType && (rdBitCellBit(traverseType) & *linkedTraverseType))
-											continue;
+											continue; // These 2 polygons are already linked with the same traverse type.
 
 										float landEdgeNorm[3];
 										rdCalcEdgeNormal2D(landEdgeDir, landEdgeNorm);

@@ -678,6 +678,7 @@ struct dtTraverseLinkConnectParams
 	void* userData;					///< The user defined data that will be provided to all callbacks, for example: your editor's class instance.
 	float minEdgeOverlap;			///< The minimum amount of projection overlap required between the 2 edges before they are considered overlapping. [Unit: wu]
 	float maxPortalAlign;			///< The maximum amount of portal alignment the system will apply. [Limit: 0 >= align <= 0.5]
+	bool singlePortalPerPair;		///< Whether to limit the number of portal connections between 2 polygon pairs to 1.
 	bool linkToNeighbor;			///< Whether to link to polygons in neighboring tiles. Limits linkage to internal polygons if false.
 };
 

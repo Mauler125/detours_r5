@@ -1401,11 +1401,11 @@ void Editor::renderTraverseTableFineTuners()
 // NOTE: the climb height should never equal or exceed the agent's height, see https://groups.google.com/g/recastnavigation/c/L5rBamxcOBk/m/5xGLj6YP25kJ
 // Quote: "you will get into trouble in cases where there is an overhand which is low enough to step over and high enough for the agent to walk under."
 const NavMeshDefaults_s g_navMeshDefaults[NAVMESH_COUNT] = {
-	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Width(HULL_HUMAN)   * NAI_Hull::ExtentScale(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)  , NAI_Hull::StepHeight(HULL_HUMAN)  , 8.f, 4.f, 16 },
-	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Width(HULL_PROWLER) * NAI_Hull::ExtentScale(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER), NAI_Hull::StepHeight(HULL_PROWLER), 8.f, 4.f, 8 },
-	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Width(HULL_MEDIUM)  * NAI_Hull::ExtentScale(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM) , NAI_Hull::StepHeight(HULL_MEDIUM) , 8.f, 4.f, 8 },
-	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Width(HULL_TITAN)   * NAI_Hull::ExtentScale(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)  , NAI_Hull::StepHeight(HULL_TITAN)  , 15.f, 7.5f, 4 },
-	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Width(HULL_GOLIATH) * NAI_Hull::ExtentScale(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH), NAI_Hull::StepHeight(HULL_GOLIATH), 15.f, 7.5f, 4 },
+	{ g_navMeshNames[NAVMESH_SMALL]      , NAI_Hull::Radius(HULL_HUMAN)  , NAI_Hull::Height(HULL_HUMAN)  , NAI_Hull::StepHeight(HULL_HUMAN)  , 8.f, 4.f, 16 },
+	{ g_navMeshNames[NAVMESH_MED_SHORT]  , NAI_Hull::Radius(HULL_PROWLER), NAI_Hull::Height(HULL_PROWLER), NAI_Hull::StepHeight(HULL_PROWLER), 8.f, 4.f, 8 },
+	{ g_navMeshNames[NAVMESH_MEDIUM]     , NAI_Hull::Radius(HULL_MEDIUM) , NAI_Hull::Height(HULL_MEDIUM) , NAI_Hull::StepHeight(HULL_MEDIUM) , 8.f, 4.f, 8 },
+	{ g_navMeshNames[NAVMESH_LARGE]      , NAI_Hull::Radius(HULL_TITAN)  , NAI_Hull::Height(HULL_TITAN)  , NAI_Hull::StepHeight(HULL_TITAN)  , 15.f, 7.5f, 4 },
+	{ g_navMeshNames[NAVMESH_EXTRA_LARGE], NAI_Hull::Radius(HULL_GOLIATH), NAI_Hull::Height(HULL_GOLIATH), NAI_Hull::StepHeight(HULL_GOLIATH), 15.f, 7.5f, 4 },
 };
 
 void Editor::selectNavMeshType(const NavMeshType_e navMeshType)

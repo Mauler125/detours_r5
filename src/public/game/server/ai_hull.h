@@ -53,9 +53,7 @@ struct Hull_s
 
 	// The scale to apply to the hull size
 	// when using it as extents to query a
-	// point on the navmesh. This should
-	// also be used on the radius of the
-	// hull when building the navmesh.
+	// point on the navmesh.
 	float extentScale;
 
 	float unk10;
@@ -107,6 +105,7 @@ namespace NAI_Hull
 	inline float Length(const Hull_e id) { return (g_aiHullProperties[id].maxs.x - g_aiHullProperties[id].mins.x); }
 	inline float Width(const Hull_e id)  { return (g_aiHullProperties[id].maxs.y - g_aiHullProperties[id].mins.y); }
 	inline float Height(const Hull_e id) { return (g_aiHullProperties[id].maxs.z - g_aiHullProperties[id].mins.z); }
+	inline float Radius(const Hull_e id) { return Width(id) * 0.5f; }
 
 	inline float StepHeight(const Hull_e id) { return g_aiHullProperties[id].stepHeight; }
 	inline float ExtentScale(const Hull_e id) { return g_aiHullProperties[id].extentScale; }

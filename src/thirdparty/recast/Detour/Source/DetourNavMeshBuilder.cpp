@@ -271,10 +271,6 @@ static bool rebuildBVTree(dtMeshTile* tile, const unsigned short* oldPolyIndices
 		const dtPoly& poly = tile->polys[oldPolyIndex];
 
 		rdAssert(poly.getType() != DT_POLYTYPE_OFFMESH_CONNECTION);
-
-		//if (poly.getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-		//	continue;
-
 		const dtPolyDetail& detail = tile->detailMeshes[oldPolyIndex];
 
 		float bmin[3];

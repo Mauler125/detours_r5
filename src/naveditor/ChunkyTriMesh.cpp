@@ -21,8 +21,8 @@
 
 struct BoundsItem
 {
-	float bmin[2];
-	float bmax[2];
+	float bmin[3];
+	float bmax[3];
 	int i;
 };
 
@@ -48,30 +48,56 @@ static int compareItemY(const void* va, const void* vb)
 	return 0;
 }
 
+static int compareItemZ(const void* va, const void* vb)
+{
+	const BoundsItem* a = (const BoundsItem*)va;
+	const BoundsItem* b = (const BoundsItem*)vb;
+	if (a->bmin[2] < b->bmin[2])
+		return -1;
+	if (a->bmin[2] > b->bmin[2])
+		return 1;
+	return 0;
+}
+
 static void calcExtends(const BoundsItem* items, const int /*nitems*/,
 						const int imin, const int imax,
 						float* bmin, float* bmax)
 {
 	bmin[0] = items[imin].bmin[0];
 	bmin[1] = items[imin].bmin[1];
+	bmin[2] = items[imin].bmin[2];
 	
 	bmax[0] = items[imin].bmax[0];
 	bmax[1] = items[imin].bmax[1];
+	bmax[2] = items[imin].bmax[2];
 	
 	for (int i = imin+1; i < imax; ++i)
 	{
 		const BoundsItem& it = items[i];
 		if (it.bmin[0] < bmin[0]) bmin[0] = it.bmin[0];
 		if (it.bmin[1] < bmin[1]) bmin[1] = it.bmin[1];
+		if (it.bmin[2] < bmin[2]) bmin[2] = it.bmin[2];
 		
 		if (it.bmax[0] > bmax[0]) bmax[0] = it.bmax[0];
 		if (it.bmax[1] > bmax[1]) bmax[1] = it.bmax[1];
+		if (it.bmax[2] > bmax[2]) bmax[2] = it.bmax[2];
 	}
 }
 
-inline int longestAxis(float x, float y)
+inline int longestAxis(float x, float y, float z)
 {
-	return y > x ? 1 : 0;
+	int	axis = 0;
+	float maxVal = x;
+	if (y > maxVal)
+	{
+		axis = 1;
+		maxVal = y;
+	}
+	if (z > maxVal)
+	{
+		axis = 2;
+	}
+	return axis;
 }
 
 static void subdivide(BoundsItem* items, int nitems, int imin, int imax, int trisPerChunk,
@@ -110,8 +136,9 @@ static void subdivide(BoundsItem* items, int nitems, int imin, int imax, int tri
 		// Split
 		calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
 		
-		int	axis = longestAxis(node.bmax[0] - node.bmin[0],
-							   node.bmax[1] - node.bmin[1]);
+		const int	axis = longestAxis(node.bmax[0] - node.bmin[0],
+							   node.bmax[1] - node.bmin[1],
+							   node.bmax[2] - node.bmin[2]);
 		
 		if (axis == 0)
 		{
@@ -122,6 +149,11 @@ static void subdivide(BoundsItem* items, int nitems, int imin, int imax, int tri
 		{
 			// Sort along y-axis
 			qsort(items+imin, static_cast<size_t>(inum), sizeof(BoundsItem), compareItemY);
+		}
+		else
+		{
+			// Sort along z-axis
+			qsort(items+imin, static_cast<size_t>(inum), sizeof(BoundsItem), compareItemZ);
 		}
 		
 		int isplit = imin+inum/2;
@@ -162,17 +194,20 @@ bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris,
 		const int* t = &tris[i*3];
 		BoundsItem& it = items[i];
 		it.i = i;
-		// Calc triangle XY bounds.
+		// Calc triangle XYZ bounds.
 		it.bmin[0] = it.bmax[0] = verts[t[0]*3+0];
 		it.bmin[1] = it.bmax[1] = verts[t[0]*3+1];
+		it.bmin[2] = it.bmax[2] = verts[t[0]*3+2];
 		for (int j = 1; j < 3; ++j)
 		{
 			const float* v = &verts[t[j]*3];
 			if (v[0] < it.bmin[0]) it.bmin[0] = v[0]; 
 			if (v[1] < it.bmin[1]) it.bmin[1] = v[1]; 
+			if (v[2] < it.bmin[2]) it.bmin[2] = v[2]; 
 
 			if (v[0] > it.bmax[0]) it.bmax[0] = v[0]; 
 			if (v[1] > it.bmax[1]) it.bmax[1] = v[1]; 
+			if (v[2] > it.bmax[2]) it.bmax[2] = v[2]; 
 		}
 	}
 
@@ -278,18 +313,19 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh * cm, float bmin[2], float 
 
 
 
-static bool checkOverlapSegment(const float p[2], const float q[2],
-								const float bmin[2], const float bmax[2])
+static bool checkOverlapSegment(const float p[3], const float q[3],
+								const float bmin[3], const float bmax[3])
 {
 	float tmin = 0;
 	float tmax = 1;
-	float d[2];
+	float d[3];
 	d[0] = q[0] - p[0];
 	d[1] = q[1] - p[1];
+	d[2] = q[2] - p[2];
 	
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		if (fabsf(d[i]) < RD_EPS)
+		if (rdMathFabsf(d[i]) < RD_EPS)
 		{
 			// Ray is parallel to slab. No hit if origin not within slab
 			if (p[i] < bmin[i] || p[i] > bmax[i])
@@ -310,8 +346,9 @@ static bool checkOverlapSegment(const float p[2], const float q[2],
 	return true;
 }
 
+
 int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* cm,
-								  float p[2], float q[2],
+								  float p[3], float q[3],
 								  int* ids, const int maxIds)
 {
 	// Traverse tree

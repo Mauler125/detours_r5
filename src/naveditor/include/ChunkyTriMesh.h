@@ -21,8 +21,8 @@
 
 struct rcChunkyTriMeshNode
 {
-	float bmin[2];
-	float bmax[2];
+	float bmin[3];
+	float bmax[3];
 	int i;
 	int n;
 };
@@ -56,7 +56,7 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm, float bmin[2], float b
 int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm, float bmin[2], float bmax[2], int* ids, const int maxIds,int& currentCount,int& currentNode);
 
 /// Returns the chunk indices which overlap the input segment.
-int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* cm, float p[2], float q[2], int* ids, const int maxIds);
+int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* cm, float p[3], float q[3], int* ids, const int maxIds);
 
 
 #endif // CHUNKYTRIMESH_H

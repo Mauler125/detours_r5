@@ -533,11 +533,13 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, const unsigned i
 	if (!traceWorld)
 		return false;
 
-	float p[2], q[2];
+	float p[3], q[3];
 	p[0] = src[0] + (dst[0]-src[0]) * btmin;
 	p[1] = src[1] + (dst[1]-src[1]) * btmin;
+	p[2] = src[2] + (dst[2]-src[2]) * btmin;
 	q[0] = src[0] + (dst[0]-src[0]) * btmax;
 	q[1] = src[1] + (dst[1]-src[1]) * btmax;
+	q[2] = src[2] + (dst[2]-src[2]) * btmax;
 	
 	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, s_chunkIndices, MAX_CHUNK_INDICES);
 	if (!ncid)

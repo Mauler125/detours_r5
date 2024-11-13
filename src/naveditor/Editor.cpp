@@ -633,6 +633,11 @@ static const int TRAVERSE_LINK_TRACE_MASK = TRACE_WORLD|TRACE_CLIP|TRACE_TRIGGER
 // avoiding 2 additional ray casts will save a lot on build times.
 static const float TRAVERSE_LINK_TRIPPLE_TRACE_THRESH = 100.f;
 
+static bool raycastMesh(const InputGeom* geom, const float* src, const float* dst)
+{
+	return geom->raycastMesh(src, dst, TRAVERSE_LINK_TRACE_MASK);
+}
+
 static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float* basePos, const float* offsetPos)
 {
 	// We need to fire a raycast from out initial
@@ -655,7 +660,7 @@ static bool traverseLinkOffsetIntersectsGeom(const InputGeom* geom, const float*
 	// Otherwise we create links between a mesh
 	// inside and outside an object, causing the
 	// ai to traverse inside of it.
-	if (geom->raycastMesh(basePos, offsetPos, TRAVERSE_LINK_TRACE_MASK))
+	if (raycastMesh(geom, basePos, offsetPos))
 		return true;
 
 	return false;
@@ -698,7 +703,7 @@ static bool traverseLinkIntersectsPlaneOverPlane(const InputGeom* geom, const fl
 	float rayMidEnd[3];
 	rdVset(rayMidEnd, rayMidStart[0], rayMidStart[1], rayMidStart[2]+walkableHeight);
 
-	if (geom->raycastMesh(rayMidStart, rayMidEnd, TRAVERSE_LINK_TRACE_MASK))
+	if (raycastMesh(geom, rayMidStart, rayMidEnd))
 		return true;
 
 	const float distance = rdVdist(lowPos, highPos);
@@ -711,13 +716,13 @@ static bool traverseLinkIntersectsPlaneOverPlane(const InputGeom* geom, const fl
 	rdVsad(rayMidMidStart, rayMidStart, lowPos, 0.5f);
 	rdVset(rayMidEnd, rayMidMidStart[0], rayMidMidStart[1], rayMidMidStart[2]+walkableHeight);
 
-	if (geom->raycastMesh(rayMidStart, rayMidEnd, TRAVERSE_LINK_TRACE_MASK))
+	if (raycastMesh(geom, rayMidStart, rayMidEnd))
 		return true;
 
 	rdVsad(rayMidMidStart, rayMidStart, highPos, 0.5f);
 	rdVset(rayMidEnd, rayMidMidStart[0], rayMidMidStart[1], rayMidMidStart[2]+walkableHeight);
 
-	if (geom->raycastMesh(rayMidStart, rayMidEnd, TRAVERSE_LINK_TRACE_MASK))
+	if (raycastMesh(geom, rayMidStart, rayMidEnd))
 		return true;
 
 	return false;
@@ -761,7 +766,7 @@ static bool traverseLinkIntersectsOverhangOverPoint(const InputGeom* geom, const
 		startPos[2] + (walkableHeight*2)
 	};
 
-	return geom->raycastMesh(minClearanceHeight, startPos, TRAVERSE_LINK_TRACE_MASK);
+	return raycastMesh(geom, minClearanceHeight, startPos);
 }
 
 static bool traverseLinkInLOS(void* userData, const float* lowPos, const float* highPos, const float* lowNorm,
@@ -861,7 +866,7 @@ static bool traverseLinkInLOS(void* userData, const float* lowPos, const float* 
 
 	// Check if the path between the ground position and the kink point
 	// is clear.
-	if (geom->raycastMesh(targetRayPos, lowPos, TRAVERSE_LINK_TRACE_MASK))
+	if (raycastMesh(geom, targetRayPos, lowPos))
 		return false;
 
 	const float angle = rdCalcSlopeAngle(lowPos, highPos);

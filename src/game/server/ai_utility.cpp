@@ -18,7 +18,7 @@
 
 #include "ai_basenpc.h"
 
-static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! )");
+static ConVar navmesh_always_reachable("navmesh_always_reachable", "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable by ignoring static pathing ( !slower! )");
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the navmesh by type from global array [small, med_short, medium, large, extra_large]

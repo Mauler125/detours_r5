@@ -43,12 +43,11 @@ static void SetName_f(const CCommand& args)
 
     const size_t nLen = strlen(pszName);
 
-    if (nLen > MAX_PERSONA_NAME_LEN)
+    if (nLen >= MAX_PERSONA_NAME_LEN)
         return;
 
     // Update nucleus name.
-    memset(g_PersonaName, '\0', MAX_PERSONA_NAME_LEN);
-    strncpy(g_PersonaName, pszName, nLen);
+    strncpy(g_PersonaName, pszName, nLen+1);
 }
 static void Reconnect_f(const CCommand& args)
 {

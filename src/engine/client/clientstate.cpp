@@ -48,6 +48,7 @@ static void SetName_f(const CCommand& args)
 
     // Update nucleus name.
     strncpy(g_PersonaName, pszName, nLen+1);
+    name_cvar->SetValue(pszName);
 }
 static void Reconnect_f(const CCommand& args)
 {

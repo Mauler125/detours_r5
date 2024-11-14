@@ -95,23 +95,33 @@ struct CustomPakData_t
 
 		// the first # handles are reserved for base SDK paks
 		numHandles = PAK_TYPE_COUNT;
+		numPreload = 0;
 
 		levelResourcesLoaded = false;
 		basePaksLoaded = false;
 	}
 
 	PakHandle_t LoadAndAddPak(const char* const pakFile);
-	void UnloadAndRemoveAll();
+	PakHandle_t PreloadAndAddPak(const char* const pakFile);
+
+	void UnloadAndRemoveNonPreloaded();
+	void UnloadAndRemovePreloaded();
 
 	PakHandle_t LoadBasePak(const char* const pakFile, const EPakType type);
 	void UnloadBasePak(const EPakType type);
 
+private:
+	void UnloadAndRemovePak(const int index);
+
+public:
 	// Pak handles that have been loaded with the level
 	// from within the level settings KV (located in
 	// scripts/levels/settings/*.kv). On level unload,
 	// each pak listed in this vector gets unloaded.
 	PakHandle_t handles[MAX_CUSTOM_PAKS];
-	size_t numHandles;
+
+	int numHandles;
+	int numPreload;
 
 	bool levelResourcesLoaded;
 	bool basePaksLoaded;
@@ -131,11 +141,14 @@ inline void(*Mod_UnloadPendingAndPrecacheRequestedPaks)(void);
 extern CUtlVector<CUtlString> g_InstalledMaps;
 extern CThreadMutex g_InstalledMapsMutex;
 
+void Mod_PreloadPaks();
+void Mod_UnloadPreloadedPaks();
+
 bool Mod_LevelHasChanged(const char* pszLevelName);
 void Mod_GetAllInstalledMaps();
 KeyValues* Mod_GetLevelSettings(const char* pszLevelName);
-void Mod_PreloadLevelPaks(const char* pszLevelName);
-void Mod_UnloadPakFile(void);
+void Mod_LoadLevelPaks(const char* pszLevelName);
+void Mod_UnloadLevelPaks(void);
 
 
 ///////////////////////////////////////////////////////////////////////////////

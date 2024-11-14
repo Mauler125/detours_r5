@@ -22,7 +22,7 @@ RSON::Node_t* RSON::LoadFromBuffer(const char* pszBufferName, char* pBuffer, RSO
 //          *pPathID     - 
 // Output : pointer to RSON object on success, nullptr otherwise
 //-----------------------------------------------------------------------------
-RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath, const char* pPathID)
+RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath, const char* pPathID, bool* parseFailure)
 {
 	FileHandle_t file = FileSystem()->Open(pszFilePath, "rt", pPathID);
 
@@ -36,7 +36,10 @@ RSON::Node_t* RSON::LoadFromFile(const char* pszFilePath, const char* pPathID)
 	FileSystem()->Close(file);
 
 	fileBuf[nRead] = '\0';
-
 	RSON::Node_t* node = RSON::LoadFromBuffer(pszFilePath, fileBuf.get(), eFieldType::RSON_OBJECT);
+	
+	if (!node && parseFailure)
+		*parseFailure = true;
+
 	return node;
 }

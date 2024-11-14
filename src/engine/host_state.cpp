@@ -423,7 +423,12 @@ void CHostState::LoadConfig(void) const
 		}
 		if (CommandLine()->CheckParm("-offline"))
 		{
-			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/autoexec_offline.cfg\n", cmd_source_t::kCommandSrcCode);
+#ifndef CLIENT_DLL
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/offline_server.cfg\n", cmd_source_t::kCommandSrcCode);
+#endif //!CLIENT_DLL
+#ifndef DEDICATED
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec system/offline_client.cfg\n", cmd_source_t::kCommandSrcCode);
+#endif // !DEDICATED
 		}
 #ifndef CLIENT_DLL
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec liveapi.cfg\n", cmd_source_t::kCommandSrcCode);

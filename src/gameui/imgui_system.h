@@ -56,13 +56,13 @@ private:
 	// Mutex used during swapping and rendering, we draw the windows in the
 	// main thread, and render it in the render thread. The only place this
 	// mutex is used is during snapshot swapping and during rendering
-	mutable CThreadFastMutex m_snapshotBufferMutex;
+	mutable CThreadMutex m_snapshotBufferMutex;
 
 	// Mutex used between ImGui window procedure handling and drawing, see
 	// https://github.com/ocornut/imgui/issues/6895. In this engine the window
 	// is ran in thread separate from the main thread, therefore it needs a
 	// lock to control access as main calls SampleFrame().
-	mutable CThreadFastMutex m_inputEventQueueMutex;
+	mutable CThreadMutex m_inputEventQueueMutex;
 };
 
 CImguiSystem* ImguiSystem();

@@ -16,7 +16,6 @@
 #include "public/studio.h"
 
 CStudioFallbackHandler g_StudioMdlFallbackHandler;
-#define IS_VALID_DATACACHE_HANDLE(cacheHandle) (cacheHandle && cacheHandle != DC_INVALID_HANDLE)
 
 //-----------------------------------------------------------------------------
 // Purpose: finds an MDL
@@ -47,7 +46,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
     studiomodelcache_t* modelCache = studioData->GetModelCache();
 
     // Store error and empty fallback models.
-    if (IS_VALID_DATACACHE_HANDLE(modelCache))
+    if (IsValidDataCacheHandle(modelCache))
     {
         studiohdr_t* const studioHdr = studioData->GetModelCache()->GetStudioHdr();
 
@@ -67,7 +66,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
 
     if ((studioData->flags & nFlags))
     {
-        if (IS_VALID_DATACACHE_HANDLE(modelCache))
+        if (IsValidDataCacheHandle(modelCache))
         {
             if (a3)
             {
@@ -85,7 +84,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* const cache, const MDLHandle_t handle
 
         studioanimcache_t* const animCache = studioData->GetAnimCache();
 
-        if (IS_VALID_DATACACHE_HANDLE(animCache))
+        if (IsValidDataCacheHandle(animCache))
         {
             studiohdr_t* const pStudioHdr = animCache->GetStudioHdr();
 
@@ -158,7 +157,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
 
     studiomodelcache_t* const modelCache = pStudioData->GetModelCache();
 
-    if (IS_VALID_DATACACHE_HANDLE(modelCache))
+    if (IsValidDataCacheHandle(modelCache))
     {
         FindCachedMDL(cache, pStudioData, a4);
         studioHdr = modelCache->GetStudioHdr();
@@ -168,7 +167,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* const cache, const MDLHandle_
         // Attempt to get studio header from anim cache.
         studioanimcache_t* const animCache = pStudioData->GetAnimCache();
 
-        if (IS_VALID_DATACACHE_HANDLE(animCache))
+        if (IsValidDataCacheHandle(animCache))
         {
             studioHdr = animCache->GetStudioHdr();
         }
@@ -219,7 +218,7 @@ vcollide_t* CMDLCache::GetVCollide(CMDLCache* const cache, const MDLHandle_t han
 {
     studiomodelcache_t* const modelCache = cache->GetModelCache(handle);
 
-    if (!IS_VALID_DATACACHE_HANDLE(modelCache))
+    if (!IsValidDataCacheHandle(modelCache))
     {
         Warning(eDLL_T::ENGINE, "Attempted to load collision data on model \"%s\" with invalid studio data!\n", cache->GetModelName(handle));
         return nullptr;
@@ -248,7 +247,7 @@ void* CMDLCache::GetPhysicsGeometry(CMDLCache* const cache, const MDLHandle_t ha
 {
     studiomodelcache_t* const modelCache = cache->GetModelCache(handle);
 
-    if (!IS_VALID_DATACACHE_HANDLE(modelCache))
+    if (!IsValidDataCacheHandle(modelCache))
     {
         Warning(eDLL_T::ENGINE, "Attempted to load physics geometry on model \"%s\" with invalid studio data!\n", cache->GetModelName(handle));
         return nullptr;
@@ -278,7 +277,7 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* const cache, const MDLHand
     const studiodata_t* studioData = nullptr; cache->GetStudioData(handle);
     const studiomodelcache_t* modelCache = cache->GetModelCache(handle);
 
-    if (!IS_VALID_DATACACHE_HANDLE(modelCache))
+    if (!IsValidDataCacheHandle(modelCache))
     {
         if (!HasErrorModel())
         {

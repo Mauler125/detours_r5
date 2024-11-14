@@ -35,10 +35,12 @@ public:
 	union Value_t
 	{
 		inline Field_t* GetSubKey() const { return pSubKey; };
+		inline Value_t* GetSubValue() const { return pSubValue; };
 		inline const char* GetString() const { return pszString; };
 		inline int64_t GetInt() const { return integerValue; };
 
 		Field_t* pSubKey;
+		Value_t* pSubValue;
 		char* pszString;
 		int64_t integerValue;
 	};
@@ -53,6 +55,7 @@ public:
 		Value_t m_Value;
 
 		inline Field_t* GetFirstSubKey() const;
+		inline Value_t* GetArrayValue(const int index) const;
 
 		// does not support finding a key in a different level of the tree
 		inline Field_t* FindKey(const char* const pszKeyName) const;
@@ -107,6 +110,11 @@ RSON::Field_t* RSON::Node_t::FindKey(const char* const pszKeyName) const
 	return NULL;
 }
 
+RSON::Value_t* RSON::Node_t::GetArrayValue(const int index) const
+{
+	assert(m_Type & eFieldType::RSON_ARRAY);
+	return m_Value.GetSubValue() + index;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -80,8 +80,8 @@ static void initTraverseMasks()
 	s_traverseAnimTraverseFlags[ANIMTYPE_PILOT] = 0x0008013F;
 	s_traverseAnimTraverseFlags[ANIMTYPE_PROWLER] = 0x00033FB7;
 	s_traverseAnimTraverseFlags[ANIMTYPE_SUPER_SPECTRE] = 0x00033FB2;
-	s_traverseAnimTraverseFlags[ANIMTYPE_TITAN] = 0000000030;
-	s_traverseAnimTraverseFlags[ANIMTYPE_GOLIATH] = 0000000030; // TODO: figure out all the activities GOLIATH has.
+	s_traverseAnimTraverseFlags[ANIMTYPE_TITAN] = 0x00000030;
+	s_traverseAnimTraverseFlags[ANIMTYPE_GOLIATH] = 0x00000030; // TODO: figure out all the activities GOLIATH has.
 }
 
 TraverseType_s s_traverseTable[NUM_TRAVERSE_TYPES];

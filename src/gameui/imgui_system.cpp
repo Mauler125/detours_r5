@@ -163,6 +163,9 @@ void CImguiSystem::RenderFrame()
 //-----------------------------------------------------------------------------
 LRESULT CImguiSystem::MessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	if (ImguiSystem()->m_systemInitState == ImguiSystemInitStage_e::IM_PENDING_INIT)
+		return NULL;
+
 	AUTO_LOCK(ImguiSystem()->m_inputEventQueueMutex);
 
 	extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

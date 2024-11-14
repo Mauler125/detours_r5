@@ -4,7 +4,7 @@
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "DebugUtils/Include/DetourDump.h"
 
-bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query, const int traverseType, duFileIO* const io)
+bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query, const int dumpTraverseType, duFileIO* const io)
 {
 	if (!io)
 	{
@@ -53,11 +53,13 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 				const dtLink* link = &tile->links[k];
 
 				// Skip "normal" links (non-jumping ones).
-				if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
+				if (!link->hasTraverseType())
 					continue;
 
+				const unsigned char traverseType = link->getTraverseType();
+
 				// Filter out anything not matching input.
-				if (traverseType != -1 && link->traverseType != traverseType)
+				if (dumpTraverseType != -1 && traverseType != dumpTraverseType)
 					continue;
 
 				const dtPoly* endPoly;
@@ -104,7 +106,7 @@ bool duDumpTraverseLinkDetail(const dtNavMesh& mesh, const dtNavMeshQuery* query
 				io->write(buf, bufCount);
 				bufCount = snprintf(buf, sizeof(buf), "\t\televation: %g\n", elevation);
 				io->write(buf, bufCount);
-				bufCount = snprintf(buf, sizeof(buf), "\t\ttraverseType: %hhu\n", link->traverseType);
+				bufCount = snprintf(buf, sizeof(buf), "\t\ttraverseType: %hhu\n", traverseType);
 				io->write(buf, bufCount);
 				bufCount = snprintf(buf, sizeof(buf), "\t\ttraverseDist: %hhu\n", link->traverseDist);
 				io->write(buf, bufCount);

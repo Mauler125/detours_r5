@@ -265,12 +265,12 @@ static void drawTraverseLinks(duDebugDraw* dd, const dtNavMesh& mesh, const dtNa
 			const dtLink* link = &tile->links[j];
 
 			// Skip "normal" links (non-jumping ones).
-			if (link->traverseType == DT_NULL_TRAVERSE_TYPE)
+			if (!link->hasTraverseType())
 				continue;
 
 			// Filter, drawLinkType -1 means draw all types
 			const int drawTraverseType = traverseLinkParams.traverseLinkType;
-			const unsigned char linkTraverseType = link->traverseType & (DT_MAX_TRAVERSE_TYPES-1);
+			const unsigned char linkTraverseType = link->getTraverseType();
 
 			if (drawTraverseType != -1 && linkTraverseType != drawTraverseType)
 				continue;

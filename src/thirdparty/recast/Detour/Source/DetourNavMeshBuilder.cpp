@@ -397,7 +397,7 @@ static bool floodPolygonIsland(dtNavMesh* nav, dtDisjointSet& set, const dtPolyR
 			const dtLink& link = currentTile->links[i];
 
 			// Skip traverse links as these can join separate islands together.
-			if (link.traverseType != DT_NULL_TRAVERSE_TYPE)
+			if (link.hasTraverseType())
 				continue;
 
 			const dtPolyRef neiRef = link.ref;

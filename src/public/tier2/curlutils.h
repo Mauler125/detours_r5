@@ -26,7 +26,7 @@ struct CURLParams
 		, verifyPeer(false)
 		, followRedirect(false)
 		, verbose(false)
-		, failOnError(true)
+		, failOnError(false)
 	{}
 
 	void* readFunction;

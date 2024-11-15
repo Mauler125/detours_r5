@@ -100,6 +100,13 @@ macro( define_compiler_variables )
     else()
         message( FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}" )
     endif()
+
+    # Win64 is currently the only target we plan to support. If we support more,
+    # we need to adjust the extension from here as _DLL_EXT is used for the macro
+    # DLL_EXT_STRING, which is used for constructing AppSystemInfo_t objects. The
+    # method IAppSystem::GetDependencies() returns these objects which the caller
+    # could use to figure out which modules to load in order to use the interface.
+    add_definitions( -D_DLL_EXT=\".dll\" )
 endmacro()
 
 # -----------------------------------------------------------------------------

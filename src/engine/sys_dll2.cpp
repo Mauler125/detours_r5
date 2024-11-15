@@ -97,7 +97,7 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
     // Register new Pak Assets here!
     //RTech_RegisterAsset(0, 1, "", nullptr, nullptr, nullptr, CMemory(0x1660AD0A8).RCast<void**>(), 8, 8, 8, 0, 0xFFFFFFC);
 
-	bool results = CEngineAPI__ModInit(pEngineAPI, pModName, pGameDir);
+	const bool results = CEngineAPI__ModInit(pEngineAPI, pModName, pGameDir);
 	if (!IsValveMod(pModName) && !IsRespawnMod(pModName))
 	{
 #ifndef DEDICATED
@@ -106,6 +106,15 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
 #endif // !DEDICATED
 	}
 
+	return results;
+}
+
+//-----------------------------------------------------------------------------
+// One-time setup, based on the initially selected mod
+//-----------------------------------------------------------------------------
+bool CEngineAPI::OnStartup(CEngineAPI* pEngineAPI, void* pInstance, const char* pStartupModName)
+{
+	const bool results =  CEngineAPI__OnStartup(pEngineAPI, pInstance, pStartupModName);
 	return results;
 }
 
@@ -297,6 +306,7 @@ void VSys_Dll2::Detour(const bool bAttach) const
 {
 	DetourSetup(&CEngineAPI__Init, &CEngineAPI::VInit, bAttach);
 	DetourSetup(&CEngineAPI__ModInit, &CEngineAPI::VModInit, bAttach);
+	DetourSetup(&CEngineAPI__OnStartup, &CEngineAPI::OnStartup, bAttach);
 	DetourSetup(&CEngineAPI__PumpMessages, &CEngineAPI::PumpMessages, bAttach);
 	DetourSetup(&CEngineAPI__MainLoop, &CEngineAPI::MainLoop, bAttach);
 	DetourSetup(&CEngineAPI__SetStartupInfo, &CEngineAPI::VSetStartupInfo, bAttach);

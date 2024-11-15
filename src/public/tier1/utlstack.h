@@ -63,6 +63,7 @@ public:
 	// Pops the stack
 	void Pop();
 	void Pop( T& oldTop );
+	void PopAt( int index );
 	void PopMultiple( int num );
 
 	// Makes sure we have enough memory allocated to store a requested # of elements
@@ -290,6 +291,17 @@ void CUtlStack<T,M>::Pop( T& oldTop )
 	assert( m_Size > 0 );
 	oldTop = Top();
 	Pop();
+}
+
+template< class T, class M >
+void CUtlStack<T,M>::PopAt( int index )
+{
+	assert( m_Size > 0 );
+	Destruct( &Element( index ) );
+
+	for ( int i = index ; i < ( m_Size - 1 ); ++i )
+		Element( i ) = Element( i + 1 );
+	--m_Size;
 }
 
 template< class T, class M >

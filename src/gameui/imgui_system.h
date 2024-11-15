@@ -46,7 +46,7 @@ private:
 	mutable CThreadMutex m_inputEventQueueMutex;
 
 	bool m_initialized;
-	bool m_hasNewFrame;
+	std::atomic_bool m_hasNewFrame;
 };
 
 CImguiSystem* ImguiSystem();

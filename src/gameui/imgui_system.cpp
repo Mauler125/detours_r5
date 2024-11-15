@@ -155,13 +155,12 @@ void CImguiSystem::SwapBuffers()
 void CImguiSystem::RenderFrame()
 {
 	Assert(IsInitialized());
-	AUTO_LOCK(m_snapshotBufferMutex);
 
-	if (!m_hasNewFrame)
+	if (!m_hasNewFrame.exchange(false))
 		return;
 
+	AUTO_LOCK(m_snapshotBufferMutex);
 	ImGui_ImplDX11_RenderDrawData(&m_snapshotData.DrawData);
-	m_hasNewFrame = false;
 }
 
 //-----------------------------------------------------------------------------

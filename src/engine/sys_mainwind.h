@@ -6,6 +6,7 @@
 #ifndef SYS_MAINWIND_H
 #define SYS_MAINWIND_H
 #include "inputsystem/iinputsystem.h"
+#include "inputsystem/iinputstacksystem.h"
 
 inline void (*CGame__AttachToWindow)(void);
 inline void(*CGame__PlayStartupVideos)(void);
@@ -46,7 +47,7 @@ private:
 	int m_iDesktopWidth;
 	int m_iDesktopHeight;
 	int m_iDesktopRefreshRate;
-	void* m_pInputContext_Maybe;
+	InputContextHandle_t m_hInputContext;
 }; static_assert(sizeof(CGame) == 64);
 
 inline CGame* g_pGame = nullptr;

@@ -196,7 +196,7 @@ static void ReVPK_Pack(const CCommand& args)
     CPackedStoreBuilder builder;
 
     builder.InitLzEncoder(
-        argCount > 7 ? (std::min)(atoi(args.Arg(7)), LZHAM_MAX_HELPER_THREADS) : -1, // Num threads.
+        argCount > 7 ? Min(atoi(args.Arg(7)), LZHAM_MAX_HELPER_THREADS) : -1, // Num threads.
         argCount > 8 ? args.Arg(8) : "default"); // Compress level.
 
     builder.PackStore(pair, workspacePath.String(), buildPath.String());

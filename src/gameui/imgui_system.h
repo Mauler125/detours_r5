@@ -32,7 +32,7 @@ public:
 
 private:
 	ImDrawDataSnapshot m_snapshotData;
-	CUtlVector<CImguiSurface* const> m_surfaceList;
+	CUtlVector<CImguiSurface*> m_surfaceList;
 
 	// Mutex used during swapping and rendering, we draw the windows in the
 	// main thread, and render it in the render thread. The only place this

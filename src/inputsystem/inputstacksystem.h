@@ -30,13 +30,9 @@ class CInputStackSystem : public CTier1AppSystem< IInputStackSystem >
 	typedef CTier1AppSystem< IInputStackSystem > BaseClass;
 
 	// Methods of IAppSystem
-	// NOTE: currently, the implementation in the game engine is used. If the
-	// vtable ever gets swapped with the implementation in the SDK, make sure
-	// to implement BaseClass::Shutdown() and uncomment the functions below !!!
-	// The implementation in this SDK is identical to that of the engine.
 public:
-	//virtual const AppSystemInfo_t* GetDependencies();
-	//virtual void Shutdown();
+	virtual void Shutdown();
+	virtual const AppSystemInfo_t* GetDependencies();
 
 	// Methods of IInputStackSystem
 public:
@@ -56,6 +52,13 @@ private:
 	CUtlStack< InputContext_t* > m_ContextStack;
 };
 
+// NOTE: we use the engine's implementation of CInputStackSystem, even though
+// we have the entire class implemented in the SDK. If, for whatever reason,
+// the SDK's implementation is used, make sure all methods are tested properly
+// first before fully migrating to the SDK's implementation. The only method
+// that appeared to have changed compared to other source game interfaces is
+// CInputStackSystem::PopInputContext(), which now actually takes the context
+// handle to pop it rather than pushing/popping handles in an explicit order.
 extern CInputStackSystem* g_pInputStackSystem;
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -217,35 +217,34 @@ void CInputStackSystem::UpdateCursorState()
 }
 
 //-----------------------------------------------------------------------------
-// Get dependencies
-//-----------------------------------------------------------------------------
-//static AppSystemInfo_t s_Dependencies[] =
-//{
-//	{ "inputsystem" DLL_EXT_STRING, INPUTSYSTEM_INTERFACE_VERSION },
-//	{ NULL, NULL }
-//};
-//
-//const AppSystemInfo_t* CInputStackSystem::GetDependencies()
-//{
-//	return s_Dependencies;
-//}
-
-
-//-----------------------------------------------------------------------------
 // Shutdown
 //-----------------------------------------------------------------------------
-//void CInputStackSystem::Shutdown()
-//{
-//	// Delete any leaked contexts
-//	while( m_ContextStack.Count() )
-//	{
-//		InputContext_t *pContext = NULL;
-//		m_ContextStack.Pop( pContext );
-//		delete pContext;
-//	}
-//
-//	BaseClass::Shutdown();
-//}
+void CInputStackSystem::Shutdown()
+{
+	// Delete any leaked contexts
+	while( m_ContextStack.Count() )
+	{
+		InputContext_t *pContext = NULL;
+		m_ContextStack.Pop( pContext );
+		delete pContext;
+	}
+
+	BaseClass::Shutdown();
+}
+
+//-----------------------------------------------------------------------------
+// Get dependencies
+//-----------------------------------------------------------------------------
+static AppSystemInfo_t s_Dependencies[] =
+{
+	{ "inputsystem" DLL_EXT_STRING, INPUTSYSTEM_INTERFACE_VERSION },
+	{ NULL, NULL }
+};
+
+const AppSystemInfo_t* CInputStackSystem::GetDependencies()
+{
+	return s_Dependencies;
+}
 
 //-----------------------------------------------------------------------------
 // Singleton instance

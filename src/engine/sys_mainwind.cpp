@@ -33,8 +33,6 @@ LRESULT CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if (!ImguiSystem()->IsInitialized())
 		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
 
-	ImguiSystem()->MessageHandler(hWnd, uMsg, wParam, lParam);
-
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{
 		if (wParam == g_ImGuiConfig.m_ConsoleConfig.m_nBind0 ||
@@ -55,26 +53,16 @@ LRESULT CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if (g_Console.IsActivated() || g_Browser.IsActivated())
 	{//////////////////////////////////////////////////////////////////////////////
 		g_bBlockInput = true;
+		ImguiSystem()->MessageHandler(hWnd, uMsg, wParam, lParam);
 
 		switch (uMsg)
 		{
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONUP:
-		case WM_LBUTTONDBLCLK:
-		case WM_RBUTTONDOWN:
-		case WM_RBUTTONUP:
-		case WM_RBUTTONDBLCLK:
-		case WM_MBUTTONDOWN:
-		case WM_MBUTTONUP:
-		case WM_MBUTTONDBLCLK:
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_MOUSEACTIVATE:
-		case WM_MOUSEHOVER:
-		case WM_MOUSEHWHEEL:
-		case WM_MOUSELEAVE:
-		case WM_MOUSEMOVE:
-		case WM_MOUSEWHEEL:
+		// This is required as the game calls CInputStackSystem::SetCursorPosition(),
+		// which hides the cursor. It keeps calling it as the game window is the top
+		// most window, even when the ImGui window is enabled. We could in the future
+		// create a new input context for the imgui system, then push it to the stack
+		// after the game's context and call CInputStackSystem::EnableInputContext()
+		// on the new imgui context.
 		case WM_SETCURSOR:
 			uMsg = WM_NULL;
 			break;

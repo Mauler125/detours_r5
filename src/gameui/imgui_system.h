@@ -6,6 +6,7 @@
 #ifndef IMGUI_SYSTEM_H
 #define IMGUI_SYSTEM_H
 #include "imgui/misc/imgui_snapshot.h"
+#include "imgui_surface.h"
 
 class CImguiSystem
 {
@@ -14,6 +15,9 @@ public:
 
 	bool Init();
 	void Shutdown();
+
+	void AddSurface(CImguiSurface* const surface);
+	void RemoveSurface(CImguiSurface* const surface);
 
 	void SwapBuffers();
 
@@ -24,34 +28,11 @@ public:
 	static LRESULT MessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// inlines:
-	inline bool IsInitialized() const
-	{
-		return m_systemInitState >= ImguiSystemInitStage_e::IM_SYSTEM_INIT;
-	};
+	inline bool IsInitialized() const { return m_initialized; };
 
 private:
-	enum class ImguiSystemInitStage_e
-	{
-		// When the system failed to initialize, the stage would be set to
-		// this.
-		IM_INIT_FAILURE = -1,
-
-		IM_PENDING_INIT,
-		IM_SYSTEM_INIT,
-
-		// State gets set to this when the first frame has been sampled.
-		IM_FRAME_SAMPLED,
-
-		// State gets set to this then buffers have been swapped for the first
-		// time.
-		IM_FRAME_SWAPPED,
-
-		// Rendered for the first time.
-		IM_FRAME_RENDERED
-	};
-
-	ImguiSystemInitStage_e m_systemInitState;
 	ImDrawDataSnapshot m_snapshotData;
+	CUtlVector<CImguiSurface* const> m_surfaceList;
 
 	// Mutex used during swapping and rendering, we draw the windows in the
 	// main thread, and render it in the render thread. The only place this
@@ -63,6 +44,9 @@ private:
 	// is ran in thread separate from the main thread, therefore it needs a
 	// lock to control access as main calls SampleFrame().
 	mutable CThreadMutex m_inputEventQueueMutex;
+
+	bool m_initialized;
+	bool m_hasNewFrame;
 };
 
 CImguiSystem* ImguiSystem();

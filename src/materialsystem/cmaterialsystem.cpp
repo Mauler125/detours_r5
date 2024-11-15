@@ -139,7 +139,10 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 //---------------------------------------------------------------------------------
 ssize_t SpinPresent(void)
 {
-	ImguiSystem()->RenderFrame();
+	CImguiSystem* const imguiSystem = ImguiSystem();
+
+	if (imguiSystem->IsInitialized())
+		imguiSystem->RenderFrame();
 
 	const ssize_t val = v_SpinPresent();
 	return val;
@@ -147,8 +150,13 @@ ssize_t SpinPresent(void)
 
 void* CMaterialSystem::SwapBuffers(CMaterialSystem* pMatSys)
 {
-	ImguiSystem()->SampleFrame();
-	ImguiSystem()->SwapBuffers();
+	CImguiSystem* const imguiSystem = ImguiSystem();
+
+	if (imguiSystem->IsInitialized())
+	{
+		imguiSystem->SampleFrame();
+		imguiSystem->SwapBuffers();
+	}
 
 	return CMaterialSystem__SwapBuffers(pMatSys);
 }

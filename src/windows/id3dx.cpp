@@ -3,6 +3,7 @@
 //------------------------------
 #define STB_IMAGE_IMPLEMENTATION
 #include "tier0/threadtools.h"
+#include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/input.h"
@@ -350,8 +351,16 @@ void DirectX_Init()
 		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 
-	if (!ImguiSystem()->Init())
-		Error(eDLL_T::COMMON, 0, "ImguiSystem()->Init() failed!\n");
+	if (!CommandLine()->CheckParm("-noimgui"))
+	{
+		if (ImguiSystem()->Init())
+		{
+			ImguiSystem()->AddSurface(&g_Console);
+			ImguiSystem()->AddSurface(&g_Browser);
+		}
+		else
+			Error(eDLL_T::COMMON, 0, "ImguiSystem()->Init() failed!\n");
+	}
 }
 
 void DirectX_Shutdown()
@@ -371,7 +380,13 @@ void DirectX_Shutdown()
 	// Commit the transaction
 	DetourTransactionCommit();
 
-	ImguiSystem()->Shutdown();
+	if (ImguiSystem()->IsInitialized())
+	{
+		ImguiSystem()->Shutdown();
+
+		ImguiSystem()->RemoveSurface(&g_Browser);
+		ImguiSystem()->RemoveSurface(&g_Console);
+	}
 }
 
 void VDXGI::GetAdr(void) const

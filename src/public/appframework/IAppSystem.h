@@ -69,10 +69,7 @@ public:
 	virtual void Shutdown() = 0;
 
 	// Returns all dependent libraries
-	//virtual const AppSystemInfo_t* GetDependencies() { return NULL; }
-
-	// Returns the tier
-	virtual AppSystemTier_t GetTier() = 0;
+	virtual const AppSystemInfo_t* GetDependencies() { return NULL; }
 
 	// Reconnect to a particular interface
 	virtual void Reconnect(const CreateInterfaceFn factory, const char* const pInterfaceName) = 0;
@@ -88,25 +85,22 @@ public:
 	virtual ~CBaseAppSystem() {}; // Prepended on each class derived class in assembly.
 
 	// Here's where the app systems get to learn about each other 
-	virtual bool Connect(const CreateInterfaceFn factory) = 0;
-	virtual void Disconnect() = 0;
+	virtual bool Connect(const CreateInterfaceFn factory) { return true; };
+	virtual void Disconnect() {};
 
 	// Here's where systems can access other interfaces implemented by this object
 	// Returns NULL if it doesn't implement the requested interface
-	virtual void* QueryInterface(const char* const pInterfaceName) = 0;
+	virtual void* QueryInterface(const char* const pInterfaceName) { return NULL; };
 
 	// Init, shutdown
-	virtual InitReturnVal_t Init() = 0;
-	virtual void Shutdown() = 0;
+	virtual InitReturnVal_t Init() { return INIT_OK; };
+	virtual void Shutdown() {};
 
 	// Returns all dependent libraries
-	//virtual const AppSystemInfo_t* GetDependencies() { return NULL; }
-
-	// Returns the tier
-	virtual AppSystemTier_t GetTier() = 0;
+	virtual const AppSystemInfo_t* GetDependencies() { return NULL; }
 
 	// Reconnect to a particular interface
-	virtual void Reconnect(const CreateInterfaceFn factory, const char* const pInterfaceName) = 0;
+	virtual void Reconnect(const CreateInterfaceFn factory, const char* const pInterfaceName) {};
 };
 
 //-----------------------------------------------------------------------------

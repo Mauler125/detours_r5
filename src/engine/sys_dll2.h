@@ -10,7 +10,7 @@ public:
 	virtual void* QueryInterface(const char* const pInterfaceName) = 0;
 	virtual InitReturnVal_t Init() = 0;
 	virtual void Shutdown() = 0;
-	virtual AppSystemTier_t GetTier() = 0;
+	virtual AppSystemInfo_t* GetDependencies() = 0;
 	virtual void Reconnect(const CreateInterfaceFn factory, const char* const pInterfaceName) = 0;
 
 	// This function must be called before init

@@ -6,17 +6,6 @@
 class CBaseFileSystem : public CTier1AppSystem<IFileSystem>
 {
 public:
-	// Stub implementation of IAppSystem.
-	//virtual ~CBaseFileSystem() {};
-	virtual bool Connect(const CreateInterfaceFn factory) { return false; };
-	virtual void Disconnect() {};
-	virtual void* QueryInterface(const char* const pInterfaceName) { return nullptr; };
-	virtual InitReturnVal_t Init() { return InitReturnVal_t::INIT_FAILED; };
-	virtual void Shutdown() {};
-	virtual AppSystemTier_t GetTier() { return AppSystemTier_t::APP_SYSTEM_TIER_OTHER; };
-	virtual void Reconnect(const CreateInterfaceFn factory, const char* const pInterfaceName) {};
-
-
 	//--------------------------------------------------------
 	virtual bool			IsSteam() const { return false; };
 	virtual	FilesystemMountRetval_t MountSteamContent(int nExtraAppId = -1) { return FilesystemMountRetval_t::FILESYSTEM_MOUNT_FAILED; };

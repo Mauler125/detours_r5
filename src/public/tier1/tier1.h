@@ -13,14 +13,15 @@
 template< class IInterface, int ConVarFlag = 0 > 
 class CTier1AppSystem : public CTier0AppSystem< IInterface >
 {
+	typedef CTier0AppSystem< IInterface > BaseClass;
+
 public:
-	virtual bool Connect( const CreateInterfaceFn factory ) = 0;
-	virtual void Disconnect( ) = 0;
-	virtual void* QueryInterface( const char* const pInterfaceName ) = 0;
-	virtual InitReturnVal_t Init( ) = 0;
-	virtual void Shutdown( ) = 0;
-	virtual AppSystemTier_t GetTier( ) = 0;
-	virtual void Reconnect( const CreateInterfaceFn factory, const char* const pInterfaceName ) = 0;
+	virtual bool Connect( const CreateInterfaceFn factory ) { return true; };
+	virtual void Disconnect() {};
+	virtual void* QueryInterface(const char* const pInterfaceName) { return NULL; };
+	virtual InitReturnVal_t Init() { return INIT_OK; };
+	virtual void Shutdown() {};
+	virtual const AppSystemInfo_t* GetDependencies() { return NULL; }
 };
 
 #endif // TIER1_H

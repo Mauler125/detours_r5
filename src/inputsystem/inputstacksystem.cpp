@@ -31,16 +31,30 @@ InputContextHandle_t CInputStackSystem::PushInputContext()
 
 
 //-----------------------------------------------------------------------------
-// Pops the top input context off the input stack, and destroys it.
+// Pops the provided input context off the input stack, and destroys it.
 //-----------------------------------------------------------------------------
-void CInputStackSystem::PopInputContext( InputContextHandle_t hContext )
+void CInputStackSystem::PopInputContext( InputContextHandle_t& hContext )
 {
-	if ( m_ContextStack.Count() == 0 )
+	const int nCount = m_ContextStack.Count();
+
+	if ( nCount == 0 )
 		return;
 
-	InputContext_t *pContext = NULL;
-	m_ContextStack.Pop( pContext );
-	delete pContext;
+	int i = 0;
+	InputContext_t *pContext = *m_ContextStack.Base();
+
+	// Find the context.
+	for ( ; pContext != (InputContext_t*)hContext; pContext++ )
+	{
+		if ( ++i == nCount )
+		{
+			Assert( 0 );
+			return;
+		}
+	}
+
+	m_ContextStack.PopAt( i );
+	hContext = INPUT_CONTEXT_HANDLE_INVALID;
 
 	UpdateCursorState();
 }

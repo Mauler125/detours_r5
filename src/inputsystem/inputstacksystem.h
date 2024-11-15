@@ -41,7 +41,7 @@ public:
 	// Methods of IInputStackSystem
 public:
 	virtual InputContextHandle_t PushInputContext();
-	virtual void PopInputContext( InputContextHandle_t hContext );
+	virtual void PopInputContext( InputContextHandle_t& hContext );
 	virtual void EnableInputContext( InputContextHandle_t hContext, bool bEnable );
 	virtual void SetCursorVisible( InputContextHandle_t hContext, bool bVisible );
 	virtual void SetCursorIcon( InputContextHandle_t hContext, InputCursorHandle_t hCursor );

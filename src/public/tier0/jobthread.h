@@ -3,8 +3,13 @@
 
 typedef uint32_t JobID_t;
 typedef uint8_t JobTypeID_t;
+typedef uint32_t JobAffinity_t;
 
 typedef bool(*JobHelpCallback_t)(__int64, _DWORD*, __int64, _QWORD*);
+
+enum JobPriority_e : uint32_t
+{
+};
 
 struct JobFifoLock_s
 {

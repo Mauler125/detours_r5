@@ -171,7 +171,7 @@ static void Pak_Swap_f(const CCommand& args)
 	while (pakInfo->status != PakStatus_e::PAK_STATUS_FREED) // Wait till this slot gets free'd.
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	g_pakLoadApi->LoadAsync(pakName, AlignedMemAlloc(), NULL, 0);
+	g_pakLoadApi->LoadAsync(pakName, AlignedMemAlloc(), pakInfo->logChannel, 0);
 }
 
 /*

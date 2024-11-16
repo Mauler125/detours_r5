@@ -22,6 +22,7 @@ History:
 #include "windows/resource.h"
 #include "engine/cmd.h"
 #include "gameui/IConsole.h"
+#include "imgui_system.h"
 
 //-----------------------------------------------------------------------------
 // Console variables
@@ -1082,6 +1083,9 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const char* const text, const ImU32 color)
 {
+    if (!ImguiSystem()->IsInitialized())
+        return;
+
     AUTO_LOCK(m_colorTextLoggerMutex);
 
     m_colorTextLogger.InsertText(text, color);

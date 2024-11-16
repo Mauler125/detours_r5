@@ -78,6 +78,10 @@
 // max amount to read per async fs read request
 #define PAK_READ_DATA_CHUNK_SIZE (1ull << 19)
 
+// max amount of data chunks per pak stream instance
+#define PAK_MAX_DATA_CHUNKS_PER_STREAM 32
+#define PAK_MAX_DATA_CHUNKS_PER_STREAM_MASK (PAK_MAX_DATA_CHUNKS_PER_STREAM-1)
+
 // base pak directory containing paks sorted in platform specific subdirectories
 #define PAK_BASE_PATH "paks\\"
 #define PAK_PLATFORM_PATH PAK_BASE_PATH"Win64\\"
@@ -311,7 +315,7 @@ public:
 	CAlignedMemAlloc* allocator;
 	PakGuid_t* assetGuids; //size of the array is m_nAssetCount
 	void* segmentBuffers[PAK_SEGMENT_BUFFER_TYPES];
-	_QWORD qword50;
+	void* guidDestriptors;
 	FILETIME fileTime;
 	PakFile_s* pakFile;
 	StreamingInfo_t streamInfo[STREAMING_SET_COUNT];
@@ -599,21 +603,21 @@ struct PakFileStream_s
 		PakDecodeMode_e compressionMode;
 	};
 
-	_QWORD qword0;
-	_QWORD fileSize;
+	size_t readOffset;
+	size_t fileSize;
 	int fileHandle;
-	int asyncRequestHandles[32];
-	_BYTE gap94[32];
-	unsigned int numDataChunksProcessed;
-	_DWORD numDataChunks;
-	_BYTE fileReadStatus;
+	int asyncRequestHandles[PAK_MAX_DATA_CHUNKS_PER_STREAM];
+	uint8_t dataChunkStatuses[PAK_MAX_DATA_CHUNKS_PER_STREAM];
+	uint32_t numDataChunksProcessed;
+	uint32_t numDataChunks;
+	uint8_t fileReadStatus;
 	bool finishedLoadingPatches;
 	_BYTE gapBE;
-	_BYTE numLoadedFiles;
+	uint8_t numLoadedFiles;
 	Descriptor descriptors[PAK_MAX_ASYNC_STREAMED_LOAD_REQUESTS];
 	uint8_t* buffer;
-	_QWORD bufferMask;
-	_QWORD bytesStreamed;
+	uint64_t bufferMask;
+	uint64_t bytesStreamed;
 };
 
 struct PakPatchFuncs_s
@@ -667,10 +671,12 @@ struct PakMemoryData_s
 	// pointer to the location in the pak that a patch command is writing to
 	char* patchDstPtr;
 
-	size_t numBytesToProcess_maybe;
+	size_t numPatchBytesToProcess;
 	PakPatchFuncs_s::PatchFunc_t patchFunc;
 
-	uint64_t qword2D0;
+	// the total size of the pak file, returned by FS_OpenAsyncFile
+	size_t fileSize;
+
 	PakHandle_t pakId;
 	JobID_t assetLoadJobId;
 	int* loadedAssetIndices;
@@ -718,15 +724,22 @@ struct PakFile_s
 
 	PakFileStream_s fileStream;
 	uint64_t inputBytePos;
-	uint8_t byte1F8;
+	
+	// the number of streamed files we've processed that are held
+	// in the async file stream. if everything is finished, this
+	// value will match PakFileStream_s::numLoadedFiles
+	uint8_t processedStreamCount;
+
 	char gap1F9[4];
-	uint8_t byte1FD;
-	bool isOffsetted_MAYBE;
+
+	bool resetInBytePos;
+	bool updateBytePosPostProcess;
+
 	bool isCompressed;
 	PakDecoder_s pakDecoder;
 	uint8_t* decompBuffer;
 	size_t maxCopySize;
-	uint64_t qword298;
+	size_t headerSize; // Always sizeof(PakFileHeader_s)
 
 	PakMemoryData_s memoryData;
 

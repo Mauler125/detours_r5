@@ -21,7 +21,7 @@ bool PATCH_CMD_0(PakFile_s* const pak, size_t* const numAvailableBytes)
     char* m_decompBuffer; // rdx
     size_t v15; // r8
 
-    m_numBytesToProcess_maybe = pak->memoryData.numBytesToProcess_maybe;
+    m_numBytesToProcess_maybe = pak->memoryData.numPatchBytesToProcess;
     v4 = *numAvailableBytes;
     v6 = *numAvailableBytes;
     v7 = pak->memoryData.field_2A8;
@@ -37,15 +37,15 @@ bool PATCH_CMD_0(PakFile_s* const pak, size_t* const numAvailableBytes)
         {
             pak->memoryData.processedPatchedDataSize = v6 + m_processedPatchedDataSize;
             pak->memoryData.field_2A8 = v7 - v6;
-            pak->memoryData.numBytesToProcess_maybe = m_numBytesToProcess_maybe - v6;
+            pak->memoryData.numPatchBytesToProcess = m_numBytesToProcess_maybe - v6;
             *numAvailableBytes = v4 - v6;
-            return pak->memoryData.numBytesToProcess_maybe == 0;
+            return pak->memoryData.numPatchBytesToProcess == 0;
         }
 
         pak->memoryData.field_2A8 = 0i64;
         pak->memoryData.processedPatchedDataSize = v7 + m_processedPatchedDataSize;
         v6 -= v7;
-        pak->memoryData.numBytesToProcess_maybe = m_numBytesToProcess_maybe - v7;
+        pak->memoryData.numPatchBytesToProcess = m_numBytesToProcess_maybe - v7;
         v4 -= v7;
     }
 
@@ -76,11 +76,11 @@ bool PATCH_CMD_0(PakFile_s* const pak, size_t* const numAvailableBytes)
     pak->memoryData.processedPatchedDataSize += m_patchSrcSize;
     pak->memoryData.patchSrcSize -= m_patchSrcSize;
     pak->memoryData.patchDstPtr += m_patchSrcSize;
-    pak->memoryData.numBytesToProcess_maybe -= m_patchSrcSize;
+    pak->memoryData.numPatchBytesToProcess -= m_patchSrcSize;
     *numAvailableBytes = v4 - m_patchSrcSize;
 
 
-    return pak->memoryData.numBytesToProcess_maybe == 0;
+    return pak->memoryData.numPatchBytesToProcess == 0;
 }
 
 bool PATCH_CMD_1(PakFile_s* const pak, size_t* const numAvailableBytes)
@@ -89,13 +89,13 @@ bool PATCH_CMD_1(PakFile_s* const pak, size_t* const numAvailableBytes)
     size_t v3; // r9
     uint64_t m_processedPatchedDataSize; // rax
 
-    m_numBytesToProcess_maybe = pak->memoryData.numBytesToProcess_maybe;
+    m_numBytesToProcess_maybe = pak->memoryData.numPatchBytesToProcess;
     v3 = *numAvailableBytes;
     m_processedPatchedDataSize = pak->memoryData.processedPatchedDataSize;
 
     if (*numAvailableBytes > m_numBytesToProcess_maybe)
     {
-        pak->memoryData.numBytesToProcess_maybe = 0i64;
+        pak->memoryData.numPatchBytesToProcess = 0i64;
         pak->memoryData.processedPatchedDataSize += m_numBytesToProcess_maybe;
         *numAvailableBytes = v3 - m_numBytesToProcess_maybe;
 
@@ -104,7 +104,7 @@ bool PATCH_CMD_1(PakFile_s* const pak, size_t* const numAvailableBytes)
     else
     {
         pak->memoryData.processedPatchedDataSize += v3;
-        pak->memoryData.numBytesToProcess_maybe -= v3;
+        pak->memoryData.numPatchBytesToProcess -= v3;
         *numAvailableBytes = NULL;
 
         return false;
@@ -119,7 +119,7 @@ bool PATCH_CMD_2(PakFile_s* const pak, size_t* const numAvailableBytes)
     unsigned __int64 v3;
     const char* m_patchDataPtr;
 
-    m_numBytesToProcess_maybe = pak->memoryData.numBytesToProcess_maybe;
+    m_numBytesToProcess_maybe = pak->memoryData.numPatchBytesToProcess;
     v3 = pak->memoryData.field_2A8;
 
     if (v3)
@@ -128,7 +128,7 @@ bool PATCH_CMD_2(PakFile_s* const pak, size_t* const numAvailableBytes)
 
         if (m_numBytesToProcess_maybe <= v3)
         {
-            pak->memoryData.numBytesToProcess_maybe = 0i64;
+            pak->memoryData.numPatchBytesToProcess = 0i64;
             pak->memoryData.patchDataPtr += m_numBytesToProcess_maybe;
             pak->memoryData.field_2A8 = v3 - m_numBytesToProcess_maybe;
 
@@ -138,7 +138,7 @@ bool PATCH_CMD_2(PakFile_s* const pak, size_t* const numAvailableBytes)
         pak->memoryData.field_2A8 = 0i64;
         m_numBytesToProcess_maybe -= v3;
         pak->memoryData.patchDataPtr += v3;
-        pak->memoryData.numBytesToProcess_maybe = m_numBytesToProcess_maybe;
+        pak->memoryData.numPatchBytesToProcess = m_numBytesToProcess_maybe;
     }
 
     const size_t patchSrcSize = min(m_numBytesToProcess_maybe, pak->memoryData.patchSrcSize);
@@ -148,16 +148,16 @@ bool PATCH_CMD_2(PakFile_s* const pak, size_t* const numAvailableBytes)
     pak->memoryData.patchDataPtr += patchSrcSize;
     pak->memoryData.patchSrcSize -= patchSrcSize;
     pak->memoryData.patchDstPtr += patchSrcSize;
-    pak->memoryData.numBytesToProcess_maybe -= patchSrcSize;
+    pak->memoryData.numPatchBytesToProcess -= patchSrcSize;
 
-    return pak->memoryData.numBytesToProcess_maybe == 0;
+    return pak->memoryData.numPatchBytesToProcess == 0;
 }
 
 bool PATCH_CMD_3(PakFile_s* const pak, size_t* const numAvailableBytes)
 {
     size_t patchSrcSize = pak->memoryData.patchSrcSize;
 
-    size_t v9 = min(*numAvailableBytes, pak->memoryData.numBytesToProcess_maybe);
+    size_t v9 = min(*numAvailableBytes, pak->memoryData.numPatchBytesToProcess);
 
     patchSrcSize = min(v9, patchSrcSize);
 
@@ -166,10 +166,10 @@ bool PATCH_CMD_3(PakFile_s* const pak, size_t* const numAvailableBytes)
     pak->memoryData.processedPatchedDataSize += patchSrcSize;
     pak->memoryData.patchSrcSize -= patchSrcSize;
     pak->memoryData.patchDstPtr += patchSrcSize;
-    pak->memoryData.numBytesToProcess_maybe -= patchSrcSize;
+    pak->memoryData.numPatchBytesToProcess -= patchSrcSize;
     *numAvailableBytes = *numAvailableBytes - patchSrcSize;
 
-    return pak->memoryData.numBytesToProcess_maybe == 0;
+    return pak->memoryData.numPatchBytesToProcess == 0;
 }
 
 bool PATCH_CMD_4_5(PakFile_s* const pak, size_t* const numAvailableBytes)

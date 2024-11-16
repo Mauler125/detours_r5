@@ -15,9 +15,10 @@
 #include "pakstream.h"
 
 static ConVar pak_debugrelations("pak_debugrelations", "0", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Debug RPAK asset dependency resolving");
+static ConVar pak_debugchannel("pak_debugchannel", "4", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Log RPAK files loaded or unloaded with this channel ID", false, 0.f, false, 0.f, "0 = disabled, -1 = all");
 
 //-----------------------------------------------------------------------------
-// resolve the target guid from lookuo table
+// resolve the target guid from lookup table
 //-----------------------------------------------------------------------------
 static bool Pak_ResolveAssetDependency(const PakFile_s* const pak, PakGuid_t currentGuid,
     const PakGuid_t targetGuid, int& currentIndex, const bool shouldCheckTwo)
@@ -190,22 +191,24 @@ void Pak_RunAssetLoadingJobs(PakFile_s* const pak)
 //-----------------------------------------------------------------------------
 // load user-requested pak files on-demand
 //-----------------------------------------------------------------------------
-PakHandle_t Pak_LoadAsync(const char* const fileName, CAlignedMemAlloc* const allocator, const int nIdx, const bool bUnk)
+PakHandle_t Pak_LoadAsync(const char* const fileName, CAlignedMemAlloc* const allocator, const int logChannel, const bool bUnk)
 {
-    PakHandle_t pakId = PAK_INVALID_HANDLE;
-
-    if (Pak_FileExists(fileName))
-    {
-        Msg(eDLL_T::RTECH, "Loading pak file: '%s'\n", fileName);
-        pakId = v_Pak_LoadAsync(fileName, allocator, nIdx, bUnk);
-
-        if (pakId == PAK_INVALID_HANDLE)
-            Error(eDLL_T::RTECH, NO_ERROR, "%s: Failed read '%s' results '%d'\n", __FUNCTION__, fileName, pakId);
-    }
-    else
+    if (!Pak_FileExists(fileName))
     {
         Error(eDLL_T::RTECH, NO_ERROR, "%s: Failed; file '%s' doesn't exist\n", __FUNCTION__, fileName);
+        return PAK_INVALID_HANDLE;
     }
+
+    // NOTE: errors are always logged, regardless of the selected channel ID!
+    const int selectedLogChannel = pak_debugchannel.GetInt();
+
+    if (selectedLogChannel && (selectedLogChannel == -1 || logChannel == selectedLogChannel))
+        Msg(eDLL_T::RTECH, "Loading pak file: '%s'\n", fileName);
+
+    const PakHandle_t pakId = v_Pak_LoadAsync(fileName, allocator, logChannel, bUnk);
+
+    if (pakId == PAK_INVALID_HANDLE)
+        Error(eDLL_T::RTECH, NO_ERROR, "%s: Failed read '%s' results '%d'\n", __FUNCTION__, fileName, pakId);
 
     return pakId;
 }
@@ -218,7 +221,12 @@ void Pak_UnloadAsync(PakHandle_t handle)
     const PakLoadedInfo_s* const pakInfo = Pak_GetPakInfo(handle);
 
     if (pakInfo->fileName)
-        Msg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo->fileName);
+    {
+        const int selectedLogChannel = pak_debugchannel.GetInt();
+
+        if (selectedLogChannel && (selectedLogChannel == -1 || pakInfo->logChannel == selectedLogChannel))
+            Msg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo->fileName);
+    }
 
     v_Pak_UnloadAsync(handle);
 }

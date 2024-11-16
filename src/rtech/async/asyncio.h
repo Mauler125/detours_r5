@@ -47,16 +47,14 @@ struct AsyncHandleStatus_t
 };
 static_assert(sizeof(AsyncHandleStatus_t) == 0x40);
 
-extern int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* const fileSizeOut);
+extern int FS_OpenAsyncFile(const char* const filePath, const int logChannel, size_t* const fileSizeOut);
 extern void FS_CloseAsyncFile(const int fileHandle);
 
-inline int(*v_FS_OpenAsyncFile)(const char* const filePath, const int logLevel, size_t* const outFileSize);
+inline int(*v_FS_OpenAsyncFile)(const char* const filePath, const int logChannel, size_t* const outFileSize);
 inline void(*v_FS_CloseAsyncFile)(const int fileHandle);
 
 inline int(*v_FS_ReadAsyncFile)(const int fileHandle, __int64 readOffset, unsigned __int64 readSize, void* a4, void* a5, void* a6, int a7);
 inline uint8_t(*v_FS_CheckAsyncRequest)(AsyncHandleStatus_t* pakStatus, size_t* bytesProcessed, const char** stateString);
-
-extern ConVar async_debug_level;
 
 inline AsyncHandleTracker_t* g_pAsyncFileSlots;  // bufSize=1024*sizeof(FileHandleTracker_t).
 inline RHashMap_MT* g_pAsyncFileSlotMgr;         // Manages 'g_pakFileSlots'.

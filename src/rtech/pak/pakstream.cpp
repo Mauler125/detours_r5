@@ -67,7 +67,7 @@ void Pak_OpenAssociatedStreamingFiles(PakLoadedInfo_s* const loadedInfo, PakLoad
         // must advance over null character as well for the next read
         lenRead += strnlen(streamingFilePath, fileNamesBufSize - lenRead) + 1;
 
-        const int fileNumber = FS_OpenAsyncFile(streamingFilePath, loadedInfo->logLevel, nullptr);
+        const int fileNumber = FS_OpenAsyncFile(streamingFilePath, loadedInfo->logChannel, nullptr);
 
         // make sure we successfully loaded mandatory streaming files, as we
         // would otherwise error in the game itself

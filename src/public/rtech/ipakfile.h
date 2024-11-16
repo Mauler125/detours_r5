@@ -301,9 +301,10 @@ public:
 	JobID_t loadJobId;
 	uint32_t padding_maybe;
 
-	// the log level of the pak, this is also used for errors if a pak failed
-	// to load; the higher the level, the more important this pak file is
-	int logLevel;
+	// the log channel of the pak, see [r5apex.exe+43E873]; this is used
+	// for errors if a pak failed to load. the value is assigned when the
+	// pak is loaded through Pak_LoadAsync or Pak_LoadAsyncAndWaitOrHelp.
+	int logChannel;
 
 	uint32_t assetCount;
 	const char* fileName;

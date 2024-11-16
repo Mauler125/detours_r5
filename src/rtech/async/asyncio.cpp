@@ -7,19 +7,19 @@
 #include "rtech/pak/paktools.h"
 #include "asyncio.h"
 
-ConVar async_debug_level("async_debug_level", "0", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "The debug level for async reads", false, 0.f, false, 0.f, "0 = disabled");
-ConVar async_debug_close("async_debug_close", "0", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Debug async file closing", false, 0.f, false, 0.f, "0 = disabled");
+static ConVar async_debugchannel("async_debugchannel", "0", FCVAR_DEVELOPMENTONLY | FCVAR_ACCESSIBLE_FROM_THREADS, "Log async read handles created or destroyed with this channel ID", false, 0.f, false, 0.f, "0 = disabled, -1 = all");
+static int s_fileHandleLogChannelIDs[ASYNC_MAX_FILE_HANDLES];
 
 //----------------------------------------------------------------------------------
 // open a file and add it to the async file handle array
 //----------------------------------------------------------------------------------
-int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* const fileSizeOut)
+int FS_OpenAsyncFile(const char* const filePath, const int logChannel, size_t* const fileSizeOut)
 {
     const CHAR* fileToLoad = filePath;
     char overridePath[1024];
 
     // function can be called with null strings, for example if optional
-    // streaming sets  are missing; check for it
+    // streaming sets are missing; check for it
     if (fileToLoad && *fileToLoad)
     {
         // is this a pak file and do we have an override
@@ -54,7 +54,10 @@ int FS_OpenAsyncFile(const char* const filePath, const int logLevel, size_t* con
     tracker.handle = hFile;
     tracker.state = 1;
 
-    if (async_debug_level.GetInt() >= logLevel)
+    s_fileHandleLogChannelIDs[slotNum] = logChannel;
+    const int selectedLogChannel = async_debugchannel.GetInt();
+
+    if (selectedLogChannel && (selectedLogChannel == -1 || logChannel == selectedLogChannel))
         Msg(eDLL_T::RTECH, "%s: Opened file: '%s' to slot #%d\n", __FUNCTION__, fileToLoad, slotNum);
 
     return fileIdx;
@@ -74,9 +77,13 @@ void FS_CloseAsyncFile(const int fileHandle)
         tracker.handle = INVALID_HANDLE_VALUE;
 
         g_pAsyncFileSlotMgr->FreeSlot(slotNum);
+        const int selectedLogChannel = async_debugchannel.GetInt();
 
-        if (async_debug_close.GetBool())
+        if (selectedLogChannel && (selectedLogChannel == -1 || s_fileHandleLogChannelIDs[slotNum] == selectedLogChannel))
             Msg(eDLL_T::RTECH, "%s: Closed file from slot #%d\n", __FUNCTION__, slotNum);
+
+        assert(s_fileHandleLogChannelIDs[slotNum] != 0);
+        s_fileHandleLogChannelIDs[slotNum] = 0;
     }
 }
 

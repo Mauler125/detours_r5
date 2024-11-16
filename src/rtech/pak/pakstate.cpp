@@ -117,7 +117,7 @@ Pak_RequestLoad_f
 */
 static void Pak_RequestLoad_f(const CCommand& args)
 {
-	g_pakLoadApi->LoadAsync(args.Arg(1), AlignedMemAlloc(), NULL, 0);
+	g_pakLoadApi->LoadAsync(args.Arg(1), AlignedMemAlloc(), 1, 0);
 }
 
 

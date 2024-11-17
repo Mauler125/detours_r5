@@ -135,8 +135,7 @@ void CModSystem::LoadModStatusList(CUtlMap<CUtlString, bool>& enabledList)
 //-----------------------------------------------------------------------------
 void CModSystem::WriteModStatusList()
 {
-	KeyValues kv = KeyValues("ModList");
-	KeyValues* pModListKV = kv.FindKey("ModList", true);
+	KeyValues kv("ModList");
 
 	FOR_EACH_VEC(m_ModList, i)
 	{
@@ -146,7 +145,7 @@ void CModSystem::WriteModStatusList()
 		if (mod->m_iState == eModState::ENABLED)
 			enabled = true;
 
-		pModListKV->SetBool(mod->m_ModID.Get(), enabled);
+		kv.SetBool(mod->m_ModID.Get(), enabled);
 	}
 
 	CUtlBuffer buf = CUtlBuffer(ssize_t(0), 0, CUtlBuffer::TEXT_BUFFER);

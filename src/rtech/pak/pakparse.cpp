@@ -216,7 +216,7 @@ PakHandle_t Pak_LoadAsync(const char* const fileName, CAlignedMemAlloc* const al
 //-----------------------------------------------------------------------------
 // unloads loaded pak files
 //-----------------------------------------------------------------------------
-void Pak_UnloadAsync(PakHandle_t handle)
+void Pak_UnloadAsync(const PakHandle_t handle)
 {
     const PakLoadedInfo_s* const pakInfo = Pak_GetPakInfo(handle);
 

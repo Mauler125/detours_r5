@@ -166,11 +166,7 @@ static void Pak_Swap_f(const CCommand& args)
 	}
 
 	Msg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
-	g_pakLoadApi->UnloadAsync(pakHandle);
-
-	// TODO[ AMOS ]: use Pak_UnloadAsyncAndWaitOrHelp here.
-	while (pakInfo->status != PakStatus_e::PAK_STATUS_FREED) // Wait till this slot gets free'd.
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+	g_pakLoadApi->UnloadAsyncAndWait(pakHandle); // Wait till this slot gets free'd.
 
 	g_pakLoadApi->LoadAsync(pakName, AlignedMemAlloc(), pakInfo->logChannel, 0);
 }

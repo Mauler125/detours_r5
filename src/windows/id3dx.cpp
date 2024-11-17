@@ -351,7 +351,7 @@ void DirectX_Init()
 		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 
-	if (!CommandLine()->CheckParm("-noimgui"))
+	if (ImguiSystem()->IsEnabled())
 	{
 		if (ImguiSystem()->Init())
 		{
@@ -359,7 +359,17 @@ void DirectX_Init()
 			ImguiSystem()->AddSurface(&g_Browser);
 		}
 		else
+		{
 			Error(eDLL_T::COMMON, 0, "ImguiSystem()->Init() failed!\n");
+
+			// Remove any log that was stored in the buffer for rendering
+			// as the console will not render past this stage due to init
+			// failure. Logging happens before the imgui surface system
+			// is initialized, as the initialization needs to happen after
+			// directx is initialized, but on initialization success, we
+			// do want the logs prior to this stage to be displayed.
+			g_Console.ClearLog();
+		}
 	}
 }
 

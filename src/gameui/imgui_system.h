@@ -28,7 +28,13 @@ public:
 	static LRESULT MessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// inlines:
+	inline bool IsEnabled() const { return m_enabled; };
 	inline bool IsInitialized() const { return m_initialized; };
+
+	// when explicitly disabled, surfaces such as the console could query
+	// whether to run code that isn't directly tied to rendering, i.e. to
+	// check if we should store logs for rendering.
+	inline void SetEnabled(const bool enable) { Assert(!m_initialized); m_enabled = enable; }
 
 private:
 	ImDrawDataSnapshot m_snapshotData;
@@ -45,7 +51,9 @@ private:
 	// lock to control access as main calls SampleFrame().
 	mutable CThreadMutex m_inputEventQueueMutex;
 
+	bool m_enabled;
 	bool m_initialized;
+
 	std::atomic_bool m_hasNewFrame;
 };
 

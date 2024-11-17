@@ -1083,7 +1083,7 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const char* const text, const ImU32 color)
 {
-    if (!ImguiSystem()->IsInitialized())
+    if (!ImguiSystem()->IsEnabled())
         return;
 
     AUTO_LOCK(m_colorTextLoggerMutex);

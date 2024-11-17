@@ -16,6 +16,7 @@
 CImguiSystem::CImguiSystem()
 {
 	m_initialized = false;
+	m_enabled = true;
 	m_hasNewFrame = false;
 }
 
@@ -28,12 +29,17 @@ bool CImguiSystem::Init()
 	Assert(ThreadInMainThread(), "CImguiSystem::Init() should only be called from the main thread!");
 	Assert(!IsInitialized(), "CImguiSystem::Init() called recursively?");
 
+	Assert(IsEnabled(), "CImguiSystem::Init() called while system was disabled!");
+
 	///////////////////////////////////////////////////////////////////////////
 	IMGUI_CHECKVERSION();
 	ImGuiContext* const context = ImGui::CreateContext();
 
 	if (!context)
+	{
+		m_enabled = false;
 		return false;
+	}
 
 	AUTO_LOCK(m_snapshotBufferMutex);
 	AUTO_LOCK(m_inputEventQueueMutex);
@@ -53,6 +59,8 @@ bool CImguiSystem::Init()
 		!ImGui_ImplDX11_Init(D3D11Device(), D3D11DeviceContext()))
 	{
 		Assert(0);
+
+		m_enabled = false;
 		return false;
 	}
 
@@ -69,6 +77,8 @@ void CImguiSystem::Shutdown()
 {
 	Assert(ThreadInMainThread(), "CImguiSystem::Shutdown() should only be called from the main thread!");
 	Assert(IsInitialized(), "CImguiSystem::Shutdown() called recursively?");
+
+	Assert(IsEnabled(), "CImguiSystem::Shutdown() called while system was disabled!");
 
 	AUTO_LOCK(m_snapshotBufferMutex);
 	AUTO_LOCK(m_inputEventQueueMutex);

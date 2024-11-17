@@ -18,7 +18,9 @@
 #include "mathlib/mathlib.h"
 #include "launcher/launcher.h"
 #include "protobuf/stubs/common.h"
+#ifndef DEDICATED
 #include "gameui/imgui_system.h"
+#endif // !DEDICATED
 
 #ifndef DEDICATED
 #define SDK_DEFAULT_CFG "cfg/system/startup_default.cfg"
@@ -125,7 +127,9 @@ void SDK_Init()
         s_bConsoleInitialized = Console_Init(bAnsiColor);
     }
 
+#ifndef DEDICATED
     ImguiSystem()->SetEnabled(!CommandLine()->CheckParm("-noimgui"));
+#endif  // !DEDICATED
 
     SpdLog_Init(bAnsiColor);
     Show_Emblem();

@@ -278,7 +278,7 @@ const PakLoadedInfo_s* Pak_GetPakInfo(const char* const pakName)
 		return info;
 	}
 
-	Warning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for name '%s'\n", __FUNCTION__, pakName);
+	DevWarning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for name '%s'\n", __FUNCTION__, pakName);
 	return nullptr;
 }
 

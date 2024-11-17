@@ -9,13 +9,13 @@ public:
     struct
     {
         int m_nBind0 = VK_OEM_3;
-        int m_nBind1 = VK_INSERT;
+        int m_nBind1 = VK_PRIOR;
     } m_ConsoleConfig;
 
     struct
     {
         int m_nBind0 = VK_F10;
-        int m_nBind1 = VK_HOME;
+        int m_nBind1 = VK_NEXT;
     } m_BrowserConfig;
 
     void Load();

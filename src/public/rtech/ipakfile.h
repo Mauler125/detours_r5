@@ -320,7 +320,7 @@ public:
 	PakFile_s* pakFile;
 	StreamingInfo_t streamInfo[STREAMING_SET_COUNT];
 	uint32_t fileHandle;
-	uint8_t m_nUnk5;
+	uint8_t unkAC;
 	HMODULE hModule;
 
 }; //Size: 0x00B8/0x00E8

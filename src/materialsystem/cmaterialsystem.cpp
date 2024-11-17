@@ -47,8 +47,8 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 #ifdef MATERIALSYSTEM_NODX
 	// Only load the 'startup.rpak' file, as 'common_early.rpak' has assets
 	// that references assets in 'startup.rpak'.
-	PakHandle_t pakHandle = g_pakLoadApi->LoadAsync("startup.rpak", AlignedMemAlloc(), 5, 0);
-	g_pakLoadApi->WaitAsync(pakHandle, nullptr);
+	const PakHandle_t pakHandle = g_pakLoadApi->LoadAsync("startup.rpak", AlignedMemAlloc(), 5, 0);
+	g_pakLoadApi->WaitForAsyncLoad(pakHandle, nullptr);
 
 	// Trick: return INIT_FAILED to disable the loading of hardware
 	// configuration data, since we don't need it on the dedi.

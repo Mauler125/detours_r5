@@ -48,7 +48,7 @@ int FS_OpenAsyncFile(const char* const filePath, const int logChannel, size_t* c
     const int fileIdx = g_pAsyncFileSlotMgr->FindSlot();
     const int slotNum = (fileIdx & ASYNC_MAX_FILE_HANDLES_MASK);
 
-    AsyncHandleTracker_t& tracker = g_pAsyncFileSlots[slotNum];
+    AsyncHandleTracker_s& tracker = g_pAsyncFileSlots[slotNum];
 
     tracker.slot = fileIdx;
     tracker.handle = hFile;
@@ -69,7 +69,7 @@ int FS_OpenAsyncFile(const char* const filePath, const int logChannel, size_t* c
 void FS_CloseAsyncFile(const int fileHandle)
 {
     const int slotNum = fileHandle & ASYNC_MAX_FILE_HANDLES_MASK;
-    AsyncHandleTracker_t& tracker = g_pAsyncFileSlots[slotNum];
+    AsyncHandleTracker_s& tracker = g_pAsyncFileSlots[slotNum];
 
     if (ThreadInterlockedExchangeAdd(&tracker.state, -1) <= 1)
     {

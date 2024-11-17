@@ -3,16 +3,16 @@
 #include "rtech/iasync.h"
 #include "rtech/rstdlib.h"
 
-struct AsyncHandleTracker_t
+struct AsyncHandleTracker_s
 {
 	int slot;
 	int state;
 	HANDLE handle;
 };
 
-struct AsyncHandleStatus_t
+struct AsyncHandleStatus_s
 {
-	enum EStatus : uint8_t
+	enum Status_e: uint8_t
 	{
 		// the file is still pending, or being read at this moment
 		FS_ASYNC_PENDING = 0,
@@ -43,9 +43,9 @@ struct AsyncHandleStatus_t
 	__int16 unkFlag2;
 	__int16 unkFlag3;
 	__int16 unk8;
-	EStatus readStatus;
+	Status_e readStatus;
 };
-static_assert(sizeof(AsyncHandleStatus_t) == 0x40);
+static_assert(sizeof(AsyncHandleStatus_s) == 0x40);
 
 extern int FS_OpenAsyncFile(const char* const filePath, const int logChannel, size_t* const fileSizeOut);
 extern void FS_CloseAsyncFile(const int fileHandle);
@@ -54,11 +54,11 @@ inline int(*v_FS_OpenAsyncFile)(const char* const filePath, const int logChannel
 inline void(*v_FS_CloseAsyncFile)(const int fileHandle);
 
 inline int(*v_FS_ReadAsyncFile)(const int fileHandle, __int64 readOffset, unsigned __int64 readSize, void* a4, void* a5, void* a6, int a7);
-inline uint8_t(*v_FS_CheckAsyncRequest)(AsyncHandleStatus_t* pakStatus, size_t* bytesProcessed, const char** stateString);
+inline uint8_t(*v_FS_CheckAsyncRequest)(AsyncHandleStatus_s* pakStatus, size_t* bytesProcessed, const char** stateString);
 
-inline AsyncHandleTracker_t* g_pAsyncFileSlots;  // bufSize=1024*sizeof(FileHandleTracker_t).
+inline AsyncHandleTracker_s* g_pAsyncFileSlots;  // bufSize=1024*sizeof(FileHandleTracker_t).
 inline RHashMap_MT* g_pAsyncFileSlotMgr;         // Manages 'g_pakFileSlots'.
-inline AsyncHandleStatus_t* g_pAsyncStatusSlots; // bufSize=256*sizeof(PakStatus_t).
+inline AsyncHandleStatus_s* g_pAsyncStatusSlots; // bufSize=256*sizeof(PakStatus_t).
 inline RHashMap_MT* g_pAsyncStatusSlotMgr;       // Manages 'g_pakStatusSlots'.
 
 class V_AsyncIO : public IDetour
@@ -90,10 +90,10 @@ class V_AsyncIO : public IDetour
 		extern void(*v_StreamDB_Init)(const char* const pszLevelName);
 		const CMemory streamDbBase(v_StreamDB_Init);
 
-		g_pAsyncFileSlots = streamDbBase.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<AsyncHandleTracker_t*>();
+		g_pAsyncFileSlots = streamDbBase.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<AsyncHandleTracker_s*>();
 		g_pAsyncFileSlotMgr = streamDbBase.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(0x3, 0x7).RCast<RHashMap_MT*>();
 
-		g_pAsyncStatusSlots = g_GameDll.FindPatternSIMD("0F B6 C9 48 8D 05 ?? ?? ?? ??").FindPatternSelf("48 8D 05").ResolveRelativeAddress(0x3, 0x7).RCast<AsyncHandleStatus_t*>();
+		g_pAsyncStatusSlots = g_GameDll.FindPatternSIMD("0F B6 C9 48 8D 05 ?? ?? ?? ??").FindPatternSelf("48 8D 05").ResolveRelativeAddress(0x3, 0x7).RCast<AsyncHandleStatus_s*>();
 		g_pAsyncStatusSlotMgr = streamDbBase.Offset(0x190).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(0x3, 0x7).RCast<RHashMap_MT*>();
 	}
 	virtual void GetCon(void) const { }

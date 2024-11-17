@@ -263,9 +263,9 @@ bool Pak_ProcessPakFile(PakFile_s* const pak)
 
             const uint8_t currentStatus = g_pakLoadApi->CheckAsyncRequest(fileStream->asyncRequestHandles[currentDataChunkIndex], &bytesProcessed, &statusMsg);
 
-            if (currentStatus == AsyncHandleStatus_t::FS_ASYNC_ERROR)
+            if (currentStatus == AsyncHandleStatus_s::FS_ASYNC_ERROR)
                 Error(eDLL_T::RTECH, EXIT_FAILURE, "Error reading pak file \"%s\" -- %s\n", pak->memoryData.fileName, statusMsg);
-            else if (currentStatus == AsyncHandleStatus_t::FS_ASYNC_PENDING)
+            else if (currentStatus == AsyncHandleStatus_s::FS_ASYNC_PENDING)
                 break;
 
             fileStream->bytesStreamed += bytesProcessed;

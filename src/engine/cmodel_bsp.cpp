@@ -417,9 +417,9 @@ void Mod_QueuedPakCacheFrame()
 
                             if (ThreadInMainThread())
                             {
-                                if (*g_bPakFifoLockAcquired)
+                                if (*g_bPakFifoLockAcquiredInMainThread)
                                 {
-                                    *g_bPakFifoLockAcquired = 0;
+                                    *g_bPakFifoLockAcquiredInMainThread = 0;
                                     JT_ReleaseFifoLock(pakFifoLock);
                                 }
                             }

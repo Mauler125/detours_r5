@@ -351,8 +351,8 @@ struct PakGlobalState_s
 	b64 emulateStreamingInstallInit;
 	b64 emulateStreamingInstall;
 
-	// mounted # streamable assets (globally across all paks)
-	int64_t numStreamableAssets;
+	// mounted # optional streamable assets (globally across all paks)
+	int64_t numOptStreamableAssets;
 	b64 hasPendingUnloadJobs;
 
 	// paks that contain tracked assets
@@ -693,7 +693,7 @@ struct PakMemoryData_s
 	PakPage_u* virtualPointers;
 	PakAsset_s* assetEntries;
 
-	PakPage_u* guidDescriptors;
+	PakPage_u* pageDescriptors;
 	uint32_t* fileRelations;
 
 	char gap5E0[32];

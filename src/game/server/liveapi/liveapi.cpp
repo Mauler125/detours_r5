@@ -337,8 +337,7 @@ static bool LiveAPI_SetPlayerIdentityFields(HSQUIRRELVM const v, const SQTable* 
 		if (sq_isnull(node.key))
 			continue;
 
-		if (!ranLoop)
-			ranLoop = true;
+		ranLoop = true;
 
 		if (!LiveAPI_CheckSwitchType(v, node.key))
 			return false;
@@ -468,8 +467,7 @@ static bool LiveAPI_SetInventoryItem(HSQUIRRELVM const v, const SQTable* const t
 		if (sq_isnull(node.key))
 			continue;
 
-		if (!ranLoop)
-			ranLoop = true;
+		ranLoop = true;
 
 		if (!LiveAPI_CheckSwitchType(v, node.key))
 			return false;
@@ -1723,8 +1721,7 @@ static bool LiveAPI_SetCustomArrayFields(HSQUIRRELVM const v, google::protobuf::
 		if (sq_isnull(valueObj))
 			continue;
 
-		if (!ranLoop)
-			ranLoop = true;
+		ranLoop = true;
 
 		const SQObjectType valueType = sq_type(valueObj);
 

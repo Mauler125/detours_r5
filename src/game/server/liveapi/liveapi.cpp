@@ -27,75 +27,6 @@
 
 
 /*
-	███████╗██╗   ██╗███████╗███╗   ██╗████████╗  ███╗   ███╗███████╗███████╗███████╗ █████╗  ██████╗ ███████╗███████╗
-	██╔════╝██║   ██║██╔════╝████╗  ██║╚══██╔══╝  ████╗ ████║██╔════╝██╔════╝██╔════╝██╔══██╗██╔════╝ ██╔════╝██╔════╝
-	█████╗  ██║   ██║█████╗  ██╔██╗ ██║   ██║     ██╔████╔██║█████╗  ███████╗███████╗███████║██║  ███╗█████╗  ███████╗
-	██╔══╝  ╚██╗ ██╔╝██╔══╝  ██║╚██╗██║   ██║     ██║╚██╔╝██║██╔══╝  ╚════██║╚════██║██╔══██║██║   ██║██╔══╝  ╚════██║
-	███████╗ ╚████╔╝ ███████╗██║ ╚████║   ██║     ██║ ╚═╝ ██║███████╗███████║███████║██║  ██║╚██████╔╝███████╗███████║
-	╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝   ╚═╝     ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝
-	NOTE: messages are statically allocated to save on runtime overhead, each message is cleared after usage.
-*/
-
-static rtech::liveapi::AmmoUsed s_ammoUsed;
-static rtech::liveapi::ArenasItemDeselected s_arenasItemDeselected;
-static rtech::liveapi::ArenasItemSelected s_arenasItemSelected;
-static rtech::liveapi::BannerCollected s_bannerCollected;
-static rtech::liveapi::BlackMarketAction s_blackMarketAction;
-//static rtech::liveapi::ChangeCamera s_changeCamera;
-static rtech::liveapi::CharacterSelected s_characterSelected;
-//static rtech::liveapi::CustomMatch_CreateLobby s_customMatch_CreateLobby;
-//static rtech::liveapi::CustomMatch_GetLobbyPlayers s_customMatch_GetLobbyPlayers;
-//static rtech::liveapi::CustomMatch_GetSettings s_customMatch_GetSettings;
-//static rtech::liveapi::CustomMatch_JoinLobby s_customMatch_JoinLobby;
-//static rtech::liveapi::CustomMatch_KickPlayer s_customMatch_KickPlayer;
-//static rtech::liveapi::CustomMatch_LeaveLobby s_customMatch_LeaveLobby;
-//static rtech::liveapi::CustomMatch_LobbyPlayers s_customMatch_LobbyPlayers;
-//static rtech::liveapi::CustomMatch_SendChat s_customMatch_SendChat;
-//static rtech::liveapi::CustomMatch_SetMatchmaking s_customMatch_SetMatchmaking;
-//static rtech::liveapi::CustomMatch_SetReady s_customMatch_SetReady;
-//static rtech::liveapi::CustomMatch_SetSettings s_customMatch_SetSettings;
-//static rtech::liveapi::CustomMatch_SetTeam s_customMatch_SetTeam;
-//static rtech::liveapi::CustomMatch_SetTeamName s_customMatch_SetTeamName;
-static rtech::liveapi::CustomEvent s_customEvent;
-static rtech::liveapi::GameStateChanged s_gameStateChanged;
-static rtech::liveapi::GibraltarShieldAbsorbed s_gibraltarShieldAbsorbed;
-static rtech::liveapi::GrenadeThrown s_grenadeThrown;
-static rtech::liveapi::Init s_init;
-static rtech::liveapi::InventoryDrop s_inventoryDrop;
-static rtech::liveapi::InventoryPickUp s_inventoryPickUp;
-static rtech::liveapi::InventoryUse s_inventoryUse;
-static rtech::liveapi::LegendUpgradeSelected s_legendUpgradeSelected;
-static rtech::liveapi::LiveAPIEvent s_liveAPIEvent;
-static rtech::liveapi::MatchSetup s_matchSetup;
-static rtech::liveapi::MatchStateEnd s_matchStateEnd;
-static rtech::liveapi::ObserverAnnotation s_observerAnnotation;
-static rtech::liveapi::ObserverSwitched s_observerSwitched;
-//static rtech::liveapi::PauseToggle s_pauseToggle;
-static rtech::liveapi::PlayerAbilityUsed s_playerAbilityUsed;
-static rtech::liveapi::PlayerAssist s_playerAssist;
-static rtech::liveapi::PlayerConnected s_playerConnected;
-static rtech::liveapi::PlayerDamaged s_playerDamaged;
-static rtech::liveapi::PlayerDisconnected s_playerDisconnected;
-static rtech::liveapi::PlayerDowned s_playerDowned;
-static rtech::liveapi::PlayerKilled s_playerKilled;
-static rtech::liveapi::PlayerRespawnTeam s_playerRespawnTeam;
-static rtech::liveapi::PlayerRevive s_playerRevive;
-static rtech::liveapi::PlayerStatChanged s_playerStatChanged;
-static rtech::liveapi::PlayerUpgradeTierChanged s_playerUpgradeTierChanged;
-//static rtech::liveapi::Request s_request;
-//static rtech::liveapi::RequestStatus s_requestStatus;
-//static rtech::liveapi::Response s_response;
-static rtech::liveapi::RevenantForgedShadowDamaged s_revenantForgedShadowDamaged;
-static rtech::liveapi::RingFinishedClosing s_ringFinishedClosing;
-static rtech::liveapi::RingStartClosing s_ringStartClosing;
-static rtech::liveapi::SquadEliminated s_squadEliminated;
-static rtech::liveapi::WarpGateUsed s_warpGateUsed;
-static rtech::liveapi::WeaponSwitched s_weaponSwitched;
-static rtech::liveapi::WraithPortal s_wraithPortal;
-static rtech::liveapi::ZiplineUsed s_ziplineUsed;
-
-
-/*
 	███████╗███╗   ██╗██╗   ██╗███╗   ███╗███████╗██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗███████╗
 	██╔════╝████╗  ██║██║   ██║████╗ ████║██╔════╝██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
 	█████╗  ██╔██╗ ██║██║   ██║██╔████╔██║█████╗  ██████╔╝███████║   ██║   ██║██║   ██║██╔██╗ ██║███████╗
@@ -1857,8 +1788,7 @@ static bool LiveAPI_SetCustomTableFields(HSQUIRRELVM const v, google::protobuf::
 		if (sq_isnull(node.key))
 			continue;
 
-		if (!ranLoop)
-			ranLoop = true;
+		ranLoop = true;
 
 		const SQObjectType keyType = sq_type(node.key);
 
@@ -1956,16 +1886,110 @@ static bool LiveAPI_HandleCustomEvent(HSQUIRRELVM const v, const SQObject& obj, 
 
 static void LiveAPI_SendEvent(const google::protobuf::Message* const msg)
 {
-	s_liveAPIEvent.set_event_size(msg->ByteSize());
-	s_liveAPIEvent.mutable_gamemessage()->PackFrom(*msg);
+	rtech::liveapi::LiveAPIEvent envelope;
 
-	LiveAPISystem()->LogEvent(&s_liveAPIEvent, &s_liveAPIEvent.gamemessage());
-	s_liveAPIEvent.Clear();
+	envelope.set_event_size(msg->ByteSize());
+	envelope.mutable_gamemessage()->PackFrom(*msg);
+
+	LiveAPISystem()->LogEvent(&envelope, &envelope.gamemessage());
+}
+
+static google::protobuf::Message* LiveAPI_AllocMessage(const eLiveAPI_EventTypes eventType)
+{
+	switch (eventType)
+	{
+	case eLiveAPI_EventTypes::init:
+		return new rtech::liveapi::Init();
+	case eLiveAPI_EventTypes::matchSetup:
+		return new rtech::liveapi::MatchSetup();
+	case eLiveAPI_EventTypes::ammoUsed:
+		return new rtech::liveapi::AmmoUsed();
+	case eLiveAPI_EventTypes::arenasItemDeselected:
+		return new rtech::liveapi::ArenasItemDeselected();
+	case eLiveAPI_EventTypes::arenasItemSelected:
+		return new rtech::liveapi::ArenasItemSelected();
+	case eLiveAPI_EventTypes::bannerCollected:
+		return new rtech::liveapi::BannerCollected();
+	case eLiveAPI_EventTypes::customEvent:
+		return new rtech::liveapi::CustomEvent();
+	case eLiveAPI_EventTypes::inventoryPickUp:
+		return new rtech::liveapi::InventoryPickUp();
+	case eLiveAPI_EventTypes::inventoryDrop:
+		return new rtech::liveapi::InventoryDrop();
+	case eLiveAPI_EventTypes::inventoryUse:
+		return new rtech::liveapi::InventoryUse();
+	case eLiveAPI_EventTypes::gameStateChanged:
+		return new rtech::liveapi::GameStateChanged();
+	case eLiveAPI_EventTypes::matchStateEnd:
+		return new rtech::liveapi::MatchStateEnd();
+	case eLiveAPI_EventTypes::characterSelected:
+		return new rtech::liveapi::CharacterSelected();
+	case eLiveAPI_EventTypes::warpGateUsed:
+		return new rtech::liveapi::WarpGateUsed();
+	case eLiveAPI_EventTypes::wraithPortal:
+		return new rtech::liveapi::WraithPortal();
+	case eLiveAPI_EventTypes::playerConnected:
+		return new rtech::liveapi::PlayerConnected();
+	case eLiveAPI_EventTypes::playerRevive:
+		return new rtech::liveapi::PlayerRevive();
+	case eLiveAPI_EventTypes::playerDisconnected:
+		return new rtech::liveapi::PlayerDisconnected();
+	case eLiveAPI_EventTypes::playerDamaged:
+		return new rtech::liveapi::PlayerDamaged();
+	case eLiveAPI_EventTypes::playerDowned:
+		return new rtech::liveapi::PlayerDowned();
+	case eLiveAPI_EventTypes::playerKilled:
+		return new rtech::liveapi::PlayerKilled();
+	case eLiveAPI_EventTypes::playerAssist:
+		return new rtech::liveapi::PlayerAssist();
+	case eLiveAPI_EventTypes::playerRespawnTeam:
+		return new rtech::liveapi::PlayerRespawnTeam();
+	case eLiveAPI_EventTypes::playerStatChanged:
+		return new rtech::liveapi::PlayerStatChanged();
+	case eLiveAPI_EventTypes::playerUpgradeTierChanged:
+		return new rtech::liveapi::PlayerUpgradeTierChanged();
+	case eLiveAPI_EventTypes::legendUpgradeSelected:
+		return new rtech::liveapi::LegendUpgradeSelected();
+	case eLiveAPI_EventTypes::gibraltarShieldAbsorbed:
+		return new rtech::liveapi::GibraltarShieldAbsorbed();
+	case eLiveAPI_EventTypes::revenantForgedShadowDamaged:
+		return new rtech::liveapi::RevenantForgedShadowDamaged();
+	case eLiveAPI_EventTypes::ringStartClosing:
+		return new rtech::liveapi::RingStartClosing();
+	case eLiveAPI_EventTypes::ringFinishedClosing:
+		return new rtech::liveapi::RingFinishedClosing();
+	case eLiveAPI_EventTypes::squadEliminated:
+		return new rtech::liveapi::SquadEliminated();
+	case eLiveAPI_EventTypes::ziplineUsed:
+		return new rtech::liveapi::ZiplineUsed();
+	case eLiveAPI_EventTypes::grenadeThrown:
+		return new rtech::liveapi::GrenadeThrown();
+	case eLiveAPI_EventTypes::playerAbilityUsed:
+		return new rtech::liveapi::PlayerAbilityUsed();
+	case eLiveAPI_EventTypes::weaponSwitched:
+		return new rtech::liveapi::WeaponSwitched();
+	case eLiveAPI_EventTypes::blackMarketAction:
+		return new rtech::liveapi::BlackMarketAction();
+	case eLiveAPI_EventTypes::observerSwitched:
+		return new rtech::liveapi::ObserverSwitched();
+	case eLiveAPI_EventTypes::observerAnnotation:
+		return new rtech::liveapi::ObserverAnnotation();
+	default:
+		return nullptr;
+	}
 }
 
 static bool LiveAPI_HandleEventByCategory(HSQUIRRELVM const v, const SQTable* const table, const eLiveAPI_EventTypes eventType)
 {
-	google::protobuf::Message* msg = nullptr;
+	google::protobuf::Message* const msg = LiveAPI_AllocMessage(eventType);
+
+	if (!msg)
+	{
+		v_SQVM_RaiseError(v, "Event type \"%d\" not found.", eventType);
+		return false;
+	}
+
+	bool ranLoop = false;
 
 	SQ_FOR_EACH_TABLE(table, i)
 	{
@@ -1974,8 +1998,15 @@ static bool LiveAPI_HandleEventByCategory(HSQUIRRELVM const v, const SQTable* co
 		if (sq_isnull(node.key))
 			continue;
 
+		ranLoop = true;
+
 		if (!LiveAPI_CheckSwitchType(v, node.key))
+		{
+			Assert(msg);
+			delete msg;
+
 			return false;
+		}
 
 		const SQInteger fieldNum = _integer(node.key);
 		const SQObjectPtr& obj = node.val;
@@ -1985,179 +2016,146 @@ static bool LiveAPI_HandleEventByCategory(HSQUIRRELVM const v, const SQTable* co
 		switch (eventType)
 		{
 		case eLiveAPI_EventTypes::init:
-			msg = &s_init;
-			ret = LiveAPI_HandleInitEvent(&s_init, eventType);
+			ret = LiveAPI_HandleInitEvent(reinterpret_cast<rtech::liveapi::Init*>(msg), eventType);
 			break;
 		case eLiveAPI_EventTypes::matchSetup:
-			msg = &s_matchSetup;
-			ret = LiveAPI_HandleMatchSetup(v, obj, &s_matchSetup, eventType, fieldNum);
+			ret = LiveAPI_HandleMatchSetup(v, obj, reinterpret_cast<rtech::liveapi::MatchSetup*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::ammoUsed:
-			msg = &s_ammoUsed;
-			ret = LiveAPI_HandleAmmoUsed(v, obj, &s_ammoUsed, eventType, fieldNum);
+			ret = LiveAPI_HandleAmmoUsed(v, obj, reinterpret_cast<rtech::liveapi::AmmoUsed*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::arenasItemDeselected:
-			msg = &s_arenasItemDeselected;
-			ret = LiveAPI_HandleInventoryChange(v, obj, &s_arenasItemDeselected, eventType, fieldNum);
+			ret = LiveAPI_HandleInventoryChange(v, obj, reinterpret_cast<rtech::liveapi::ArenasItemDeselected*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::arenasItemSelected:
-			msg = &s_arenasItemSelected;
-			ret = LiveAPI_HandleInventoryChange(v, obj, &s_arenasItemSelected, eventType, fieldNum);
+			ret = LiveAPI_HandleInventoryChange(v, obj, reinterpret_cast<rtech::liveapi::ArenasItemSelected*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::bannerCollected:
-			msg = &s_bannerCollected;
-			ret = LiveAPI_HandleBannerCollected(v, obj, &s_bannerCollected, eventType, fieldNum);
+			ret = LiveAPI_HandleBannerCollected(v, obj, reinterpret_cast<rtech::liveapi::BannerCollected*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::customEvent:
-			msg = &s_customEvent;
-			ret = LiveAPI_HandleCustomEvent(v, obj, &s_customEvent, eventType, fieldNum);
+			ret = LiveAPI_HandleCustomEvent(v, obj, reinterpret_cast<rtech::liveapi::CustomEvent*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::inventoryPickUp:
-			msg = &s_inventoryPickUp;
-			ret = LiveAPI_HandleInventoryChange(v, obj, &s_inventoryPickUp, eventType, fieldNum);
+			ret = LiveAPI_HandleInventoryChange(v, obj, reinterpret_cast<rtech::liveapi::InventoryPickUp*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::inventoryDrop:
-			msg = &s_inventoryDrop;
-			ret = LiveAPI_HandleInventoryDrop(v, obj, &s_inventoryDrop, eventType, fieldNum);
+			ret = LiveAPI_HandleInventoryDrop(v, obj, reinterpret_cast<rtech::liveapi::InventoryDrop*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::inventoryUse:
-			msg = &s_inventoryUse;
-			ret = LiveAPI_HandleInventoryChange(v, obj, &s_inventoryUse, eventType, fieldNum);
+			ret = LiveAPI_HandleInventoryChange(v, obj, reinterpret_cast<rtech::liveapi::InventoryUse*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::gameStateChanged:
-			msg = &s_gameStateChanged;
-			ret = LiveAPI_HandleGameStateChanged(v, obj, &s_gameStateChanged, eventType, fieldNum);
+			ret = LiveAPI_HandleGameStateChanged(v, obj, reinterpret_cast<rtech::liveapi::GameStateChanged*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::matchStateEnd:
-			msg = &s_matchStateEnd;
-			ret = LiveAPI_HandleMatchStateEnd(v, obj, &s_matchStateEnd, eventType, fieldNum);
+			ret = LiveAPI_HandleMatchStateEnd(v, obj, reinterpret_cast<rtech::liveapi::MatchStateEnd*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::characterSelected:
-			msg = &s_characterSelected;
-			ret = LiveAPI_HandleSimplePlayerMessage(v, obj, &s_characterSelected, eventType, fieldNum);
+			ret = LiveAPI_HandleSimplePlayerMessage(v, obj, reinterpret_cast<rtech::liveapi::CharacterSelected*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::warpGateUsed:
-			msg = &s_warpGateUsed;
-			ret = LiveAPI_HandleSimplePlayerMessage(v, obj, &s_warpGateUsed, eventType, fieldNum);
+			ret = LiveAPI_HandleSimplePlayerMessage(v, obj, reinterpret_cast<rtech::liveapi::WarpGateUsed*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::wraithPortal:
-			msg = &s_wraithPortal;
-			ret = LiveAPI_HandleSimplePlayerMessage(v, obj, &s_wraithPortal, eventType, fieldNum);
+			ret = LiveAPI_HandleSimplePlayerMessage(v, obj, reinterpret_cast<rtech::liveapi::WraithPortal*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerConnected:
-			msg = &s_playerConnected;
-			ret = LiveAPI_HandleSimplePlayerMessage(v, obj, &s_playerConnected, eventType, fieldNum);
+			ret = LiveAPI_HandleSimplePlayerMessage(v, obj, reinterpret_cast<rtech::liveapi::PlayerConnected*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerRevive:
-			msg = &s_playerRevive;
-			ret = LiveAPI_HandlePlayerRevive(v, obj, &s_playerRevive, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerRevive(v, obj, reinterpret_cast<rtech::liveapi::PlayerRevive*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerDisconnected:
-			msg = &s_playerDisconnected;
-			ret = LiveAPI_HandlePlayerDisconnected(v, obj, &s_playerDisconnected, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerDisconnected(v, obj, reinterpret_cast<rtech::liveapi::PlayerDisconnected*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerDamaged:
-			msg = &s_playerDamaged;
-			ret = LiveAPI_HandlePlayerDamaged(v, obj, &s_playerDamaged, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerDamaged(v, obj, reinterpret_cast<rtech::liveapi::PlayerDamaged*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerDowned:
-			msg = &s_playerDowned;
-			ret = LiveAPI_HandlePlayerDowned(v, obj, &s_playerDowned, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerDowned(v, obj, reinterpret_cast<rtech::liveapi::PlayerDowned*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerKilled:
-			msg = &s_playerKilled;
-			ret = LiveAPI_HandlePlayerKilled(v, obj, &s_playerKilled, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerKilled(v, obj, reinterpret_cast<rtech::liveapi::PlayerKilled*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerAssist:
-			msg = &s_playerAssist;
-			ret = LiveAPI_HandlePlayerAssist(v, obj, &s_playerAssist, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerAssist(v, obj, reinterpret_cast<rtech::liveapi::PlayerAssist*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerRespawnTeam:
-			msg = &s_playerRespawnTeam;
-			ret = LiveAPI_HandlePlayerRespawnTeam(v, obj, &s_playerRespawnTeam, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerRespawnTeam(v, obj, reinterpret_cast<rtech::liveapi::PlayerRespawnTeam*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerStatChanged:
-			msg = &s_playerStatChanged;
-			ret = LiveAPI_HandlePlayerStatChanged(v, obj, &s_playerStatChanged, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerStatChanged(v, obj, reinterpret_cast<rtech::liveapi::PlayerStatChanged*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerUpgradeTierChanged:
-			msg = &s_playerUpgradeTierChanged;
-			ret = LiveAPI_HandlePlayerUpgradeTierChanged(v, obj, &s_playerUpgradeTierChanged, eventType, fieldNum);
+			ret = LiveAPI_HandlePlayerUpgradeTierChanged(v, obj, reinterpret_cast<rtech::liveapi::PlayerUpgradeTierChanged*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::legendUpgradeSelected:
-			msg = &s_legendUpgradeSelected;
-			ret = LiveAPI_HandleLegendUpgradeSelected(v, obj, &s_legendUpgradeSelected, eventType, fieldNum);
+			ret = LiveAPI_HandleLegendUpgradeSelected(v, obj, reinterpret_cast<rtech::liveapi::LegendUpgradeSelected*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::gibraltarShieldAbsorbed:
-			msg = &s_gibraltarShieldAbsorbed;
-			ret = LiveAPI_HandleAbilityDamaged(v, obj, &s_gibraltarShieldAbsorbed, eventType, fieldNum);
+			ret = LiveAPI_HandleAbilityDamaged(v, obj, reinterpret_cast<rtech::liveapi::GibraltarShieldAbsorbed*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::revenantForgedShadowDamaged:
-			msg = &s_revenantForgedShadowDamaged;
-			ret = LiveAPI_HandleAbilityDamaged(v, obj, &s_revenantForgedShadowDamaged, eventType, fieldNum);
+			ret = LiveAPI_HandleAbilityDamaged(v, obj, reinterpret_cast<rtech::liveapi::RevenantForgedShadowDamaged*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::ringStartClosing:
-			msg = &s_ringStartClosing;
-			ret = LiveAPI_HandleDeathFieldStartClosing(v, obj, &s_ringStartClosing, eventType, fieldNum);
+			ret = LiveAPI_HandleDeathFieldStartClosing(v, obj, reinterpret_cast<rtech::liveapi::RingStartClosing*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::ringFinishedClosing:
-			msg = &s_ringFinishedClosing;
-			ret = LiveAPI_HandleRingFinishedClosing(v, obj, &s_ringFinishedClosing, eventType, fieldNum);
+			ret = LiveAPI_HandleRingFinishedClosing(v, obj, reinterpret_cast<rtech::liveapi::RingFinishedClosing*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::squadEliminated:
-			msg = &s_squadEliminated;
-			ret = LiveAPI_HandleSquadEliminated(v, obj, &s_squadEliminated, eventType, fieldNum);
+			ret = LiveAPI_HandleSquadEliminated(v, obj, reinterpret_cast<rtech::liveapi::SquadEliminated*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::ziplineUsed:
-			msg = &s_ziplineUsed;
-			ret = LiveAPI_HandleLinkedEntityEvent(v, obj, &s_ziplineUsed, eventType, fieldNum);
+			ret = LiveAPI_HandleLinkedEntityEvent(v, obj, reinterpret_cast<rtech::liveapi::ZiplineUsed*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::grenadeThrown:
-			msg = &s_grenadeThrown;
-			ret = LiveAPI_HandleLinkedEntityEvent(v, obj, &s_grenadeThrown, eventType, fieldNum);
+			ret = LiveAPI_HandleLinkedEntityEvent(v, obj, reinterpret_cast<rtech::liveapi::GrenadeThrown*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::playerAbilityUsed:
-			msg = &s_playerAbilityUsed;
-			ret = LiveAPI_HandleLinkedEntityEvent(v, obj, &s_playerAbilityUsed, eventType, fieldNum);
+			ret = LiveAPI_HandleLinkedEntityEvent(v, obj, reinterpret_cast<rtech::liveapi::PlayerAbilityUsed*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::weaponSwitched:
-			msg = &s_weaponSwitched;
-			ret = LiveAPI_HandleWeaponSwitchedEvent(v, obj, &s_weaponSwitched, eventType, fieldNum);
+			ret = LiveAPI_HandleWeaponSwitchedEvent(v, obj, reinterpret_cast<rtech::liveapi::WeaponSwitched*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::blackMarketAction:
-			msg = &s_blackMarketAction;
-			ret = LiveAPI_HandleBlackMarketActionEvent(v, obj, &s_blackMarketAction, eventType, fieldNum);
+			ret = LiveAPI_HandleBlackMarketActionEvent(v, obj, reinterpret_cast<rtech::liveapi::BlackMarketAction*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::observerSwitched:
-			msg = &s_observerSwitched;
-			ret = LiveAPI_HandleObserverSwitched(v, obj, &s_observerSwitched, eventType, fieldNum);
+			ret = LiveAPI_HandleObserverSwitched(v, obj, reinterpret_cast<rtech::liveapi::ObserverSwitched*>(msg), eventType, fieldNum);
 			break;
 		case eLiveAPI_EventTypes::observerAnnotation:
-			msg = &s_observerAnnotation;
-			ret = LiveAPI_HandleObserverAnnotation(v, obj, &s_observerAnnotation, eventType, fieldNum);
+			ret = LiveAPI_HandleObserverAnnotation(v, obj, reinterpret_cast<rtech::liveapi::ObserverAnnotation*>(msg), eventType, fieldNum);
 			break;
 		default:
-			v_SQVM_RaiseError(v, "Event type \"%d\" not found.", eventType);
-			return false;
+			// LiveAPI_AllocMessage() will fail if the user provided an invalid
+			// event type, if you reached this there is a code bug somewhere.
+			UNREACHABLE();
 		}
 
 		if (!ret)
 		{
 			Assert(msg);
+			delete msg;
 
-			msg->Clear();
 			return false;
 		}
 	}
 
-	if (!msg) // Script bug, e.g. giving an empty table (either completely empty or filled with null)
+	if (!ranLoop) // Script bug, e.g. giving an empty table (either completely empty or filled with null)
 	{
 		v_SQVM_RaiseError(v, "Empty table on event type \"%d\".", eventType);
+
+		Assert(msg);
+		delete msg;
+
 		return false;
 	}
 
 	LiveAPI_SendEvent(msg);
-	msg->Clear();
+	delete msg;
 
 	return true;
 }

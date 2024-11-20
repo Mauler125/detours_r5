@@ -92,6 +92,9 @@ static ConVar fps_max_rt_sleep_threshold("fps_max_rt_sleep_threshold", "0.016666
 
 HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
 {
+	if (nFlags & DXGI_PRESENT_TEST)
+		return s_fnSwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+
 	float targetFps = fps_max_rt.GetFloat();
 
 	if (targetFps > 0.0f)

@@ -32,15 +32,16 @@ bool Miles_Initialize()
 	if (!isDefaultLanguage)
 	{
 		const bool useShipSound = !CommandLine()->FindParm("-devsound") || CommandLine()->FindParm("-shipsound");
+		char baseStreamFilePath[MAX_PATH];
 
-		const std::string baseStreamFilePath = Format("%s/general_%s.mstr", useShipSound ? "audio/ship" : "audio/dev", pszLanguage);
+		V_snprintf(baseStreamFilePath, sizeof(baseStreamFilePath), "%s/general_%s.mstr", useShipSound ? "audio/ship" : "audio/dev", pszLanguage);
 
 		// if the requested language for miles does not have a MSTR file present, throw a non-fatal error and force MILES_DEFAULT_LANGUAGE as a fallback
 		// if we are loading MILES_DEFAULT_LANGUAGE and the file is still not found, we can let it hit the regular engine error, since that is not recoverable
-		if (!FileSystem()->FileExists(baseStreamFilePath.c_str()))
+		if (!FileSystem()->FileExists(baseStreamFilePath))
 		{
 			Error(eDLL_T::AUDIO, NO_ERROR, "%s: attempted to load language '%s' but the required streaming source file (%s) was not found. falling back to '%s'...\n",
-				__FUNCTION__, pszLanguage, baseStreamFilePath.c_str(), MILES_DEFAULT_LANGUAGE);
+				__FUNCTION__, pszLanguage, baseStreamFilePath, MILES_DEFAULT_LANGUAGE);
 
 			pszLanguage = MILES_DEFAULT_LANGUAGE;
 			miles_language->SetValue(pszLanguage);
@@ -51,7 +52,7 @@ bool Miles_Initialize()
 	CFastTimer initTimer;
 
 	initTimer.Start();
-	bool bResult = v_Miles_Initialize();
+	const bool bResult = v_Miles_Initialize();
 	initTimer.End();
 
 	Msg(eDLL_T::AUDIO, "%s: %s ('%f' seconds)\n", __FUNCTION__, bResult ? "success" : "failure", initTimer.GetDuration().GetSeconds());

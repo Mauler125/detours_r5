@@ -18,8 +18,9 @@ class CGame
 {
 public:
 	static void PlayStartupVideos(void);
-	static LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+	static LRESULT WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT ImguiWindowProc(HWND hWnd, UINT& uMsg, WPARAM wParam, LPARAM lParam);
 
 	inline HWND GetWindow() const { return m_hWindow; }
 	void GetWindowRect(int* const x, int* const y, int* const w, int* const h) const;

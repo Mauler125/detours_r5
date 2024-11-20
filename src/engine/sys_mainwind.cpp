@@ -30,8 +30,18 @@ void CGame::PlayStartupVideos(void)
 //-----------------------------------------------------------------------------
 LRESULT CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (!ImguiSystem()->IsInitialized())
-		return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+	if (ImguiSystem()->IsInitialized())
+		ImguiWindowProc(hWnd, uMsg, wParam, lParam);
+
+	return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: imgui windows procedure
+//-----------------------------------------------------------------------------
+LRESULT CGame::ImguiWindowProc(HWND hWnd, UINT& uMsg, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT hr = NULL;
 
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{
@@ -53,7 +63,7 @@ LRESULT CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if (g_Console.IsActivated() || g_Browser.IsActivated())
 	{//////////////////////////////////////////////////////////////////////////////
 		g_bBlockInput = true;
-		ImguiSystem()->MessageHandler(hWnd, uMsg, wParam, lParam);
+		hr = ImguiSystem()->MessageHandler(hWnd, uMsg, wParam, lParam);
 
 		switch (uMsg)
 		{
@@ -75,7 +85,7 @@ LRESULT CGame::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		g_bBlockInput = false;
 	}
 
-	return CGame__WindowProc(hWnd, uMsg, wParam, lParam);
+	return hr;
 }
 
 //-----------------------------------------------------------------------------

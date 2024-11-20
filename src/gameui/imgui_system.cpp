@@ -14,10 +14,10 @@
 // Constructors/Destructors.
 //-----------------------------------------------------------------------------
 CImguiSystem::CImguiSystem()
+	: m_enabled(true)
+	, m_initialized(false)
+	, m_hasNewFrame(false)
 {
-	m_initialized = false;
-	m_enabled = true;
-	m_hasNewFrame = false;
 }
 
 //-----------------------------------------------------------------------------

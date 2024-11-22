@@ -60,6 +60,13 @@ void SpdLog_Init(const bool bAnsiColor)
 
 #ifndef _TOOLS
 	g_LogSessionUUID = CreateUUID();
+
+	if (g_LogSessionUUID.empty())
+	{
+		// Fall-back directory in case of a failure.
+		g_LogSessionUUID = "00000000-0000-0000-0000-000000000000";
+	}
+
 	g_LogSessionDirectory = fmt::format("platform/logs/{:s}", g_LogSessionUUID);
 	/************************
 	 * IMGUI LOGGER SETUP   *

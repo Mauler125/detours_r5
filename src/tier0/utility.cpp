@@ -70,7 +70,7 @@ int CreateDirHierarchy(const char* const filePath)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if a directory exists
-bool IsDirectory(const char* path)
+bool IsDirectory(const char* const path)
 {
     if (_access(path, 0) == 0)
     {
@@ -92,7 +92,7 @@ bool FileEmpty(ifstream& pFile)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if pointer is valid or bad.
-BOOL IsBadReadPtrV2(void* ptr)
+BOOL IsBadReadPtrV2(const void* const ptr)
 {
     MEMORY_BASIC_INFORMATION mbi = { 0 };
     if (::VirtualQuery(ptr, &mbi, sizeof(mbi)))
@@ -108,7 +108,7 @@ BOOL IsBadReadPtrV2(void* ptr)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For getting information about the executing module.
-MODULEINFO GetModuleInfo(const char* szModule)
+MODULEINFO GetModuleInfo(const char* const szModule)
 {
     MODULEINFO modinfo = { 0 };
     HMODULE hModule = GetModuleHandleA(szModule);
@@ -123,12 +123,12 @@ MODULEINFO GetModuleInfo(const char* szModule)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For printing output to the debugger.
-void DbgPrint(LPCSTR sFormat, ...)
+void DbgPrint(const char* const sFormat, ...)
 {
     va_list sArgs;
     va_start(sArgs, sFormat);
 
-    string result = FormatV(sFormat, sArgs);
+    const string result = FormatV(sFormat, sArgs);
     va_end(sArgs);
 
     // Output the string to the debugger.
@@ -139,11 +139,12 @@ void DbgPrint(LPCSTR sFormat, ...)
 // For printing the last error to the console if any.
 void PrintLastError(void)
 {
-    DWORD errorMessageID = ::GetLastError();
+    const DWORD errorMessageID = ::GetLastError();
+
     if (errorMessageID != NULL)
     {
         LPSTR messageBuffer;
-        DWORD size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        const DWORD size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
         if (size > 0)
@@ -161,7 +162,7 @@ void PrintLastError(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For dumping data from a buffer to a file on the disk.
-void HexDump(const char* szHeader, const char* szLogger, const void* pData, size_t nSize)
+void HexDump(const char* const szHeader, const char* const szLogger, const void* const pData, const size_t nSize)
 {
     char szAscii[17];
     static std::mutex m;
@@ -254,7 +255,7 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, size
 
 ///////////////////////////////////////////////////////////////////////////////
 // For stripping tabs and return characters from input buffer.
-char* StripTabsAndReturns(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize)
+char* StripTabsAndReturns(const char* const pInBuffer, char* const pOutBuffer, ssize_t nOutBufferSize)
 {
     char* out = pOutBuffer;
     const char* i = pInBuffer;
@@ -289,15 +290,14 @@ char* StripTabsAndReturns(const char* pInBuffer, char* pOutBuffer, int nOutBuffe
 
 ///////////////////////////////////////////////////////////////////////////////
 // For stripping quote characters from input buffer.
-char* StripQuotes(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize)
+char* StripQuotes(const char* const pInBuffer, char* const pOutBuffer, const ssize_t nOutBufferSize)
 {
-    char* out = pOutBuffer;
     const char* i = pInBuffer;
-    char* o = out;
+    char* o = pOutBuffer;
 
-    out[0] = 0;
+    pOutBuffer[0] = 0;
 
-    while (*i && o - out < nOutBufferSize - 1)
+    while (*i && o - pOutBuffer < nOutBufferSize - 1)
     {
         if (*i == '\"')
         {
@@ -311,14 +311,14 @@ char* StripQuotes(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize)
 
     *o = '\0';
 
-    return out;
+    return pOutBuffer;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For finding a partial string within input (case insensitive).
 bool HasPartial(const string& svInput, const string& svPartial)
 {
-    auto it = std::search(svInput.begin(), svInput.end(),
+    const auto it = std::search(svInput.begin(), svInput.end(),
         svPartial.begin(), svPartial.end(), [](unsigned char ci, unsigned char cp)
         {
             return std::toupper(ci) == std::toupper(cp);
@@ -335,12 +335,13 @@ bool HasExtension(const string& svInput, const string& svExtension)
     {
         return true;
     }
+
     return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For removing file names from the extension.
-string GetExtension(const string& svInput, bool bReturnOriginal, bool bKeepDelimiter)
+string GetExtension(const string& svInput, const bool bReturnOriginal, const bool bKeepDelimiter)
 {
     string::size_type nPos = svInput.rfind('.');
 
@@ -350,12 +351,15 @@ string GetExtension(const string& svInput, bool bReturnOriginal, bool bKeepDelim
         {
             nPos += 1;
         }
+
        return svInput.substr(nPos);
     }
+
     if (bReturnOriginal)
     {
         return svInput;
     }
+
     return "";
 }
 
@@ -363,7 +367,7 @@ string GetExtension(const string& svInput, bool bReturnOriginal, bool bKeepDelim
 // For removing extensions from file names.
 string RemoveExtension(const string& svInput)
 {
-    string::size_type nPos = svInput.find_last_of('.');
+    const string::size_type nPos = svInput.find_last_of('.');
 
     if (nPos == string::npos)
     {
@@ -387,7 +391,7 @@ bool HasFileName(const string& svInput, const string& svFileName)
 // For removing the path from file names.
 string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
 {
-    string::size_type nPos = bWindows ? svInput.rfind('\\') : svInput.rfind('/');
+    const string::size_type nPos = svInput.rfind(bWindows ? '\\' : '/');
 
     if (nPos != string::npos)
     {
@@ -395,6 +399,7 @@ string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
         {
             return RemoveExtension(svInput.substr(nPos + 1));
         }
+
         return svInput.substr(nPos + 1);
     }
     else // File name is not within a path.
@@ -404,19 +409,21 @@ string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
             return RemoveExtension(svInput);
         }
     }
+
     return svInput;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For removing file names from the path.
-string RemoveFileName(const string& svInput, bool bWindows)
+string RemoveFileName(const string& svInput, const bool bWindows)
 {
-    string::size_type nPos = bWindows ? svInput.find_last_of('\\') : svInput.find_last_of('/');
+    const string::size_type nPos = svInput.find_last_of(bWindows ? '\\' : '/');
 
     if (nPos == string::npos)
     {
         return "";
     }
+
     return svInput.substr(0, nPos);
 }
 
@@ -424,18 +431,17 @@ string RemoveFileName(const string& svInput, bool bWindows)
 // For creating a file name with the current (now) date and time
 string CreateTimedFileName()
 {
-    auto now = std::chrono::system_clock::now();
+    const auto now = std::chrono::system_clock::now();
 
     // Get number of milliseconds for the current second (remainder after division into seconds).
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+    const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
 
     // Convert to std::time_t in order to convert to std::tm (broken time).
-    auto timer = std::chrono::system_clock::to_time_t(now);
-    std::tm bt = *std::localtime(&timer);
+    const auto timer = std::chrono::system_clock::to_time_t(now);
 
     ostringstream oss;
 
-    oss << std::put_time(&bt, "%Y-%m-%d_%H-%M-%S");
+    oss << std::put_time(std::localtime(&timer), "%Y-%m-%d_%H-%M-%S");
     oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
 
     return oss.str(); // 'YY-MM-DD_HH-MM-SS.MMM'.
@@ -487,6 +493,7 @@ void CreateDirectories(string svInput, string* pszOutput, bool bWindows)
 void AppendSlash(string& svInput, const char separator)
 {
     char lchar = svInput[svInput.size() - 1];
+
     if (lchar != '\\' && lchar != '/')
     {
         svInput.push_back(separator);
@@ -507,6 +514,7 @@ string ConvertToWinPath(const string& svInput)
             result[i] = '\\';
         }
     }
+
     return result;
 }
 
@@ -524,6 +532,7 @@ string ConvertToUnixPath(const string& svInput)
             result[i] = '/';
         }
     }
+
     return result;
 }
 
@@ -540,7 +549,7 @@ bool IsEqualNoCase(const string& svInput, const string& svSecond)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if input is a valid Base64.
-bool IsValidBase64(const string& svInput, string* psvOutput)
+bool IsValidBase64(const string& svInput, string* const psvOutput)
 {
     static const std::regex rx(R"((?:[A-Za-z0-9+\/]{4}?)*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=))");
     std::smatch mh;
@@ -551,8 +560,10 @@ bool IsValidBase64(const string& svInput, string* psvOutput)
         {
             *psvOutput = mh[0].str();
         }
+
         return true;
     }
+
     return false;
 }
 
@@ -573,14 +584,17 @@ string Base64Encode(const string& svInput)
             valb -= 6;
         }
     }
+
     if (valb > -6)
     {
         result.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) & 0x3F]);
     }
+
     while (result.size() % 4)
     {
         result.push_back('=');
     }
+
     return result;
 }
 
@@ -589,9 +603,10 @@ string Base64Encode(const string& svInput)
 string Base64Decode(const string& svInput)
 {
     string result;
+    vector<int> T(256, -1);
+
     int val = 0, valb = -8;
 
-    vector<int> T(256, -1);
     for (int i = 0; i < 64; i++)
     {
         T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i;
@@ -603,14 +618,17 @@ string Base64Decode(const string& svInput)
         {
             break;
         }
+
         val = (val << 6) + T[c];
         valb += 6;
+
         if (valb >= 0)
         {
             result.push_back(char((val >> valb) & 0xFF));
             valb -= 8;
         }
     }
+
     return result;
 }
 
@@ -619,12 +637,14 @@ string Base64Decode(const string& svInput)
 string UTF8Encode(const wstring& wsvInput)
 {
     string result;
-    int nLen = WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), int(wsvInput.length()), NULL, 0, NULL, NULL);
+    const int nLen = WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), int(wsvInput.length()), NULL, 0, NULL, NULL);
+
     if (nLen > 0)
     {
         result.resize(nLen);
         WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), int(wsvInput.length()), &result[0], nLen, NULL, NULL);
     }
+
     return result;
 }
 
@@ -653,6 +673,7 @@ bool StringIsDigit(const string& svInput)
             return false;
         }
     }
+
     return true;
 }
 
@@ -661,6 +682,7 @@ bool StringIsDigit(const string& svInput)
 bool CompareStringAlphabetically(const string& svA, const string& svB)
 {
     int i = 0;
+
     while (svA[i] != '\0' && svA[i] == svB[i])
     {
         i++;
@@ -680,7 +702,8 @@ bool CompareStringLexicographically(const string& svA, const string& svB)
 // For replacing parts of a given string by reference.
 bool StringReplace(string& svInput, const string& svFrom, const string& svTo)
 {
-    string::size_type nPos = svInput.find(svFrom);
+    const string::size_type nPos = svInput.find(svFrom);
+
     if (nPos == string::npos)
     {
         return false;
@@ -694,15 +717,16 @@ bool StringReplace(string& svInput, const string& svFrom, const string& svTo)
 // For replacing parts of a given string by value.
 string StringReplaceC(const string& svInput, const string& svFrom, const string& svTo)
 {
-    string result = svInput;
-    string::size_type nPos = result.find(svFrom);
+    const string::size_type nPos = svInput.find(svFrom);
 
     if (nPos == string::npos)
     {
-        return result;
+        return svInput;
     }
 
+    string result = svInput;
     result.replace(nPos, svFrom.length(), svTo);
+
     return result;
 }
 
@@ -728,6 +752,7 @@ string StringEscape(const string& svInput)
         default:    result += c;      break;
         }
     }
+
     return result;
 }
 
@@ -737,6 +762,7 @@ string StringUnescape(const string& svInput)
 {
     string result;
     result.reserve(svInput.size());
+
     bool escaped = false;
 
     for (const char c : svInput)
@@ -775,9 +801,10 @@ string StringUnescape(const string& svInput)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For counting the number of delimiters in a given string.
-size_t StringCount(const string& svInput, char cDelim)
+size_t StringCount(const string& svInput, const char cDelim)
 {
     size_t result = 0;
+
     for (size_t i = 0; i < svInput.size(); i++)
     {
         if (svInput[i] == cDelim)
@@ -785,12 +812,13 @@ size_t StringCount(const string& svInput, char cDelim)
             result++;
         }
     }
+
     return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For splitting a string into substrings by delimiter.
-vector<string> StringSplit(string svInput, char cDelim, size_t nMax)
+vector<string> StringSplit(string svInput, const char cDelim, const size_t nMax)
 {
     string svSubString;
     vector<string> vSubStrings;
@@ -810,17 +838,20 @@ vector<string> StringSplit(string svInput, char cDelim, size_t nMax)
             {
                 vSubStrings.push_back(svSubString);
             }
+
             svSubString.clear();
         }
     }
+
     return vSubStrings;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For trimming leading characters from input.
-string& StringLTrim(string& svInput, const char* pszToTrim, bool bTrimBefore)
+string& StringLTrim(string& svInput, const char* const pszToTrim, const bool bTrimBefore)
 {
     size_t n = 0;
+
     if (!bTrimBefore)
     {
         n = svInput.find_first_not_of(pszToTrim);
@@ -841,9 +872,10 @@ string& StringLTrim(string& svInput, const char* pszToTrim, bool bTrimBefore)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For trimming trailing characters from input.
-string& StringRTrim(string& svInput, const char* pszToTrim, bool bTrimAfter)
+string& StringRTrim(string& svInput, const char* const pszToTrim, const bool bTrimAfter)
 {
     size_t n = 0;
+
     if (!bTrimAfter)
     {
         n = svInput.find_last_not_of(pszToTrim) + 1;
@@ -861,25 +893,25 @@ string& StringRTrim(string& svInput, const char* pszToTrim, bool bTrimAfter)
             svInput.at(svInput.size() - 1) = '\0';
         }
     }
+
     return svInput;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For trimming leading and trailing characters from input.
-string& StringTrim(string& svInput, const char* pszToTrim, bool bTrimAll)
+string& StringTrim(string& svInput, const char* const pszToTrim, const bool bTrimAll)
 {
     return StringRTrim(StringLTrim(svInput, pszToTrim, bTrimAll), pszToTrim, bTrimAll);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a string to an array of bytes.
-vector<int> StringToBytes(const char* szInput, bool bNullTerminator)
+vector<int> StringToBytes(const char* const szInput, const bool bNullTerminator)
 {
-    const char* pszStringStart = const_cast<char*>(szInput);
-    const char* pszStringEnd = pszStringStart + strlen(szInput);
+    const char* const pszStringEnd = szInput + strlen(szInput);
     vector<int> vBytes;
 
-    for (const char* pszCurrentByte = pszStringStart; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
+    for (const char* pszCurrentByte = szInput; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
     {
         // Dereference character and push back the byte.
         vBytes.push_back(*pszCurrentByte);
@@ -889,6 +921,7 @@ vector<int> StringToBytes(const char* szInput, bool bNullTerminator)
     {
         vBytes.push_back('\0');
     }
+
     return vBytes;
 };
 
@@ -990,10 +1023,12 @@ pair<vector<uint8_t>, string> PatternToMaskedBytes(const char* szInput)
 vector<int> IntToDigits(int iValue)
 {
     vector<int> vDigits;
+
     for (; iValue > 0; iValue /= 10)
     {
         vDigits.push_back(iValue % 10);
     }
+
     std::reverse(vDigits.begin(), vDigits.end());
     return vDigits;
 }

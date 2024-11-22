@@ -2,34 +2,34 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Internals
-BOOL IsBadReadPtrV2(void* ptr);
-BOOL FileExists(LPCTSTR szPath);
-int CreateDirHierarchy(const char* filePath);
-bool IsDirectory(const char* path);
+BOOL IsBadReadPtrV2(const void* const ptr);
+BOOL FileExists(const LPCTSTR szPath);
+int CreateDirHierarchy(const char* const filePath);
+bool IsDirectory(const char* const path);
 bool FileEmpty(ifstream& pFile);
-MODULEINFO GetModuleInfo(const char* szModule);
+MODULEINFO GetModuleInfo(const char* const szModule);
 
 /////////////////////////////////////////////////////////////////////////////
 // Debug
-void DbgPrint(LPCSTR sFormat, ...);
+void DbgPrint(const char* const sFormat, ...);
 void PrintLastError(void);
-void HexDump(const char* szHeader, const char* szLogger, const void* pData, size_t nSize);
+void HexDump(const char* const szHeader, const char* const szLogger, const void* const pData, const size_t nSize);
 
 /////////////////////////////////////////////////////////////////////////////
 // Char
-char* StripTabsAndReturns(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize);
-char* StripQuotes(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize);
+char* StripTabsAndReturns(const char* const pInBuffer, char* const pOutBuffer, const ssize_t nOutBufferSize);
+char* StripQuotes(const char* const pInBuffer, char* const pOutBuffer, const ssize_t nOutBufferSize);
 
 /////////////////////////////////////////////////////////////////////////////
 // String
 bool HasPartial(const string& svInput, const string& svPartial);
 bool HasExtension(const string& svInput, const string& svExtension);
-string GetExtension(const string& svInput, bool bReturnOriginal = false, bool bKeepDelimiter = false);
+string GetExtension(const string& svInput, const bool bReturnOriginal = false, const bool bKeepDelimiter = false);
 string RemoveExtension(const string& svInput);
 
 bool HasFileName(const string& svInput, const string& svFileName);
 string GetFileName(const string& svInput, bool bRemoveExtension = false, bool bWindows = false);
-string RemoveFileName(const string& svInput, bool bWindows = false);
+string RemoveFileName(const string& svInput, const bool bWindows = false);
 
 string CreateTimedFileName();
 string CreateUUID();
@@ -41,7 +41,7 @@ string ConvertToWinPath(const string& svInput);
 string ConvertToUnixPath(const string& svInput);
 
 bool IsEqualNoCase(const string& svInput, const string& svSecond);
-bool IsValidBase64(const string& svInput, string* psvOutput = nullptr);
+bool IsValidBase64(const string& svInput, string* const psvOutput = nullptr);
 
 string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
@@ -57,22 +57,22 @@ bool StringReplace(string& svInput, const string& svFrom, const string& svTo);
 string StringReplaceC(const string& svInput, const string& svFrom, const string& svTo);
 string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
-size_t StringCount(const string& svInput, char cDelim);
-vector<string> StringSplit(string svInput, char cDelim, size_t nMax = SIZE_MAX);
+size_t StringCount(const string& svInput, const char cDelim);
+vector<string> StringSplit(string svInput, const char cDelim, const size_t nMax = SIZE_MAX);
 
-string& StringLTrim(string& svInput, const char* pszToTrim, bool bTrimBefore = false);
-string& StringRTrim(string& svInput, const char* pszToTrim, bool bTrimAfter = false);
-string& StringTrim(string& svInput, const char* pszToTrim, bool bTrimAll = false);
+string& StringLTrim(string& svInput, const char* const pszToTrim, const bool bTrimBefore = false);
+string& StringRTrim(string& svInput, const char* const pszToTrim, const bool bTrimAfter = false);
+string& StringTrim(string& svInput, const char* const pszToTrim, const bool bTrimAll = false);
 
 typedef char FourCCString_t[5];
 void FourCCToString(FourCCString_t& buf, const int n);
 
 /////////////////////////////////////////////////////////////////////////////
 // Bytes
-vector<int> StringToBytes(const char* szInput, bool bNullTerminator);
-pair<vector<uint8_t>, string> StringToMaskedBytes(const char* szInput, bool bNullTerminator);
-vector<int> PatternToBytes(const char* szInput);
-pair<vector<uint8_t>, string> PatternToMaskedBytes(const char* szInput);
+vector<int> StringToBytes(const char* const szInput, const bool bNullTerminator);
+pair<vector<uint8_t>, string> StringToMaskedBytes(const char* const szInput, const bool bNullTerminator);
+vector<int> PatternToBytes(const char* const szInput);
+pair<vector<uint8_t>, string> PatternToMaskedBytes(const char* const szInput);
 vector<int> IntToDigits(int iValue);
 
 /////////////////////////////////////////////////////////////////////////////

@@ -353,37 +353,66 @@ void CConsole::DrawOptionsPanel(void)
     ImGui::Checkbox("Auto-scroll", &m_colorTextLogger.m_bAutoScroll);
 
     ImGui::SameLine();
-    ImGui::PushItemWidth(100);
+    ImGui::Spacing();
+    ImGui::SameLine();
 
-    ImGui::PopItemWidth();
-
-    if (ImGui::SmallButton("Clear"))
+    if (ImGui::SmallButton("Clear Text"))
     {
         ClearLog();
     }
 
     ImGui::SameLine();
+    ImGui::Spacing();
+    ImGui::SameLine();
 
     // Copies all logged text to the clip board
-    if (ImGui::SmallButton("Copy"))
+    if (ImGui::SmallButton("Copy Text"))
     {
         AUTO_LOCK(m_colorTextLoggerMutex);
         m_colorTextLogger.Copy(true);
     }
 
-    ImGui::Text("Console hotkey:");
+    ImGui::Text("Console HotKey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##ToggleConsole", &g_ImGuiConfig.m_ConsoleConfig.m_nBind0, ImVec2(80, 80)))
+    int selected = g_ImGuiConfig.m_ConsoleConfig.m_nBind0;
+
+    if (ImGui::Hotkey("##ToggleConsolePrimary", &selected, ImVec2(80, 80)) &&
+        !g_ImGuiConfig.KeyUsed(selected))
     {
+        g_ImGuiConfig.m_ConsoleConfig.m_nBind0 = selected;
         g_ImGuiConfig.Save();
     }
 
-    ImGui::Text("Browser hotkey:");
+    ImGui::SameLine();
+    selected = g_ImGuiConfig.m_ConsoleConfig.m_nBind1;
+
+    if (ImGui::Hotkey("##ToggleConsoleSecondary", &selected, ImVec2(80, 80)) &&
+        !g_ImGuiConfig.KeyUsed(selected))
+    {
+        g_ImGuiConfig.m_ConsoleConfig.m_nBind1 = selected;
+        g_ImGuiConfig.Save();
+    }
+
+    ImGui::Text("Browser HotKey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##ToggleBrowser", &g_ImGuiConfig.m_BrowserConfig.m_nBind0, ImVec2(80, 80)))
+    selected = g_ImGuiConfig.m_BrowserConfig.m_nBind0;
+
+    if (ImGui::Hotkey("##ToggleBrowserPrimary", &selected, ImVec2(80, 80)) &&
+        !g_ImGuiConfig.KeyUsed(selected))
     {
+        g_ImGuiConfig.m_BrowserConfig.m_nBind0 = selected;
+        g_ImGuiConfig.Save();
+    }
+
+    ImGui::SameLine();
+    selected = g_ImGuiConfig.m_BrowserConfig.m_nBind1;
+
+    if (ImGui::Hotkey("##ToggleBrowserSecondary", &selected, ImVec2(80, 80)) &&
+        !g_ImGuiConfig.KeyUsed(selected))
+    {
+        g_ImGuiConfig.m_BrowserConfig.m_nBind1 = selected;
         g_ImGuiConfig.Save();
     }
 

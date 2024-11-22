@@ -28,15 +28,15 @@ void ImGuiConfig::Load()
     KeyValues* pConsoleKV = pKeyMapKV->FindKey(GAME_CONSOLE_KEY);
     if (pConsoleKV)
     {
-		m_ConsoleConfig.m_nBind0 = pConsoleKV->GetInt("$bindDef", VK_OEM_3);
-		m_ConsoleConfig.m_nBind1 = pConsoleKV->GetInt("$bindExt", VK_INSERT);
-	}
+        m_ConsoleConfig.m_nBind0 = pConsoleKV->GetInt("$primaryKey", VK_OEM_3);
+        m_ConsoleConfig.m_nBind1 = pConsoleKV->GetInt("$secondaryKey", VK_F10);
+    }
 
     KeyValues* pBrowserKV = pKeyMapKV->FindKey(GAME_BROWSER_KEY);
     if (pBrowserKV)
     {
-        m_BrowserConfig.m_nBind0 = pBrowserKV->GetInt("$bindDef", VK_F10);
-        m_BrowserConfig.m_nBind1 = pBrowserKV->GetInt("$bindExt", VK_HOME);
+        m_BrowserConfig.m_nBind0 = pBrowserKV->GetInt("$primaryKey", VK_INSERT);
+        m_BrowserConfig.m_nBind1 = pBrowserKV->GetInt("$secondaryKey", VK_F11);
     }
 
     pKeyMapKV->DeleteThis();
@@ -50,15 +50,14 @@ void ImGuiConfig::Save()
     FileSystem()->CreateDirHierarchy(SDK_USER_CFG_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
 
     KeyValues kv("KeyMap");
-    KeyValues* pKeyMapKV = kv.FindKey("KeyMap", true);
 
-    KeyValues* pConsoleKV = pKeyMapKV->FindKey(GAME_CONSOLE_KEY, true);
-    pConsoleKV->SetInt("$bindDef", m_ConsoleConfig.m_nBind0);
-    pConsoleKV->SetInt("$bindExt", m_ConsoleConfig.m_nBind1);
+    KeyValues* pConsoleKV = kv.FindKey(GAME_CONSOLE_KEY, true);
+    pConsoleKV->SetInt("$primaryKey", m_ConsoleConfig.m_nBind0);
+    pConsoleKV->SetInt("$secondaryKey", m_ConsoleConfig.m_nBind1);
 
-    KeyValues* pBrowserKV = pKeyMapKV->FindKey(GAME_BROWSER_KEY, true);
-    pBrowserKV->SetInt("$bindDef", m_BrowserConfig.m_nBind0);
-    pBrowserKV->SetInt("$bindExt", m_BrowserConfig.m_nBind1);
+    KeyValues* pBrowserKV = kv.FindKey(GAME_BROWSER_KEY, true);
+    pBrowserKV->SetInt("$primaryKey", m_BrowserConfig.m_nBind0);
+    pBrowserKV->SetInt("$secondaryKey", m_BrowserConfig.m_nBind1);
 
     CUtlBuffer uBuf(0i64, 0, CUtlBuffer::TEXT_BUFFER);
 

@@ -456,9 +456,15 @@ string CreateUUID()
 
     char* str;
     UuidToStringA(&uuid, (RPC_CSTR*)&str);
-    string result(str);
 
-    RpcStringFreeA((RPC_CSTR*)&str);
+    string result;
+
+    if (str)
+    {
+        result = str;
+        RpcStringFreeA((RPC_CSTR*)&str);
+    }
+
     return result;
 }
 

@@ -448,7 +448,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
     if (__argc < 2)
     {
 #ifdef _DEBUG
-        Console_Init(true);
+        if(!Console_Init(true))
+            return EXIT_FAILURE;
 #endif // _DEBUG
         SDKLauncher()->Init();
         SDKLauncher()->RunSurface();
@@ -478,5 +479,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 
         SDKLauncher()->Shutdown(exitCode);
     }
-    return EXIT_SUCCESS;
+#if _DEBUG
+    return exitCode;
+#endif // _DEBUG
 }

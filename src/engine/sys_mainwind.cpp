@@ -62,7 +62,6 @@ LRESULT CGame::ImguiWindowProc(HWND hWnd, UINT& uMsg, WPARAM wParam, LPARAM lPar
 
 	if (g_Console.IsActivated() || g_Browser.IsActivated())
 	{//////////////////////////////////////////////////////////////////////////////
-		g_bBlockInput = true;
 		hr = ImguiSystem()->MessageHandler(hWnd, uMsg, wParam, lParam);
 
 		switch (uMsg)
@@ -79,9 +78,20 @@ LRESULT CGame::ImguiWindowProc(HWND hWnd, UINT& uMsg, WPARAM wParam, LPARAM lPar
 		default:
 			break;
 		}
+
+		g_bBlockInput = true;
 	}//////////////////////////////////////////////////////////////////////////////
 	else
 	{
+		if (g_bBlockInput)
+		{
+			// Dry run with null msg to clear the event queue, we have to do this as
+			// the menu's can be closed while still holding down a key. That key will
+			// remain in the event queue so the next time a window is opened, that
+			// key will be spammed until that particular key msg is sent here again.
+			hr = ImguiSystem()->MessageHandler(hWnd, WM_NULL, wParam, lParam);
+		}
+
 		g_bBlockInput = false;
 	}
 

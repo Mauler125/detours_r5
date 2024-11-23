@@ -69,7 +69,8 @@ private: // Internals.
 private:
     enum ConAutoCompletePos_e
     {
-        // Park means the position is out of screen.
+        // Park means the auto complete position is out of screen and not
+        // indexing an item.
         kPark = -1,
     };
 

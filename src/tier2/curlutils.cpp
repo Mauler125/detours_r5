@@ -172,7 +172,7 @@ bool CURLUploadFile(const char* remote, const char* filePath,
 }
 
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
-    const char* options, curl_off_t dataSize, void* userData, const CURLParams& params)
+    const char* options, curl_off_t dataSize, void* userData, const CURLParams& params, CUtlString* const pErrorMessage)
 {
     CURL* curl = EasyInit();
     if (!curl)
@@ -204,7 +204,10 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
     CURLcode res = curl_easy_perform(curl);
 
     if (res != CURLE_OK)
-    {
+    {   
+        if (pErrorMessage)
+            pErrorMessage->Format("CURL: Download of file '%s' failed; %s", fileName, curl_easy_strerror(res));
+
         Error(eDLL_T::COMMON, NO_ERROR, "CURL: Download of file '%s' failed; %s\n",
             fileName, curl_easy_strerror(res));
 
@@ -222,7 +225,7 @@ bool CURLDownloadFile(const char* remote, const char* savePath, const char* file
 
 CURL* CURLInitRequest(const char* remote, const char* request,
     string& outResponse, curl_slist*& slist, const CURLParams& params)
-{
+{ 
     slist = CURLSlistAppend(slist, "Content-Type: application/json");
     if (!slist)
     {

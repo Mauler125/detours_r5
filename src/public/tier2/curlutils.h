@@ -49,7 +49,7 @@ curl_slist* CURLSlistAppend(curl_slist* slist, const char* string);
 bool CURLUploadFile(const char* remote, const char* filePath, const char* options,
 	void* userData, const bool usePost, const curl_slist* slist, const CURLParams& params);
 bool CURLDownloadFile(const char* remote, const char* savePath, const char* fileName,
-	const char* options, curl_off_t dataSize, void* userData, const CURLParams& params);
+	const char* options, curl_off_t dataSize, void* userData, const CURLParams& params, CUtlString* const pErrorMsg = nullptr);
 
 CURL* CURLInitRequest(const char* remote, const char* request, string& outResponse,
 	curl_slist*& slist, const CURLParams& params);

@@ -12,11 +12,11 @@ struct LogList_t
 	string m_svText;
 };
 
-class CSurface : public Forms::Form
+class CAdvancedSurface : public Forms::Form
 {
 public:
-	CSurface();
-	virtual ~CSurface()
+	CAdvancedSurface();
+	virtual ~CAdvancedSurface()
 	{
 	};
 	UIX::UIXListView* ConsoleListView() const { return m_ConsoleListView; };
@@ -50,7 +50,7 @@ private:
 
 	uint64_t GetProcessorAffinity(string& szParameter);
 
-	void AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument = nullptr);
+	void AppendParameterInternal(string& svParameterList, const char* const szParameter, const char* const szArgument = nullptr);
 	void AppendProcessorParameters(string& svParameter);
 	void AppendConsoleParameters(string& svParameter);
 	void AppendVideoParameters(string& svParameter);

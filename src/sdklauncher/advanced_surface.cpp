@@ -3,15 +3,13 @@
 // Purpose: Launcher user interface implementation.
 //
 //=============================================================================//
-#include "basepanel.h"
+#include "advanced_surface.h"
 #include "sdklauncher.h"
 #include "mathlib/bits.h"
 #include "vpklib/packedstore.h"
 #include "vstdlib/keyvaluessystem.h"
 #include "filesystem/filesystem_std.h"
 #include "tier2/fileutils.h"
-
-extern CFileSystem_Stdio* FileSystem();
 
 //-----------------------------------------------------------------------------
 // Purpose: creates a font by name
@@ -39,7 +37,7 @@ HFONT CreateFontByName(const char* const name, const int size)
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
 //-----------------------------------------------------------------------------
-void CSurface::Init()
+void CAdvancedSurface::Init()
 {
 	// START DESIGNER CODE
 	const INT WindowX = 800;
@@ -537,7 +535,7 @@ void CSurface::Init()
 //-----------------------------------------------------------------------------
 // Purpose: post-init surface setup
 //-----------------------------------------------------------------------------
-void CSurface::Setup()
+void CAdvancedSurface::Setup()
 {
 	// Already parse these out since you can scroll select in a combo box
 	// without uncollapsing it.
@@ -560,7 +558,7 @@ void CSurface::Setup()
 //-----------------------------------------------------------------------------
 // Purpose: load and apply settings
 //-----------------------------------------------------------------------------
-void CSurface::LoadSettings()
+void CAdvancedSurface::LoadSettings()
 {
 	CUtlString settingsPath;
 	settingsPath.Format("platform/" SDK_USER_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
@@ -592,11 +590,11 @@ void CSurface::LoadSettings()
 	}
 
 	// Game.
-	this->m_PlaylistFileTextBox->SetText(sv->GetString("playlistsFile"));
+	this->m_PlaylistFileTextBox->SetText(sv->GetString("playlistsFile", "playlists_r5_patch.txt"));
 	this->m_CheatsToggle->SetChecked(sv->GetBool("enableCheats"));
 	this->m_DeveloperToggle->SetChecked(sv->GetBool("enableDeveloper"));
 	this->m_ConsoleToggle->SetChecked(sv->GetBool("enableConsole"));
-	this->m_ColorConsoleToggle->SetChecked(sv->GetBool("colorConsole"));
+	this->m_ColorConsoleToggle->SetChecked(sv->GetBool("colorConsole", true));
 
 	// Engine.
 	this->m_ReservedCoresTextBox->SetText(sv->GetString("reservedCoreCount", "-1"));
@@ -621,7 +619,7 @@ void CSurface::LoadSettings()
 //-----------------------------------------------------------------------------
 // Purpose: save current launcher state
 //-----------------------------------------------------------------------------
-void CSurface::SaveSettings()
+void CAdvancedSurface::SaveSettings()
 {
 	CUtlString settingsPath;
 	settingsPath.Format("platform/" SDK_USER_CFG_PATH "%s", LAUNCHER_SETTING_FILE);
@@ -692,25 +690,25 @@ void CSurface::SaveSettings()
 // Purpose: load callback
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::OnLoad(Forms::Control* pSender)
+void CAdvancedSurface::OnLoad(Forms::Control* pSender)
 {
-	((CSurface*)pSender->FindForm())->LoadSettings();
+	((CAdvancedSurface*)pSender->FindForm())->LoadSettings();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: close callback
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::OnClose(const std::unique_ptr<FormClosingEventArgs>& /*pEventArgs*/, Forms::Control* pSender)
+void CAdvancedSurface::OnClose(const std::unique_ptr<FormClosingEventArgs>& /*pEventArgs*/, Forms::Control* pSender)
 {
-	((CSurface*)pSender->FindForm())->SaveSettings();
+	((CAdvancedSurface*)pSender->FindForm())->SaveSettings();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: removes redundant files from the game install
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::CleanSDK(Forms::Control* pSender)
+void CAdvancedSurface::CleanSDK(Forms::Control* pSender)
 {
 	Msg(eDLL_T::COMMON, "Running cleaner for SDK installation\n");
 	std::system("bin\\clean_sdk.bat");
@@ -720,7 +718,7 @@ void CSurface::CleanSDK(Forms::Control* pSender)
 // Purpose: updates the SDK
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::UpdateSDK(Forms::Control* pSender)
+void CAdvancedSurface::UpdateSDK(Forms::Control* pSender)
 {
 	Msg(eDLL_T::COMMON, "Running updater for SDK installation\n");
 	std::system("bin\\update_sdk.bat");
@@ -730,9 +728,9 @@ void CSurface::UpdateSDK(Forms::Control* pSender)
 // Purpose: launches the game with the SDK
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::LaunchGame(Forms::Control* pSender)
+void CAdvancedSurface::LaunchGame(Forms::Control* pSender)
 {
-	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
 	string svParameter;
 
 	pSurface->AppendParameterInternal(svParameter, "-launcher");
@@ -747,7 +745,7 @@ void CSurface::LaunchGame(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 // Purpose: parses all available maps from the main vpk directory
 //-----------------------------------------------------------------------------
-void CSurface::ParseMaps()
+void CAdvancedSurface::ParseMaps()
 {
 	if (!m_MapCombo->Items.Contains(""))
 		m_MapCombo->Items.Add("");
@@ -799,7 +797,7 @@ void CSurface::ParseMaps()
 //-----------------------------------------------------------------------------
 // Purpose: parses all playlists from user selected playlist file
 //-----------------------------------------------------------------------------
-void CSurface::ParsePlaylists()
+void CAdvancedSurface::ParsePlaylists()
 {
 	if (!m_PlaylistCombo->Items.Contains(""))
 		m_PlaylistCombo->Items.Add("");
@@ -840,9 +838,9 @@ void CSurface::ParsePlaylists()
 // Purpose: clears the form and reloads the map list
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::ReloadMaplists(Forms::Control* pSender)
+void CAdvancedSurface::ReloadMaplists(Forms::Control* pSender)
 {
-	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
 
 	pSurface->m_MapCombo->Items.Clear();
 	pSurface->m_MapCombo->OnSizeChanged();
@@ -854,9 +852,9 @@ void CSurface::ReloadMaplists(Forms::Control* pSender)
 // Purpose: clears the form and reloads the playlist
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::ReloadPlaylists(Forms::Control* pSender)
+void CAdvancedSurface::ReloadPlaylists(Forms::Control* pSender)
 {
-	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
 
 	pSurface->m_PlaylistCombo->Items.Clear();
 	pSurface->m_PlaylistCombo->OnSizeChanged();
@@ -869,7 +867,7 @@ void CSurface::ReloadPlaylists(Forms::Control* pSender)
 // Input  : type - 
 // Input  : *pszText - 
 //-----------------------------------------------------------------------------
-void CSurface::AddLog(const LogType_t type, const char* const pszText)
+void CAdvancedSurface::AddLog(const LogType_t type, const char* const pszText)
 {
 	m_LogList.push_back(LogList_t(type, pszText));
 
@@ -889,12 +887,12 @@ void CSurface::AddLog(const LogType_t type, const char* const pszText)
 // Input  : &pEventArgs - 
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender)
+void CAdvancedSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender)
 {
 	if (pEventArgs->Button != Forms::MouseButtons::Right)
 		return;
 
-	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
 	List<uint32_t> lSelected = pSurface->m_ConsoleListView->SelectedIndices();
 
 	if (!lSelected.Count())
@@ -912,9 +910,9 @@ void CSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEv
 // Input  : &pEventArgs - 
 //			*pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
+void CAdvancedSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
 {
-	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
 	if (static_cast<int>(pSurface->m_LogList.size()) <= 0)
 		return;
 
@@ -963,9 +961,9 @@ void CSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEv
 // Purpose: forward input command to all game window instances
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
-void CSurface::ForwardCommandToGame(Forms::Control* pSender)
+void CAdvancedSurface::ForwardCommandToGame(Forms::Control* pSender)
 {
-	CSurface* pSurface = reinterpret_cast<CSurface*>(pSender->FindForm());
+	CAdvancedSurface* pSurface = reinterpret_cast<CAdvancedSurface*>(pSender->FindForm());
 	vector<HWND> vecHandles;
 
 	if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&vecHandles)))
@@ -1007,7 +1005,7 @@ void CSurface::ForwardCommandToGame(Forms::Control* pSender)
 //			*szParameter - 
 //			*szArgument - 
 //-----------------------------------------------------------------------------
-void CSurface::AppendParameterInternal(string& svParameterList, const char* szParameter, const char* szArgument /*= nullptr*/)
+void CAdvancedSurface::AppendParameterInternal(string& svParameterList, const char* const szParameter, const char* const szArgument /*= nullptr*/)
 {
 	if (szArgument)
 		svParameterList.append(Format("%s \"%s\"\n", szParameter, szArgument));
@@ -1019,7 +1017,7 @@ void CSurface::AppendParameterInternal(string& svParameterList, const char* szPa
 // Purpose: appends the reversed core count value to the command line buffer
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CSurface::AppendProcessorParameters(string& svParameters)
+void CAdvancedSurface::AppendProcessorParameters(string& svParameters)
 {
 	const int nReservedCores = atoi(this->m_ReservedCoresTextBox->Text().ToCString());
 	if (nReservedCores > -1) // A reserved core count of 0 seems to crash the game on some systems.
@@ -1040,7 +1038,7 @@ void CSurface::AppendProcessorParameters(string& svParameters)
 // Purpose: appends the console parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CSurface::AppendConsoleParameters(string& svParameters)
+void CAdvancedSurface::AppendConsoleParameters(string& svParameters)
 {
 	if (this->m_ConsoleToggle->Checked())
 		AppendParameterInternal(svParameters, "-wconsole");
@@ -1059,7 +1057,7 @@ void CSurface::AppendConsoleParameters(string& svParameters)
 // Purpose: appends the video parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CSurface::AppendVideoParameters(string& svParameters)
+void CAdvancedSurface::AppendVideoParameters(string& svParameters)
 {
 	if (this->m_WindowedToggle->Checked())
 		AppendParameterInternal(svParameters, "-windowed");
@@ -1088,7 +1086,7 @@ void CSurface::AppendVideoParameters(string& svParameters)
 // Purpose: appends the host parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CSurface::AppendHostParameters(string& svParameters)
+void CAdvancedSurface::AppendHostParameters(string& svParameters)
 {
 	if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
 	{
@@ -1117,7 +1115,7 @@ void CSurface::AppendHostParameters(string& svParameters)
 // Purpose: appends the net parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CSurface::AppendNetParameters(string& svParameters)
+void CAdvancedSurface::AppendNetParameters(string& svParameters)
 {
 	AppendParameterInternal(svParameters, "+net_encryptionEnable", this->m_NetEncryptionToggle->Checked() ? "1" : "0");
 	AppendParameterInternal(svParameters, "+net_useRandomKey", this->m_NetRandomKeyToggle->Checked() ? "1" : "0");
@@ -1132,7 +1130,7 @@ void CSurface::AppendNetParameters(string& svParameters)
 // Input  : &svParameters - 
 // Output : eLaunchMode [HOST - SERVER - CLIENT - NONE]
 //-----------------------------------------------------------------------------
-eLaunchMode CSurface::BuildParameter(string& svParameters)
+eLaunchMode CAdvancedSurface::BuildParameter(string& svParameters)
 {
 	eLaunchMode results = eLaunchMode::LM_NONE;
 
@@ -1311,7 +1309,7 @@ eLaunchMode CSurface::BuildParameter(string& svParameters)
 // ON   ON   ON   OFF = 1110 = E
 // ON   ON   ON   ON  = 1111 = F
 //-----------------------------------------------------------------------------
-uint64_t CSurface::GetProcessorAffinity(string& svParameters)
+uint64_t CAdvancedSurface::GetProcessorAffinity(string& svParameters)
 {
 	char* pEnd;
 	const uint64_t nProcessorAffinity = strtoull(this->m_ProcessorAffinityTextBox->Text().ToCString(), &pEnd, 16);
@@ -1330,7 +1328,7 @@ uint64_t CSurface::GetProcessorAffinity(string& svParameters)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CSurface::CSurface() : Forms::Form()
+CAdvancedSurface::CAdvancedSurface() : Forms::Form()
 {
 	// Game.
 	m_GameGroup = nullptr;

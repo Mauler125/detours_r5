@@ -13,6 +13,14 @@
 #include "thirdparty/cppnet/cppkore/UIXGroupBox.h"
 #include "thirdparty/cppnet/cppkore/UIXButton.h"
 #include "thirdparty/cppnet/cppkore/UIXRadioButton.h"
+#include "thirdparty/cppnet/cppkore/UIXProgressBar.h"
 #include "thirdparty/cppnet/cppkore/KoreTheme.h"
+#include "thirdparty/cppnet/cppkore/Thread.h"
+#include "thirdparty/cppnet/cppkore/MessageBox.h"
+#include "thirdparty/cppnet/cppkore/MessageBoxButtons.h"
 
 #include "sdklauncher/sdklauncher_const.h"
+#include "filesystem/filesystem_std.h"
+
+
+extern CFileSystem_Stdio* FileSystem();

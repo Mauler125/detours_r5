@@ -10,6 +10,28 @@
 #define DEFAULT_WINDOW_CLASS_NAME "Respawn001"
 #define LAUNCHER_SETTING_FILE "launcher.vdf"
 
+// Gigabytes.
+// TODO: obtain these from the repo...
+#define MIN_REQUIRED_DISK_SPACE 35
+#define MIN_REQUIRED_DISK_SPACE_OPT 55 // Optional textures
+
+#define QUERY_TIMEOUT 15
+#define BASE_PLATFORM_DIR "platform\\"
+#define DEFAULT_DEPOT_DOWNLOAD_DIR BASE_PLATFORM_DIR "depot\\"
+
+// Files that need to be installed during launcher restart,
+// have to go here!!
+#define RESTART_DEPOT_DOWNLOAD_DIR DEFAULT_DEPOT_DOWNLOAD_DIR "temp\\"
+
+#define DEPOT_MANIFEST_FILE "manifest_patch.json"
+#define DEPOT_MANIFEST_FILE_PATH BASE_PLATFORM_DIR DEPOT_MANIFEST_FILE
+
+// TODO: these should be obtained dynamically!!!
+#define GAME_DEPOT_VENDOR "https://api.github.com/repos/SlaveBuild/N1094_CL456479/releases"
+#define SDK_DEPOT_VENDOR "https://api.github.com/repos/Mauler125/r5sdk/releases"
+
+#define SDK_LAUNCHER_LOG_DIR BASE_PLATFORM_DIR"logs\\tools\\sdk_launcher"
+
 //-----------------------------------------------------------------------------
 // Launch and inject specified dll based on launch mode
 //-----------------------------------------------------------------------------

@@ -8,8 +8,10 @@
 #include "tier0/cpu.h"
 #include "tier0/binstream.h"
 #include "tier1/fmtstr.h"
-#include "basepanel.h"
+#include "advanced_surface.h"
 #include "sdklauncher.h"
+#include "sdklauncher_utils.h"
+#include "base_surface.h"
 
 #include "windows/console.h"
 #include "vstdlib/keyvaluessystem.h"
@@ -64,10 +66,13 @@ void CLauncher::RunSurface()
     Forms::Application::EnableVisualStyles();
     UIX::UIXTheme::InitializeRenderer(new Themes::KoreTheme());
 
-    m_pSurface = new CSurface();
-    m_pSurface->Init();
+    //m_pSurface = new CAdvancedSurface();
+    //m_pSurface->Init();
 
-    Forms::Application::Run(m_pSurface, true);
+    m_pBaseSurface = new CBaseSurface();
+    
+
+    Forms::Application::Run(m_pBaseSurface, true);
     UIX::UIXTheme::ShutdownRenderer();
 }
 
@@ -81,20 +86,32 @@ void CLauncher::Init()
     // Init time.
     Plat_FloatTime();
     SpdLog_Init(true);
+
+    CUtlString logFile;
+    string logUUID = CreateUUID();
+    if (logUUID.empty())
+    {
+        logUUID = "00000000-0000-0000-0000-000000000000";
+    }
+
+    logFile.Format(SDK_LAUNCHER_LOG_DIR"\\%s\\sdk_launcher.log", logUUID.c_str());
+
+    SpdLog_InstallSupplementalLogger("sdk_launcher_logger_mt", logFile.Get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: de-initializes the launcher
 ///////////////////////////////////////////////////////////////////////////////
-void CLauncher::Shutdown()
+void CLauncher::Shutdown(uint32_t exitCode)
 {
     SpdLog_Shutdown();
+    ExitProcess(exitCode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: adds a log to the surface console
 ///////////////////////////////////////////////////////////////////////////////
-void CLauncher::AddLog(const LogType_t level, const char* szText)
+void CLauncher::AddLog(const LogType_t level, const char* const szText)
 {
     if (m_pSurface)
     {
@@ -139,7 +156,7 @@ int CLauncher::HandleCommandLine(int argc, char* argv[])
         {
             mode = eLaunchMode::LM_CLIENT;
         }
-
+       
         if (mode != eLaunchMode::LM_NONE)
         {
             if (CreateLaunchContext(mode) && LaunchProcess())
@@ -208,7 +225,7 @@ int CLauncher::HandleInput()
 //          *szCommandLine - 
 // Output : true on success, false otherwise.
 ///////////////////////////////////////////////////////////////////////////////
-bool CLauncher::CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffinity /*= NULL*/, const char* szCommandLine /*= nullptr*/, const char* szConfig /*= nullptr*/)
+bool CLauncher::CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffinity /*= NULL*/, const char* const szCommandLine /*= nullptr*/, const char* szConfig /*= nullptr*/)
 {
     ///////////////////////////////////////////////////////////////////////////
     const char* szGameDLL = nullptr;
@@ -292,29 +309,16 @@ bool CLauncher::CreateLaunchContext(eLaunchMode lMode, uint64_t nProcessorAffini
 //          *szGameDll     - 
 //          *szCommandLine - 
 ///////////////////////////////////////////////////////////////////////////////
-void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, const char* szCommandLine)
-{
-    CIOStream cfgFile;
-
+void CLauncher::SetupLaunchContext(const char* const szConfig, const char* const szGameDll, const char* const szCommandLine)
+{    
     CFmtStrN<1024> cfgFileName;
-    CFmtStrMax commandLine;
+    CUtlBuffer commandLineBuff(ssize_t(0),0, CUtlBuffer::TEXT_BUFFER);
 
     if (szConfig && szConfig[0])
     {
         cfgFileName.Format(GAME_CFG_PATH"%s", szConfig);
 
-        if (cfgFile.Open(cfgFileName.String(), CIOStream::READ))
-        {
-            if (!cfgFile.ReadString(commandLine.Access(), commandLine.GetMaxLength()))
-            {
-                Error(eDLL_T::COMMON, 0, "Failed to read file '%s'!\n", szConfig);
-            }
-            else
-            {
-                commandLine.SetLength(strlen(commandLine.String()));
-            }
-        }
-        else // Failed to open config file.
+        if (!FileSystem()->ReadFile(cfgFileName.String(), nullptr, commandLineBuff))
         {
             Error(eDLL_T::COMMON, 0, "Failed to open file '%s'!\n", szConfig);
         }
@@ -322,18 +326,18 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, 
 
     if (szCommandLine && szCommandLine[0])
     {
-        commandLine.Append(szCommandLine);
+        commandLineBuff.PutString(szCommandLine);
     }
 
     m_svGameDll = Format("%s\\%s", m_svCurrentDir.c_str(), szGameDll);
-    m_svCmdLine = Format("%s\\%s %s", m_svCurrentDir.c_str(), szGameDll, commandLine.String());
+    m_svCmdLine = Format("%s\\%s %s", m_svCurrentDir.c_str(), szGameDll, commandLineBuff.Base());
 
     ///////////////////////////////////////////////////////////////////////////
     // Print the file paths and arguments.
     Msg(eDLL_T::NONE, "--------------------------------------------------------------------------------------------------------------\n");
     Msg(eDLL_T::COMMON, "- CWD: %s\n", m_svCurrentDir.c_str());
     Msg(eDLL_T::COMMON, "- EXE: %s\n", m_svGameDll.c_str());
-    Msg(eDLL_T::COMMON, "- CLI: %s\n", commandLine.String());
+    Msg(eDLL_T::COMMON, "- CLI: %s\n", commandLineBuff.Base());
     Msg(eDLL_T::NONE, "--------------------------------------------------------------------------------------------------------------\n");
 }
 
@@ -432,6 +436,15 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 {
     CheckSystemCPUForSSE2();
+
+    // Only 1 instance at a time.
+    if (SDKLauncher_ForceExistingInstanceOnTop())
+    {
+        return EXIT_SUCCESS;
+    }
+
+    int exitCode = EXIT_SUCCESS;
+
     if (__argc < 2)
     {
 #ifdef _DEBUG
@@ -439,29 +452,31 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 #endif // _DEBUG
         SDKLauncher()->Init();
         SDKLauncher()->RunSurface();
-        SDKLauncher()->Shutdown();
 #ifdef _DEBUG
-        Console_Shutdown();
+        exitCode = !Console_Shutdown();
 #endif // _DEBUG
+        SDKLauncher()->Shutdown(exitCode);
     }
     else
     {
+#ifdef _DEBUG
         if (!Console_Init(true))
             return EXIT_FAILURE;
+#endif // _DEBUG
 
         SDKLauncher()->Init();
 
-        int cmdRet = SDKLauncher()->HandleCommandLine(__argc, __argv);
+        exitCode = SDKLauncher()->HandleCommandLine(__argc, __argv);
 
-        if (cmdRet == -1)
-            cmdRet = SDKLauncher()->HandleInput();
+        if (exitCode == -1)
+            exitCode = SDKLauncher()->HandleInput();
 
-        SDKLauncher()->Shutdown();
+#ifdef _DEBUG
+        //Make sure that the consoles exit code doesnt overwrite a failure from handle input        
+        exitCode = max(exitCode, static_cast<int>(!Console_Shutdown()));
+#endif // _DEBUG
 
-        if (!Console_Shutdown())
-            return EXIT_FAILURE;
-
-        return cmdRet;
+        SDKLauncher()->Shutdown(exitCode);
     }
     return EXIT_SUCCESS;
 }

@@ -15,6 +15,7 @@
 #include "geforce/reflex.h"
 #include "radeon/antilag.h"
 #ifndef MATERIALSYSTEM_NODX
+#include "windows/id3dx.h"
 #include "gameui/imgui_system.h"
 #include "materialsystem/cmaterialglue.h"
 #endif // !MATERIALSYSTEM_NODX
@@ -152,7 +153,10 @@ void* CMaterialSystem::SwapBuffers(CMaterialSystem* pMatSys)
 {
 	CImguiSystem* const imguiSystem = ImguiSystem();
 
-	if (imguiSystem->IsInitialized())
+	// See https://github.com/ocornut/imgui/issues/7615, looking for status msg
+	// DXGI_STATUS_OCCLUDED isn't compatible with DXGI_SWAP_EFFECT_FLIP_DISCARD.
+	// This engine however does not use the flip model.
+	if (imguiSystem->IsInitialized() && D3D11SwapChain()->Present(0, DXGI_PRESENT_TEST) != DXGI_STATUS_OCCLUDED)
 	{
 		imguiSystem->SampleFrame();
 		imguiSystem->SwapBuffers();

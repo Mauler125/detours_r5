@@ -327,8 +327,8 @@ void CBaseSurface::OnUpdateClick(Forms::Control* Sender)
 		{
 			Warning(eDLL_T::COMMON, "Failed to create depot directories: Error code = %08x\n: %s\n", GetLastError());
 
-			Forms::MessageBox::Show(Format("Failed to create depot directories: Error code = %08x\n", GetLastError()).c_str(),
-				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
+			Forms::MessageBox::Show(nullptr, Format("Failed to create depot directories: Error code = %08x\n", GetLastError()).c_str(),
+				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error, MessageBoxDefaultButton::Button1, static_cast<MessageBoxOptions>(MB_SETFOREGROUND));
 
 			pProgress->Close();
 			return;
@@ -341,9 +341,9 @@ void CBaseSurface::OnUpdateClick(Forms::Control* Sender)
 		{
 			Warning(eDLL_T::COMMON, "Failed to install game: %s\n", errorMessage.String());
 
-			Forms::MessageBox::Show(Format("Failed to install game: %s\n", errorMessage.String()).c_str(),
-				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
-
+			Forms::MessageBox::Show(nullptr, Format("Failed to install game: %s\n", errorMessage.String()).c_str(),
+				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error, MessageBoxDefaultButton::Button1, static_cast<MessageBoxOptions>(MB_SETFOREGROUND));
+			
 			pProgress->Close();
 			return;
 		}
@@ -405,9 +405,9 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 		{
 			Warning(eDLL_T::COMMON, "Failed to create intermediate directory: Error code = %08x\n: %s\n", GetLastError());
 
-			Forms::MessageBox::Show(Format("Failed to create intermediate directory: Error code = %08x\n", GetLastError()).c_str(),
-				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
-
+			Forms::MessageBox::Show(nullptr, Format("Failed to create intermediate directory: Error code = %08x\n", GetLastError()).c_str(),
+				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error, MessageBoxDefaultButton::Button1, static_cast<MessageBoxOptions>(MB_SETFOREGROUND));
+			
 			pProgress->Close();
 			return;
 		}
@@ -419,8 +419,8 @@ void CBaseSurface::OnInstallClick(Forms::Control* Sender)
 		{
 			Warning(eDLL_T::COMMON, "Failed to install game: %s\n", errorMessage.String());
 
-			Forms::MessageBox::Show(Format("Failed to install game: %s\n", errorMessage.String()).c_str(),
-				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error);
+			Forms::MessageBox::Show(nullptr, Format("Failed to install game: %s\n", errorMessage.String()).c_str(),
+				"Error", Forms::MessageBoxButtons::OK, Forms::MessageBoxIcon::Error, MessageBoxDefaultButton::Button1, static_cast<MessageBoxOptions>(MB_SETFOREGROUND));
 			
 			pProgress->Close();
 			return;

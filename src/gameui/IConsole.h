@@ -61,6 +61,9 @@ public:
     static void ClearHistory_f();
 
 private: // Internals.
+    void HandleCommand();
+    void HandleSuggest();
+
     void AddLog(const ImU32 color, const char* fmt, ...) /*IM_FMTARGS(2)*/;
 
     void ClampLogSize(void);

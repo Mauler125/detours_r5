@@ -280,20 +280,6 @@ bool CConsole::DrawSurface(void)
 
     ImGui::Text("%s", m_summaryTextBuf);
 
-    const std::function<void(void)> fnHandleInput = [&](void)
-    {
-        if (m_inputTextBuf[0])
-        {
-            ProcessCommand(m_inputTextBuf);
-            ResetAutoCompleteData();
-
-            m_inputTextBufModified = true;
-        }
-
-        BuildSummaryText("");
-        m_reclaimFocus = true;
-    };
-
     ///////////////////////////////////////////////////////////////////////
     const static int inputTextFieldFlags =
         ImGuiInputTextFlags_EnterReturnsTrue       |
@@ -311,16 +297,17 @@ bool CConsole::DrawSurface(void)
         // command from that instead
         if (m_suggestPos > ConAutoCompletePos_e::kPark)
         {
-            DetermineInputTextFromSelectedSuggestion(m_vecSuggest[m_suggestPos], m_selectedSuggestionText);
-            BuildSummaryText(m_selectedSuggestionText.c_str());
-
-            m_inputTextBufModified = true;
-            m_reclaimFocus = true;
+            HandleSuggest();
         }
         else
         {
-            fnHandleInput();
+            HandleCommand();
         }
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_Tab))
+    {
+        HandleSuggest();
     }
 
     // Auto-focus input field on window apparition.
@@ -338,7 +325,7 @@ bool CConsole::DrawSurface(void)
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
     {
-        fnHandleInput();
+        HandleCommand();
     }
 
     ImGui::End();
@@ -1102,6 +1089,50 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 {
     CConsole* const pConsole = reinterpret_cast<CConsole*>(iData->UserData);
     return pConsole->TextEditCallback(iData);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: handle anything in the command buffer
+//-----------------------------------------------------------------------------
+void CConsole::HandleCommand()
+{
+    if (m_inputTextBuf[0])
+    {
+        ProcessCommand(m_inputTextBuf);
+        ResetAutoCompleteData();
+
+        m_inputTextBufModified = true;
+    }
+
+    BuildSummaryText("");
+    m_reclaimFocus = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: handle the suggested item that was selected
+//-----------------------------------------------------------------------------
+void CConsole::HandleSuggest()
+{
+    const bool parked = m_suggestPos == ConAutoCompletePos_e::kPark;
+
+    if (parked && m_vecSuggest.empty())
+    {
+        return;
+    }
+
+    // Note: we should never be able to move the suggest pos
+    // if the suggest list is empty. Suggest pos must always
+    // be cleared if the list is cleared.
+    Assert(!m_vecSuggest.empty());
+
+    // Use the first item if the suggest position is parked.
+    const int vecIndex = parked ? 0 : m_suggestPos;
+
+    DetermineInputTextFromSelectedSuggestion(m_vecSuggest[vecIndex], m_selectedSuggestionText);
+    BuildSummaryText(m_selectedSuggestionText.c_str());
+
+    m_inputTextBufModified = true;
+    m_reclaimFocus = true;
 }
 
 //-----------------------------------------------------------------------------

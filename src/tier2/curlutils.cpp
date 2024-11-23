@@ -47,7 +47,7 @@ void CURLInitCommonOptions(CURL* curl, const char* remote,
         Assert(progressData);
 
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0l);
-        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &progressData);
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, progressData);
         curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, params.statusFunction);
     }
 }

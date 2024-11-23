@@ -37,7 +37,6 @@ private:
     void DetermineAutoCompleteWindowRect(void);
 
     bool LoadFlagIcons(void);
-    int GetFlagTextureIndex(const int flags) const;
 
     int TextEditCallback(ImGuiInputTextCallbackData* pData);
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);

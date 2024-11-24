@@ -18,6 +18,7 @@
 #include <engine/server/server.h>
 #endif // !CLIENT_DLL
 #include <engine/sys_engine.h>
+#include <engine/sys_mainwind.h>
 #include <engine/debugoverlay.h>
 #include <engine/client/clientstate.h>
 #include <materialsystem/cmaterialglue.h>
@@ -137,8 +138,11 @@ void CTextOverlay::AddLog(const eDLL_T context, const char* pszText)
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawNotify(void)
 {
-	int x = con_notify_invert_x.GetBool() ? g_nWindowRect[0] - con_notify_offset_x.GetInt() : con_notify_offset_x.GetInt();
-	int y = con_notify_invert_y.GetBool() ? g_nWindowRect[1] - con_notify_offset_y.GetInt() : con_notify_offset_y.GetInt();
+	int w, h;
+	g_pGame->GetWindowRect(nullptr, nullptr, &w, &h);
+
+	int x = con_notify_invert_x.GetBool() ? w - con_notify_offset_x.GetInt() : con_notify_offset_x.GetInt();
+	int y = con_notify_invert_y.GetBool() ? h - con_notify_offset_y.GetInt() : con_notify_offset_y.GetInt();
 
 	AUTO_LOCK(m_Mutex);
 
@@ -240,10 +244,13 @@ void CTextOverlay::Con_NPrintf(void)
 		return;
 	}
 
-	static const Color c = { 255, 255, 255, 255 };
-	const int nWidth = cl_notify_invert_x.GetBool() ? g_nWindowRect[0] - cl_notify_offset_x.GetInt() : cl_notify_offset_x.GetInt() + m_nCon_NPrintf_Idx * m_nFontHeight;
-	const int nHeight = cl_notify_invert_y.GetBool() ? g_nWindowRect[1] - cl_notify_offset_y.GetInt() : cl_notify_offset_y.GetInt();
+	int w, h;
+	g_pGame->GetWindowRect(nullptr, nullptr, &w, &h);
 
+	const int nWidth = cl_notify_invert_x.GetBool() ? w - cl_notify_offset_x.GetInt() : cl_notify_offset_x.GetInt() + m_nCon_NPrintf_Idx * m_nFontHeight;
+	const int nHeight = cl_notify_invert_y.GetBool() ? h - cl_notify_offset_y.GetInt() : cl_notify_offset_y.GetInt();
+
+	static const Color c = { 255, 255, 255, 255 };
 	CMatSystemSurface__DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), "%s", m_szCon_NPrintf_Buf);
 
 	m_nCon_NPrintf_Idx = 0;
@@ -255,9 +262,13 @@ void CTextOverlay::Con_NPrintf(void)
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawSimStats(void) const
 {
+	int w, h;
+	g_pGame->GetWindowRect(nullptr, nullptr, &w, &h);
+
+	const int nWidth  = cl_simstats_invert_x.GetBool() ? w - cl_simstats_offset_x.GetInt() : cl_simstats_offset_x.GetInt();
+	const int nHeight = cl_simstats_invert_y.GetBool() ? h - cl_simstats_offset_y.GetInt() : cl_simstats_offset_y.GetInt();
+
 	static const Color c = { 255, 255, 255, 255 };
-	const int nWidth  = cl_simstats_invert_x.GetBool() ? g_nWindowRect[0] - cl_simstats_offset_x.GetInt() : cl_simstats_offset_x.GetInt();
-	const int nHeight = cl_simstats_invert_y.GetBool() ? g_nWindowRect[1] - cl_simstats_offset_y.GetInt() : cl_simstats_offset_y.GetInt();
 
 	DrawFormat(nWidth, nHeight, c, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n", 
 		g_pClientState->GetServerTickCount(), g_pClientState->GetClientTickCount(), *g_nRenderTickCount);
@@ -268,9 +279,13 @@ void CTextOverlay::DrawSimStats(void) const
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawGPUStats(void) const
 {
+	int w, h;
+	g_pGame->GetWindowRect(nullptr, nullptr, &w, &h);
+
+	const int nWidth  = cl_gpustats_invert_x.GetBool() ? w - cl_gpustats_offset_x.GetInt() : cl_gpustats_offset_x.GetInt();
+	const int nHeight = cl_gpustats_invert_y.GetBool() ? h - cl_gpustats_offset_y.GetInt() : cl_gpustats_offset_y.GetInt();
+
 	static const Color c = { 255, 255, 255, 255 };
-	const int nWidth  = cl_gpustats_invert_x.GetBool() ? g_nWindowRect[0] - cl_gpustats_offset_x.GetInt() : cl_gpustats_offset_x.GetInt();
-	const int nHeight = cl_gpustats_invert_y.GetBool() ? g_nWindowRect[1] - cl_gpustats_offset_y.GetInt() : cl_gpustats_offset_y.GetInt();
 
 	DrawFormat(nWidth, nHeight, c, "%8zd/%8zd/%8zdkiB unusable/unfree/total GPU Streaming Texture memory\n",
 		*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nTotalStreamingTextureMemory / 1024);

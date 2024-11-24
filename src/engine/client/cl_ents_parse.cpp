@@ -9,6 +9,21 @@
 #include "engine/host.h"
 #include "engine/client/cl_ents_parse.h"
 
+bool CL_CopyNewEntity(CEntityReadInfo* const u, unsigned int* const iClass, const int iSerialNum, bool* const pbError)
+{
+	// Similar to the issue in CL_CopyExistingEntity,
+	// except, only the lower bounds check was missing.
+	if (u->m_nNewEntity < NULL || u->m_nNewEntity >= MAX_EDICTS)
+	{
+		Host_Error("CL_CopyNewEntity: u.m_nNewEntity < 0 || u.m_nNewEntity >= MAX_EDICTS");
+		*pbError = true;
+
+		return false;
+	}
+
+	return v_CL_CopyNewEntity(u, iClass, iSerialNum, pbError);
+}
+
 bool CL_CopyExistingEntity(CEntityReadInfo* const u, unsigned int* const iClass, bool* const pbError)
 {
 	if (u->m_nNewEntity < NULL || u->m_nNewEntity >= MAX_EDICTS)

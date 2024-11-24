@@ -1,9 +1,10 @@
 #ifndef CL_ENTS_PARSE_H
 #define CL_ENTS_PARSE_H
+#include "engine/shared/ents_shared.h"
 
-inline bool(*v_CL_CopyExistingEntity)(__int64 a1, unsigned int* a2, char* a3);
+inline bool(*v_CL_CopyExistingEntity)(CEntityReadInfo* const u, unsigned int* const iClass, bool* const pbError);
 
-bool CL_CopyExistingEntity(__int64 a1, unsigned int* a2, char* a3);
+bool CL_CopyExistingEntity(CEntityReadInfo* const u, unsigned int* const iClass, bool* const pbError);
 ///////////////////////////////////////////////////////////////////////////////
 class V_CL_Ents_Parse : public IDetour
 {

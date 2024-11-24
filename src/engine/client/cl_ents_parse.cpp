@@ -8,10 +8,9 @@
 #include "public/const.h"
 #include "engine/client/cl_ents_parse.h"
 
-bool CL_CopyExistingEntity(__int64 a1, unsigned int* a2, char* a3)
+bool CL_CopyExistingEntity(CEntityReadInfo* const u, unsigned int* const iClass, bool* const pbError)
 {
-	int nNewEntity = *reinterpret_cast<int*>(a1 + 40);
-	if (nNewEntity >= MAX_EDICTS || nNewEntity < NULL)
+	if (u->m_nNewEntity < NULL || u->m_nNewEntity >= MAX_EDICTS)
 	{
 		// Value isn't sanitized in release builds for
 		// every game powered by the Source Engine 1
@@ -22,5 +21,6 @@ bool CL_CopyExistingEntity(__int64 a1, unsigned int* a2, char* a3)
 		// here to prevent this behavior from happening.
 		return false;
 	}
-	return v_CL_CopyExistingEntity(a1, a2, a3);
+
+	return v_CL_CopyExistingEntity(u, iClass, pbError);
 }

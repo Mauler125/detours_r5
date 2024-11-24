@@ -78,7 +78,7 @@ void _Host_RunFrame(void* unused, float time)
 	return v_Host_RunFrame(unused, time);
 }
 
-void _Host_Error(const char* error, ...)
+void Host_Error(const char* const error, ...)
 {
 	char buf[1024];
 	{/////////////////////////////
@@ -102,6 +102,6 @@ void VHost::Detour(const bool bAttach) const
 	DetourSetup(&v_Host_CountRealTimePackets, &Host_CountRealTimePackets, bAttach);
 
 #ifndef DEDICATED // Dedicated already logs this!
-	DetourSetup(&v_Host_Error, &_Host_Error, bAttach);
+	DetourSetup(&v_Host_Error, &Host_Error, bAttach);
 #endif // !DEDICATED
 }

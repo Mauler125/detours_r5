@@ -15,6 +15,8 @@ inline bool* host_initialized = nullptr;
 inline float* host_frametime_unbounded = nullptr;
 inline float* host_frametime_stddeviation = nullptr;
 
+void Host_Error(const char* const error, ...);
+
 class CCommonHostState
 {
 public:

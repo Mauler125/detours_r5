@@ -138,6 +138,7 @@ add_sources( SOURCE_GROUP "Shared"
     "shared/shared_rcon.h"
     "shared/datablock.cpp"
     "shared/datablock.h"
+    "shared/ents_shared.h"
 )
 
 if( NOT ${PROJECT_NAME} STREQUAL "engine_ds" )

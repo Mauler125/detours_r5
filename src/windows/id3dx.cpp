@@ -301,13 +301,13 @@ bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView*
 
 void ResetInput()
 {
-	g_pInputSystem->EnableInput( // Enables the input system when both are not drawn.
-		!g_Browser.IsActivated() && !g_Console.IsActivated());
+	// Enables the input system when no imgui surface is drawn.
+	g_pInputSystem->EnableInput(!ImguiSystem()->IsSurfaceActive());
 }
 
 bool PanelsVisible()
 {
-	if (g_Browser.IsActivated() || g_Console.IsActivated())
+	if (ImguiSystem()->IsSurfaceActive())
 	{
 		return true;
 	}

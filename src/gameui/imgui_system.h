@@ -24,6 +24,8 @@ public:
 	void SampleFrame();
 	void RenderFrame();
 
+	bool IsSurfaceActive() const;
+
 	// statics:
 	static LRESULT MessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

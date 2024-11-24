@@ -60,7 +60,7 @@ LRESULT CGame::ImguiWindowProc(HWND hWnd, UINT& uMsg, WPARAM wParam, LPARAM lPar
 		}
 	}
 
-	if (g_Console.IsActivated() || g_Browser.IsActivated())
+	if (ImguiSystem()->IsSurfaceActive())
 	{//////////////////////////////////////////////////////////////////////////////
 		hr = ImguiSystem()->MessageHandler(hWnd, uMsg, wParam, lParam);
 

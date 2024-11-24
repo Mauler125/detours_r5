@@ -174,6 +174,20 @@ void CImguiSystem::RenderFrame()
 }
 
 //-----------------------------------------------------------------------------
+// Checks whether we have an active surface.
+//-----------------------------------------------------------------------------
+bool CImguiSystem::IsSurfaceActive() const
+{
+	FOR_EACH_VEC(m_surfaceList, i)
+	{
+		if (m_surfaceList[i]->IsActivated())
+			return true;
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 // Window procedure handler.
 //-----------------------------------------------------------------------------
 LRESULT CImguiSystem::MessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

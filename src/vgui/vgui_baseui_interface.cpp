@@ -15,7 +15,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CEngineVGui::Paint(CEngineVGui* thisptr, PaintMode_t mode)
+int CEngineVGui::VPaint(CEngineVGui* const thisptr, const PaintMode_t mode)
 {
 	int result = CEngineVGui__Paint(thisptr, mode);
 
@@ -30,7 +30,7 @@ int CEngineVGui::Paint(CEngineVGui* thisptr, PaintMode_t mode)
 ///////////////////////////////////////////////////////////////////////////////
 void VEngineVGui::Detour(const bool bAttach) const
 {
-	DetourSetup(&CEngineVGui__Paint, &CEngineVGui::Paint, bAttach);
+	DetourSetup(&CEngineVGui__Paint, &CEngineVGui::VPaint, bAttach);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

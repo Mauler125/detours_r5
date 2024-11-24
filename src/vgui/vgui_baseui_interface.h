@@ -1,83 +1,79 @@
 #pragma once
+#include "public/vgui/ienginevgui.h"
 #include <engine/server/sv_main.h>
 #include <vguimatsurface/MatSystemSurface.h>
 #include "inputsystem/iinputsystem.h"
 
-enum class PaintMode_t
-{
-	PAINT_UIPANELS     = (1 << 0),
-	PAINT_INGAMEPANELS = (1 << 1),
-};
-
-// Might not be complete:
-enum LevelLoadingProgress_e
-{
-	PROGRESS_INVALID = -2,
-	PROGRESS_DEFAULT = -1,
-
-	PROGRESS_NONE,
-	PROGRESS_CHANGELEVEL,
-	PROGRESS_SPAWNSERVER,
-	PROGRESS_LOADWORLDMODEL,
-	PROGRESS_CRCMAP,
-	PROGRESS_CRCCLIENTDLL,
-	PROGRESS_CREATENETWORKSTRINGTABLES,
-	PROGRESS_PRECACHEWORLD,
-	PROGRESS_CLEARWORLD,
-	PROGRESS_LEVELINIT,
-	PROGRESS_PRECACHE,
-	PROGRESS_ACTIVATESERVER,
-	PROGRESS_BEGINCONNECT,
-	PROGRESS_SIGNONCHALLENGE,
-	PROGRESS_SIGNONCONNECT,
-	PROGRESS_SIGNONCONNECTED,
-	PROGRESS_PROCESSSERVERINFO,
-	PROGRESS_PROCESSSTRINGTABLE,
-	PROGRESS_SIGNONNEW,
-	PROGRESS_SENDCLIENTINFO,
-	PROGRESS_SENDSIGNONDATA,
-	PROGRESS_SIGNONSPAWN,
-	PROGRESS_CREATEENTITIES,
-	PROGRESS_FULLYCONNECTED,
-	PROGRESS_PRECACHELIGHTING,
-	PROGRESS_READYTOPLAY,
-	PROGRESS_HIGHESTITEM,	// must be last item in list
-};
-
-class CEngineVGui
+abstract_class IEngineVGuiInternal : public IEngineVGui
 {
 public:
-	static int Paint(CEngineVGui* thisptr, PaintMode_t mode);
+	virtual int Init() = 0;
+	virtual void Connect() = 0;
+	virtual void Shutdown() = 0;
+	virtual bool SetVGUIDirectories() = 0;
+	virtual bool IsInitialized() const = 0;
+	virtual CreateInterfaceFn GetGameUIFactory() = 0;
 
-	void UpdateProgressBar(LevelLoadingProgress_e progress)
-	{
-		int index = 11;
-		CallVFunc<void>(index, this, progress);
-	}
-	void EnabledProgressBarForNextLoad(void)
-	{
-		int index = 31;
-		CallVFunc<void>(index, this);
-	}
-	void ShowErrorMessage(void)
-	{
-		int index = 35;
-		CallVFunc<void>(index, this);
-	}
-	void HideLoadingPlaque(void)
-	{
-		int index = 36;
-		CallVFunc<void>(index, this);
-	}
-	bool ShouldPause(void)
-	{
-		int index = 37;
-		return CallVFunc<bool>(index, this);
-	}
+	virtual bool Key_Event(const InputEvent_t& event) = 0;
+	virtual bool StartFixed_Event(const InputEvent_t& event) = 0;
+	virtual bool StartMapped_Event(const InputEvent_t& event) = 0;
+
+	virtual void			Unknown5() = 0;
+	virtual void			Unknown6() = 0;
+
+	virtual void Paint(const PaintMode_t mode) = 0;
+
+	virtual void			Unknown7() = 0; // NullSub
+	virtual void			Unknown8() = 0; // NullSub
+	virtual void			Unknown9() = 0; // NullSub
+
+	// level loading
+	virtual void OnLevelLoadingStarted(const char* const levelName) = 0;
+	virtual void OnLevelLoadingFinished() = 0;
+
+	virtual void EnabledProgressBarForNextLoad() = 0;
+
+	virtual void			Unknown10() = 0; // something with load movies?
+	virtual void			Unknown11() = 0;
+	virtual void			Unknown12() = 0;
+
+	virtual void ShowErrorMessage() = 0;
+	virtual void HideLoadingPlaque() = 0;
+	virtual bool ShouldPause() = 0;
+
+	virtual void			Unknown13() = 0;
+	virtual void			Unknown14() = 0;
+	virtual void			Unknown15() = 0;
+	virtual void			Unknown16() = 0;
+	virtual void			Unknown17() = 0;
+	virtual void			Unknown18() = 0;
+	virtual void			Unknown19() = 0;
+	virtual void			Unknown20() = 0;
+	virtual void			Unknown21() = 0;
+	virtual void			Unknown22() = 0;
+	virtual void			Unknown23() = 0;
+
+	virtual void SetNotAllowedToHideGameUI(const bool bNotAllowedToHide) = 0;
+	virtual void SetNotAllowedToShowGameUI(const bool bNotAllowedToShow) = 0;
+
+	virtual void			Unknown24() = 0;
+	virtual void			Unknown25() = 0;
+	virtual void			Unknown26() = 0;
+	virtual void			Unknown27() = 0;
+	virtual void			Unknown28() = 0;
+	virtual void			Unknown29() = 0;
+	virtual void			Unknown30() = 0;
+	virtual void			Unknown31() = 0; // NullSub
+};
+
+class CEngineVGui : public IEngineVGuiInternal
+{
+public:
+	static int VPaint(CEngineVGui* const thisptr, const PaintMode_t mode);
 };
 
 /* ==== CENGINEVGUI ===================================================================================================================================================== */
-inline int(*CEngineVGui__Paint)(CEngineVGui* thisptr, PaintMode_t mode);
+inline int(*CEngineVGui__Paint)(CEngineVGui* const thisptr, const PaintMode_t mode);
 inline void*(*CEngineVGui__RenderStart)(CMatSystemSurface* pMatSystemSurface);
 inline void*(*CEngineVGui__RenderEnd)(void);
 

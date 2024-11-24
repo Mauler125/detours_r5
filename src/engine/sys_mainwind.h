@@ -25,6 +25,9 @@ public:
 	inline HWND GetWindow() const { return m_hWindow; }
 	void GetWindowRect(int* const x, int* const y, int* const w, int* const h) const;
 
+	void SetWindowPosition(const int x, const int y);
+	void SetWindowSize(const int w, const int h);
+
 	inline int GetDesktopWidth() const { return m_iDesktopWidth; }
 	inline int GetDesktopHeight() const { return m_iDesktopHeight; }
 	inline int GetDesktopRefreshRate() const { return m_iDesktopRefreshRate; }

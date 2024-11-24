@@ -12,7 +12,7 @@ class V_CL_Ents_Parse : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogFunAdr("CL_CopyNewEntity", v_CL_CopyExistingEntity);
+		LogFunAdr("CL_CopyNewEntity", v_CL_CopyNewEntity);
 		LogFunAdr("CL_CopyExistingEntity", v_CL_CopyExistingEntity);
 	}
 	virtual void GetFun(void) const

@@ -28,7 +28,6 @@
 #include <dwmapi.h>
 
 #include "d3d11.h"
-#include "windows/id3dx.h" // ImGui_ImplWin32_UpdateMouseCursor
 
 // Configuration flags to add in your imconfig.h file:
 //#define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD              // Disable gamepad support. This was meaningful before <1.81 but we now load XInput dynamically so the option is now less relevant.
@@ -219,10 +218,6 @@ void    ImGui_ImplWin32_Shutdown()
 
 static bool ImGui_ImplWin32_UpdateMouseCursor()
 {
-    // This has to be done to prevent the mouse in-game from flickering when '::SetCursor(...)' is called.
-    if (!PanelsVisible())
-        return false;
-
     ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
         return false;

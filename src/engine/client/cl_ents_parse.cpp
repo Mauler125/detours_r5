@@ -6,6 +6,7 @@
 //=============================================================================//
 #include "core/stdafx.h"
 #include "public/const.h"
+#include "engine/host.h"
 #include "engine/client/cl_ents_parse.h"
 
 bool CL_CopyExistingEntity(CEntityReadInfo* const u, unsigned int* const iClass, bool* const pbError)
@@ -19,6 +20,9 @@ bool CL_CopyExistingEntity(CEntityReadInfo* const u, unsigned int* const iClass,
 		// full-chain RCE exploit. We hook and perform
 		// sanity checks for the value of m_nNewEntity
 		// here to prevent this behavior from happening.
+		Host_Error("CL_CopyExistingEntity: u.m_nNewEntity < 0 || u.m_nNewEntity >= MAX_EDICTS");
+		*pbError = true;
+
 		return false;
 	}
 

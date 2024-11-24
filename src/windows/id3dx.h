@@ -12,16 +12,11 @@ extern HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval,
 extern bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
 
 extern void ResetInput();
-extern bool PanelsVisible();
 
 /////////////////////////////////////////////////////////////////////////////
 // Typedefs
 typedef HRESULT(__stdcall* IDXGISwapChainPresent)(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
 typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags);
-
-/////////////////////////////////////////////////////////////////////////////
-// Globals
-extern UINT g_nWindowRect[2]; // TODO[ AMOS ]: Remove this in favor of CGame's window rect members???
 
 /////////////////////////////////////////////////////////////////////////////
 // Enums

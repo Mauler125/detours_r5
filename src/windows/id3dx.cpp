@@ -36,13 +36,6 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-extern UINT                     g_nWindowRect[2] = { NULL, NULL };
-
-///////////////////////////////////////////////////////////////////////////////////
-static IPostMessageA            s_oPostMessageA = NULL;
-static IPostMessageW            s_oPostMessageW = NULL;
-
-///////////////////////////////////////////////////////////////////////////////////
 static IDXGIResizeBuffers       s_fnResizeBuffers    = NULL;
 static IDXGISwapChainPresent    s_fnSwapChainPresent = NULL;
 
@@ -56,30 +49,6 @@ static CFrameLimit s_FrameLimiter;
 LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
-//#################################################################################
-// POST MESSAGE
-//#################################################################################
-
-BOOL WINAPI HPostMessageA(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	if (g_bBlockInput && Msg == WM_MOUSEMOVE)
-	{
-		return TRUE;
-	}
-
-	return s_oPostMessageA(hWnd, Msg, wParam, lParam);
-}
-
-BOOL WINAPI HPostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	if (g_bBlockInput && Msg == WM_MOUSEMOVE)
-	{
-		return TRUE;
-	}
-
-	return s_oPostMessageW(hWnd, Msg, wParam, lParam);
 }
 
 //#################################################################################
@@ -134,9 +103,6 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
 {
-	g_nWindowRect[0] = nWidth;
-	g_nWindowRect[1] = nHeight;
-
 	///////////////////////////////////////////////////////////////////////////////
 	g_pGame->SetWindowSize(nWidth, nHeight);
 	return s_fnResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags);
@@ -321,20 +287,11 @@ bool PanelsVisible()
 
 void DirectX_Init()
 {
-	///////////////////////////////////////////////////////////////////////////////
-	s_oPostMessageA = (IPostMessageA)DetourFindFunction("user32.dll", "PostMessageA");
-	s_oPostMessageW = (IPostMessageW)DetourFindFunction("user32.dll", "PostMessageW");
-
 	// Begin the detour transaction
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	// Hook PostMessage
-	DetourAttach(&(LPVOID&)s_oPostMessageA, (PBYTE)HPostMessageA);
-	DetourAttach(&(LPVOID&)s_oPostMessageW, (PBYTE)HPostMessageW);
-
 	// Hook SwapChain
-
 	DWORD_PTR* pSwapChainVtable = *reinterpret_cast<DWORD_PTR**>(g_ppSwapChain[0]);
 
 	int pIDX = static_cast<int>(DXGISwapChainVTbl::Present);
@@ -382,10 +339,6 @@ void DirectX_Shutdown()
 	// Begin the detour transaction
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
-
-	// Unhook PostMessage
-	DetourDetach(&(LPVOID&)s_oPostMessageA, (PBYTE)HPostMessageA);
-	DetourDetach(&(LPVOID&)s_oPostMessageW, (PBYTE)HPostMessageW);
 
 	// Unhook SwapChain
 	DetourDetach(&(LPVOID&)s_fnSwapChainPresent, (PBYTE)Present);

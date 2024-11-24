@@ -4,7 +4,6 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
-#include "windows/id3dx.h"
 #include "engine/sys_getmodes.h"
 #include "gameui/imgui_system.h"
 
@@ -13,9 +12,6 @@
 //-----------------------------------------------------------------------------
 bool HCVideoMode_Common__CreateGameWindow(int* pnRect)
 {
-	g_nWindowRect[0] = pnRect[0];
-	g_nWindowRect[1] = pnRect[1];
-
 	const bool ret = CVideoMode_Common__CreateGameWindow(pnRect);
 	return ret;
 }

@@ -138,6 +138,7 @@ HRESULT __stdcall ResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, U
 	g_nWindowRect[1] = nHeight;
 
 	///////////////////////////////////////////////////////////////////////////////
+	g_pGame->SetWindowSize(nWidth, nHeight);
 	return s_fnResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags);
 }
 

@@ -19,7 +19,7 @@ static IShowCursor              g_oShowCursor               = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 static POINT                    g_pLastCursorPos              { 0 };
-extern BOOL                     g_bBlockInput               = false;
+extern std::atomic_bool         g_bBlockInput               = false;
 
 //#############################################################################
 // INITIALIZATION

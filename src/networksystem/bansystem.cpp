@@ -51,7 +51,7 @@ void CBanSystem::LoadList(void)
 
 	int nTotalBans = 0;
 
-	if (!JSON_GetValue(document, "totalBans", JSONFieldType_e::kSint32, nTotalBans))
+	if (!JSON_GetValue(document, "totalBans", nTotalBans))
 	{
 		return;
 	}
@@ -69,8 +69,8 @@ void CBanSystem::LoadList(void)
 			const char* ipAddress = nullptr;
 			NucleusID_t nucleusId = NULL;
 
-			if (JSON_GetValue(entry, "ipAddress", JSONFieldType_e::kString, ipAddress) && 
-				JSON_GetValue(entry, "nucleusId", JSONFieldType_e::kUint64, nucleusId))
+			if (JSON_GetValue(entry, "ipAddress", ipAddress) && 
+				JSON_GetValue(entry, "nucleusId", nucleusId))
 			{
 				Banned_t banned;
 

@@ -28,17 +28,17 @@ ConVar pylon_showdebuginfo("pylon_showdebuginfo", "0", FCVAR_RELEASE | FCVAR_ACC
 //-----------------------------------------------------------------------------
 static bool GetServerListingFromJSON(const rapidjson::Value& value, NetGameServer_t& outGameServer)
 {
-    if (JSON_GetValue(value, "name",        JSONFieldType_e::kString, outGameServer.name)        &&
-        JSON_GetValue(value, "description", JSONFieldType_e::kString, outGameServer.description) &&
-        JSON_GetValue(value, "hidden",      JSONFieldType_e::kBool,   outGameServer.hidden)      &&
-        JSON_GetValue(value, "map",         JSONFieldType_e::kString, outGameServer.map)         &&
-        JSON_GetValue(value, "playlist",    JSONFieldType_e::kString, outGameServer.playlist)    &&
-        JSON_GetValue(value, "ip",          JSONFieldType_e::kString, outGameServer.address)     &&
-        JSON_GetValue(value, "port",        JSONFieldType_e::kSint32, outGameServer.port)        &&
-        JSON_GetValue(value, "key",         JSONFieldType_e::kString, outGameServer.netKey)      &&
-        JSON_GetValue(value, "checksum",    JSONFieldType_e::kUint32, outGameServer.checksum)    &&
-        JSON_GetValue(value, "numPlayers",  JSONFieldType_e::kSint32, outGameServer.numPlayers)  &&
-        JSON_GetValue(value, "maxPlayers",  JSONFieldType_e::kSint32, outGameServer.maxPlayers))
+    if (JSON_GetValue(value, "name",        outGameServer.name)        &&
+        JSON_GetValue(value, "description", outGameServer.description) &&
+        JSON_GetValue(value, "hidden",      outGameServer.hidden)      &&
+        JSON_GetValue(value, "map",         outGameServer.map)         &&
+        JSON_GetValue(value, "playlist",    outGameServer.playlist)    &&
+        JSON_GetValue(value, "ip",          outGameServer.address)     &&
+        JSON_GetValue(value, "port",        outGameServer.port)        &&
+        JSON_GetValue(value, "key",         outGameServer.netKey)      &&
+        JSON_GetValue(value, "checksum",    outGameServer.checksum)    &&
+        JSON_GetValue(value, "numPlayers",  outGameServer.numPlayers)  &&
+        JSON_GetValue(value, "maxPlayers",  outGameServer.maxPlayers))
     {
         return true;
     }
@@ -198,7 +198,7 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
     {
         const char* token = nullptr;
 
-        if (!JSON_GetValue(responseJson, "token", JSONFieldType_e::kString, token))
+        if (!JSON_GetValue(responseJson, "token", token))
         {
             outMessage = Format("Invalid response with status: %d", int(status));
             outToken.clear();
@@ -211,8 +211,8 @@ bool CPylon::PostServerHost(string& outMessage, string& outToken, string& outHos
     const char* ip = nullptr;
     int port = 0;
 
-    if (JSON_GetValue(responseJson, "ip", JSONFieldType_e::kString, ip) &&
-        JSON_GetValue(responseJson, "port", JSONFieldType_e::kSint32, port))
+    if (JSON_GetValue(responseJson, "ip", ip) &&
+        JSON_GetValue(responseJson, "port", port))
     {
         outHostIp = Format("[%s]:%i", ip, port);
     }
@@ -280,10 +280,10 @@ bool CPylon::GetBannedList(const CBanSystem::BannedList_t& inBannedVec, CBanSyst
     for (const rapidjson::Value& obj : bannedPlayers)
     {
         const char* reason = nullptr;
-        JSON_GetValue(obj, "reason", JSONFieldType_e::kString, reason);
+        JSON_GetValue(obj, "reason", reason);
 
         NucleusID_t nuc = NULL;
-        JSON_GetValue(obj, "id", JSONFieldType_e::kUint64, nuc);
+        JSON_GetValue(obj, "id", nuc);
 
         CBanSystem::Banned_t banned(reason ? reason : "#DISCONNECT_BANNED", nuc);
         (*outBannedVec)->AddToTail(banned);
@@ -327,13 +327,13 @@ bool CPylon::CheckForBan(const string& ipAddress, const uint64_t nucleusId, cons
 
     bool isBanned = false;
 
-    if (JSON_GetValue(responseJson, "banned", JSONFieldType_e::kBool, isBanned))
+    if (JSON_GetValue(responseJson, "banned", isBanned))
     {
         if (isBanned)
         {
             const char* reason = nullptr;
 
-            outReason = JSON_GetValue(responseJson, "reason", JSONFieldType_e::kString, reason)
+            outReason = JSON_GetValue(responseJson, "reason", reason)
                 ? reason
                 : "#DISCONNECT_BANNED";
 
@@ -382,7 +382,7 @@ bool CPylon::AuthForConnection(const uint64_t nucleusId, const char* ipAddress,
 
     const char* token = nullptr;
 
-    if (JSON_GetValue(responseJson, "token", JSONFieldType_e::kString, token))
+    if (JSON_GetValue(responseJson, "token", token))
     {
         outToken = token;
         return true;
@@ -431,9 +431,9 @@ bool CPylon::GetEULA(MSEulaData_t& outData, string& outMessage) const
     const char* contents = nullptr;
 
     // check if the EULA response fields are valid.
-    if (!JSON_GetValue(data, "version", JSONFieldType_e::kSint32, version) ||
-        !JSON_GetValue(data, "language", JSONFieldType_e::kString, language) ||
-        !JSON_GetValue(data, "contents", JSONFieldType_e::kString, contents))
+    if (!JSON_GetValue(data, "version", version) ||
+        !JSON_GetValue(data, "language", language) ||
+        !JSON_GetValue(data, "contents", contents))
     {
         outMessage = "schema is invalid";
         return false;
@@ -500,7 +500,7 @@ bool CPylon::SendRequest(const char* endpoint, const rapidjson::Document& reques
 
         bool success = false;
 
-        if (JSON_GetValue(responseJson, "success", JSONFieldType_e::kBool, success)
+        if (JSON_GetValue(responseJson, "success", success)
             && success)
         {
             return true;
@@ -588,7 +588,7 @@ void CPylon::ExtractError(const rapidjson::Document& resultJson, string& outMess
     const char* error = nullptr;
 
     if (resultJson.IsObject() && 
-        JSON_GetValue(resultJson, "error", JSONFieldType_e::kString, error))
+        JSON_GetValue(resultJson, "error", error))
     {
         outMessage = error;
     }

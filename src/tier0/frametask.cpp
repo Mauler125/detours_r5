@@ -20,8 +20,10 @@ void CFrameTask::RunFrame()
         {
             delay.m_rFunctor();
         }
-
-        --delay.m_nDelayedFrames;
+        else
+        {
+            --delay.m_nDelayedFrames;
+        }
     }
 
     const auto newEnd = std::remove_if(m_QueuedTasks.begin(), m_QueuedTasks.end(),

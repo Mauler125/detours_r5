@@ -258,23 +258,19 @@ static void CC_CreateFakePlayer_f(const CCommand& args)
 	if (numPlayers >= g_ServerGlobalVariables->maxClients)
 		return;
 
-	const char* playerName = args.Arg(1);
+	const char* const playerName = args.Arg(1);
+	const int teamNum = atoi(args.Arg(2));
 
-	int teamNum = atoi(args.Arg(2));
-	const int maxTeams = int(g_pServer->GetMaxTeams()) + 1;
+	// The following code must either run inside the server frame thread, or
+	// after it has finished. Lock here and help with other jobs until the
+	// server has finished running the frame.
+	ThreadJoinServerJob();
 
-	// Clamp team count, going above the limit will
-	// cause a crash. Going below 0 means that the
-	// engine will assign the bot to the last team.
-	if (teamNum > maxTeams)
-		teamNum = maxTeams;
-
-	g_pEngineServer->LockNetworkStringTables(true);
-
+	// note(amos): if you call CServer::CreateFakeClient() directly, you also
+	// need to lock the string tables with LockNetworkStringTables. The 
+	// CVEngineServer method automatically locks and unlocks the string tables.
 	const edict_t nHandle = g_pEngineServer->CreateFakeClient(playerName, teamNum);
 	g_pServerGameClients->ClientFullyConnect(nHandle, false);
-
-	g_pEngineServer->LockNetworkStringTables(false);
 }
 
 static ConCommand sv_addbot("sv_addbot", CC_CreateFakePlayer_f, "Creates a bot on the server", FCVAR_RELEASE);

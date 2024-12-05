@@ -9,10 +9,10 @@
 //-----------------------------------------------------------------------------
 // Purpose: sets the persistence var in the CClient instance to 'ready'
 //-----------------------------------------------------------------------------
-bool CVEngineServer::PersistenceAvailable(void* entidx, int clientidx)
+bool CVEngineServer::PersistenceAvailable(CVEngineServer* const thisptr, const int clientidx)
 {
 	///////////////////////////////////////////////////////////////////////////
-	return CVEngineServer__PersistenceAvailable(entidx, clientidx);
+	return CVEngineServer__PersistenceAvailable(thisptr, clientidx);
 }
 
 void HVEngineServer::Detour(const bool bAttach) const

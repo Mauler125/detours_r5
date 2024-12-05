@@ -2,21 +2,20 @@
 #include "public/edict.h"
 #include "public/eiface.h"
 
-/* ==== CVENGINESERVER ================================================================================================================================================== */
-inline bool(*CVEngineServer__PersistenceAvailable)(void* entidx, int clientidx);
-
-inline bool* m_bIsDedicated = nullptr;
-
-///////////////////////////////////////////////////////////////////////////////
-
 class CVEngineServer : public IVEngineServer
 {
 public:
-	static bool PersistenceAvailable(void* entidx, int clientidx);
+	static bool PersistenceAvailable(CVEngineServer* const thisptr, const int clientidx);
 	// Implementation in GameDLL.
 };
 extern CVEngineServer* g_pEngineServer;
 extern IVEngineServer* g_pEngineServerVFTable;
+
+/* ==== CVENGINESERVER ================================================================================================================================================== */
+inline bool(*CVEngineServer__PersistenceAvailable)(CVEngineServer* const thisptr, const int clientidx);
+
+///////////////////////////////////////////////////////////////////////////////
+inline bool* m_bIsDedicated = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 class HVEngineServer : public IDetour

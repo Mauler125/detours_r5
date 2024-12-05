@@ -14,8 +14,8 @@ struct NetGameServer_t
 
 	// the level and playlist of the server, which will be display to the
 	// client's server browser
-	string map = "mp_lobby";
-	string playlist = "dev_default";
+	string map;
+	string playlist;
 
 	// the address and port of the server, validated and set from the
 	// masterserver

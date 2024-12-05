@@ -25,8 +25,6 @@
 #include <ebisusdk/EbisuSDK.h>
 #include <engine/cmd.h>
 
-extern CGlobalVarsBase* gpGlobals;
-
 //------------------------------------------------------------------------------
 // Purpose: console command callbacks
 //------------------------------------------------------------------------------
@@ -236,8 +234,8 @@ bool CClientState::_ProcessStringCmd(CClientState* thisptr, NET_StringCmd* msg)
 
     if (thisptr_ADJ->m_bRestrictServerCommands
 #ifndef CLIENT_DLL
-        // Don't restrict commands from the server in single player
-        && gpGlobals->gameMode != GameMode_t::SP_MODE
+        // Don't restrict commands if we are on our own listen server
+        && !g_pServer->IsActive()
 #endif // !CLIENT_DLL
         )
     {

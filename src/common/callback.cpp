@@ -231,28 +231,24 @@ void VPK_Unmount_f(const CCommand& args)
 
 void LanguageChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue, ChangeUserData_t pUserData)
 {
-	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	const char* pNewString = language_cvar->GetString();
+
+	if (strcmp(pOldString, pNewString) == NULL)
+		return; // Same language.
+
+	if (!Localize_IsLanguageSupported(pNewString))
 	{
-		const char* pNewString = pConVarRef->GetString();
-
-		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
-			return; // Same language.
-
-		if (!Localize_IsLanguageSupported(pNewString))
+		// if new text isn't valid but the old value is, reset the value
+		if (Localize_IsLanguageSupported(pOldString))
+			pNewString = pOldString;
+		else
 		{
-			// if new text isn't valid but the old value is, reset the value
-			if (Localize_IsLanguageSupported(pOldString))
-				pNewString = pOldString;
-			else
-			{
-				// this shouldn't really happen, but if neither the old nor new values are valid, set to english
-				Assert(0);
-				pNewString = g_LanguageNames[0];
-			}
+			// this shouldn't really happen, but if neither the old nor new values are valid, set to english
+			Assert(0);
+			pNewString = g_LanguageNames[0];
 		}
 
-		pConVarRef->SetValue(pNewString);
-		g_MasterServer.SetLanguage(pNewString);
+		language_cvar->SetValue(pNewString);
 	}
 }
 

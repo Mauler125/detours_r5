@@ -14,6 +14,8 @@ inline const char* (*v_Playlists_GetCurrent)(void);
 inline void(*v_Playlists_Download_f)(void);
 
 extern KeyValues** g_pPlaylistKeyValues;
+extern char* g_pPlaylistMapToLoad;
+
 extern CUtlVector<CUtlString> g_vecAllPlaylists;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,6 +28,7 @@ class VPlaylists : public IDetour
 		LogFunAdr("Playlists_GetCurrent", v_Playlists_GetCurrent);
 		LogFunAdr("Playlists_Download_f", v_Playlists_Download_f);
 		LogVarAdr("g_pPlaylistKeyValues", g_pPlaylistKeyValues);
+		LogVarAdr("g_pPlaylistMapToLoad", g_pPlaylistMapToLoad);
 	}
 	virtual void GetFun(void) const
 	{
@@ -38,6 +41,8 @@ class VPlaylists : public IDetour
 	{
 		g_pPlaylistKeyValues = g_GameDll.FindPatternSIMD("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 E8 B4")
 			.FindPatternSelf("48 8B 0D", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<KeyValues**>();
+
+		g_pPlaylistMapToLoad = CMemory(v_Playlists_Parse).OffsetSelf(0x130).FindPatternSelf("80 3D").ResolveRelativeAddressSelf(0x2, 0x7).RCast<char*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Detour(const bool bAttach) const;

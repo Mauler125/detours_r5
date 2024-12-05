@@ -120,7 +120,7 @@ macro( whole_program_optimization )
 endmacro()
 
 # -----------------------------------------------------------------------------
-# Toggles wether or not to treat warnings as errors
+# Toggles whether or not to treat warnings as errors
 # -----------------------------------------------------------------------------
 macro( warnings_as_errors TARGET FLAG )
     if( ${FLAG} )

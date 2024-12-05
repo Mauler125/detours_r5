@@ -30,6 +30,8 @@ static void HostManager_HandleCommandInternal(const char* const map, const char*
     Msg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" mode: \"%s\"\n",
         hostname->GetString(), map, mode);
 
+    bool hasPendingMap = *g_pPlaylistMapToLoad != '\0';
+
     // NOTE: when the provided playlist is the same as the one we're currently
     // on, and there's already a pending map load request,  the game will run 
     // "map <mapName>" in Playlists_Parse, where the map name is dictated by
@@ -37,13 +39,16 @@ static void HostManager_HandleCommandInternal(const char* const map, const char*
     // requested map here as to prevent Playlists_Parse from running the map
     // command on it, as we are going to run the changelevel command anyways.
     // Not doing this will result in running both map and changelevel commands.
-    if (changeLevel)
+    if (changeLevel && hasPendingMap)
+    {
         *g_pPlaylistMapToLoad = '\0';
+        hasPendingMap = false;
+    }
 
     const bool samePlaylist = v_Playlists_Parse(mode);
     char commandBuf[512];
 
-    if (!samePlaylist || !*g_pPlaylistMapToLoad)
+    if (!samePlaylist || !hasPendingMap)
     {
         snprintf(commandBuf, sizeof(commandBuf), "%s %s\n", changeLevel ? "changelevel" : "map", map);
         Cbuf_AddText(Cbuf_GetCurrentPlayer(), commandBuf, cmd_source_t::kCommandSrcCode);

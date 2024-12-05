@@ -267,15 +267,17 @@ void Systems_Init()
 
 #ifndef CLIENT_DLL
 	ServerScriptRegister_Callback = Script_RegisterServerFunctions;
-	CoreServerScriptRegister_Callback = Script_RegisterCoreServerFunctions;
-	AdminPanelScriptRegister_Callback = Script_RegisterAdminPanelFunctions;
-
 	ServerScriptRegisterEnum_Callback = Script_RegisterServerEnums;
 #endif// !CLIENT_DLL
 
 #ifndef SERVER_DLL
 	ClientScriptRegister_Callback = Script_RegisterClientFunctions;
 	UiScriptRegister_Callback =  Script_RegisterUIFunctions;
+
+#ifndef CLIENT_DLL
+	UiServerScriptRegister_Callback = Script_RegisterUIServerFunctions;
+	UiAdminPanelScriptRegister_Callback = Script_RegisterAdminServerFunctions;
+#endif // !CLIENT_DLL
 #endif // !SERVER_DLL
 
 #ifdef CLIENT_DLL

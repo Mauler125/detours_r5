@@ -58,6 +58,9 @@ CBrowser::CBrowser(void)
     memset(m_serverNetKeyTextBuf, '\0', sizeof(m_serverNetKeyTextBuf));
 
     m_lockedIconDataResource = GetModuleResource(IDB_PNG2);
+
+    m_levelName = "mp_lobby";
+    m_gameMode = "dev_default";
 }
 
 //-----------------------------------------------------------------------------
@@ -517,47 +520,71 @@ void CBrowser::HiddenServersModal(void)
     }
 }
 
+void CBrowser::HandleInvalidFields(const bool offline)
+{
+    if (!offline && m_serverName.empty())
+    {
+        m_hostMessage = "Server name is required.";
+        m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    }
+    else if (m_gameMode.empty())
+    {
+        m_hostMessage = "Game mode is required.";
+        m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    }
+    else if (m_levelName.empty())
+    {
+        m_hostMessage = "Level name is required.";
+        m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    }
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: draws the host section
 //-----------------------------------------------------------------------------
 void CBrowser::DrawHostPanel(void)
 {
 #ifndef CLIENT_DLL
-    NetGameServer_t& details = g_ServerHostManager.GetDetails();
+    if (ImGui::InputTextWithHint("##ServerHost_ServerName", "Server name (required)", &m_serverName))
+    {
+        hostname->SetValue(m_serverName.c_str());
+    }
+    
+    if (ImGui::InputTextWithHint("##ServerHost_ServerDesc", "Server description (optional)", &m_serverDescription))
+    {
+        hostdesc.SetValue(m_serverDescription.c_str());
+    }
 
-    ImGui::InputTextWithHint("##ServerHost_ServerName", "Server name (required)", &details.name);
-    ImGui::InputTextWithHint("##ServerHost_ServerDesc", "Server description (optional)", &details.description);
     ImGui::Spacing();
 
-    const char* const selectedPlaylists = details.playlist.c_str();
-
-    if (ImGui::BeginCombo("Mode", selectedPlaylists))
+    if (ImGui::BeginCombo("Mode", m_gameMode.c_str()))
     {
-        for (const CUtlString& svPlaylist : g_vecAllPlaylists)
+        for (const CUtlString& playlist : g_vecAllPlaylists)
         {
-            const char* const cachedPlaylists = svPlaylist.String();
+            const char* const cachedPlaylists = playlist.String();
 
-            if (ImGui::Selectable(cachedPlaylists, (strcmp(cachedPlaylists, selectedPlaylists) == 0)))
+            if (ImGui::Selectable(cachedPlaylists, 
+                playlist.IsEqual_CaseInsensitive(m_gameMode.c_str())))
             {
-                details.playlist = svPlaylist;
+                m_gameMode = cachedPlaylists;
             }
         }
 
         ImGui::EndCombo();
     }
 
-    if (ImGui::BeginCombo("Map", details.map.c_str()))
+    if (ImGui::BeginCombo("Map", m_levelName.c_str()))
     {
         g_InstalledMapsMutex.Lock();
 
-        FOR_EACH_VEC(g_InstalledMaps, i)
+        for (const CUtlString& mapName : g_InstalledMaps)
         {
-            const CUtlString& mapName = g_InstalledMaps[i];
+            const char* const cachedMapName = mapName.String();
 
-            if (ImGui::Selectable(mapName.String(),
-                mapName.IsEqual_CaseInsensitive(details.map.c_str())))
+            if (ImGui::Selectable(cachedMapName,
+                mapName.IsEqual_CaseInsensitive(m_levelName.c_str())))
             {
-                details.map = mapName.String();
+                m_levelName = cachedMapName;
             }
         }
 
@@ -599,37 +626,22 @@ void CBrowser::DrawHostPanel(void)
     const bool serverActive = g_pServer->IsActive();
     const bool clientActive = g_pClientState->IsActive();
 
+    const bool isOffline = g_ServerHostManager.GetVisibility() == ServerVisibility_e::OFFLINE;
+    const bool hasName = isOffline ? true : !m_serverName.empty();
+
     if (!g_pHostState->m_bActiveGame)
     {
         if (ImGui::Button("Start server", ImVec2(contentRegionMax.x, 32)))
         {
             m_hostMessage.clear();
 
-            const bool enforceField = g_ServerHostManager.GetVisibility() == ServerVisibility_e::OFFLINE
-                ? true 
-                : !details.name.empty();
-
-            if (enforceField && !details.playlist.empty() && !details.map.empty())
+            if (hasName && !m_levelName.empty() && !m_gameMode.empty())
             {
-                g_ServerHostManager.LaunchServer(serverActive); // Launch server.
+                g_ServerHostManager.LaunchServer(m_levelName.c_str(), m_gameMode.c_str()); // Launch server.
             }
             else
             {
-                if (details.name.empty())
-                {
-                    m_hostMessage = "Server name is required.";
-                    m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-                }
-                else if (details.playlist.empty())
-                {
-                    m_hostMessage = "Playlist is required.";
-                    m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-                }
-                else if (details.map.empty())
-                {
-                    m_hostMessage = "Level name is required.";
-                    m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-                }
+                HandleInvalidFields(isOffline);
             }
         }
 
@@ -654,12 +666,14 @@ void CBrowser::DrawHostPanel(void)
 
         if (ImGui::Button("Change level", ImVec2(contentRegionMax.x, 32)))
         {
-            if (!details.map.empty())
+            if (!m_levelName.empty() && !m_gameMode.empty())
             {
-                g_ServerHostManager.LaunchServer(serverActive);
+                g_ServerHostManager.ChangeLevel(m_levelName.c_str(), m_gameMode.c_str());
             }
             else
             {
+                HandleInvalidFields(isOffline);
+
                 m_hostMessage = "Failed to change level: 'levelname' was empty.";
                 m_hostMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
@@ -783,37 +797,23 @@ void CBrowser::UpdateHostingStatus(void)
     }
     case HostStatus_e::HOSTING:
     {
+        if (*g_nServerRemoteChecksum == NULL) // Check if script checksum is valid yet.
+        {
+            break;
+        }
+
         const ServerVisibility_e serverVisibility = g_ServerHostManager.GetVisibility();
-        NetGameServer_t& details = g_ServerHostManager.GetDetails();
 
         if (serverVisibility == ServerVisibility_e::OFFLINE)
         {
             break;
         }
 
-        if (*g_nServerRemoteChecksum == NULL) // Check if script checksum is valid yet.
-        {
-            break;
-        }
-
-        switch (serverVisibility)
-        {
-
-        case ServerVisibility_e::HIDDEN:
-            details.hidden = true;
-            break;
-        case ServerVisibility_e::PUBLIC:
-            details.hidden = false;
-            break;
-        default:
-            break;
-        }
-
         const NetGameServer_t netGameServer
         {
-            details.name,
-            details.description,
-            details.hidden,
+            hostname->GetString(),
+            hostdesc.GetString(),
+            serverVisibility == ServerVisibility_e::PUBLIC,
             g_pHostState->m_levelName,
             v_Playlists_GetCurrent(),
             hostip->GetString(),

@@ -64,8 +64,8 @@ extern void(*ServerScriptRegisterEnum_Callback)(CSquirrelVM* const s);
 extern void(*ClientScriptRegisterEnum_Callback)(CSquirrelVM* const s);
 extern void(*UIScriptRegisterEnum_Callback)(CSquirrelVM* const s);
 
-extern void(*CoreServerScriptRegister_Callback)(CSquirrelVM* const s);
-extern void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* const s);
+extern void(*UiServerScriptRegister_Callback)(CSquirrelVM* const s);
+extern void(*UiAdminPanelScriptRegister_Callback)(CSquirrelVM* const s);
 
 extern void(*ScriptConstantRegister_Callback)(CSquirrelVM* const s);
 

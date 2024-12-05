@@ -5,6 +5,11 @@ namespace VScriptCode
 {
 	namespace Client
 	{
+		SQRESULT IsClientDLL(HSQUIRRELVM v);
+	}
+
+	namespace Ui
+	{
 		SQRESULT RefreshServerList(HSQUIRRELVM v);
 		SQRESULT GetServerCount(HSQUIRRELVM v);
 
@@ -23,19 +28,23 @@ namespace VScriptCode
 		SQRESULT ConnectToListedServer(HSQUIRRELVM v);
 		SQRESULT ConnectToHiddenServer(HSQUIRRELVM v);
 		SQRESULT ConnectToServer(HSQUIRRELVM v);
-
-		SQRESULT IsClientDLL(HSQUIRRELVM v);
 	}
 }
 
 void Script_RegisterClientFunctions(CSquirrelVM* s);
 void Script_RegisterUIFunctions(CSquirrelVM* s);
+void Script_RegisterUIServerFunctions(CSquirrelVM* s);
 void Script_RegisterCoreClientFunctions(CSquirrelVM* s);
 
 #define DEFINE_CLIENT_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
 	returnType, parameters)                                             \
 	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
 	helpString, returnType, parameters, VScriptCode::Client::##functionName);   \
+
+#define DEFINE_UI_SCRIPTFUNC_NAMED(s, functionName, helpString,     \
+	returnType, parameters)                                             \
+	s->RegisterFunction(#functionName, MKSTRING(Script_##functionName), \
+	helpString, returnType, parameters, VScriptCode::Ui::##functionName);   \
 
 inline void (*v_Script_RegisterClientEntityClassFuncs)();
 inline void (*v_Script_RegisterClientPlayerClassFuncs)();

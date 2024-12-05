@@ -29,7 +29,7 @@ namespace VScriptCode
 
 void Script_RegisterServerFunctions(CSquirrelVM* s);
 void Script_RegisterCoreServerFunctions(CSquirrelVM* s);
-void Script_RegisterAdminPanelFunctions(CSquirrelVM* s);
+void Script_RegisterAdminServerFunctions(CSquirrelVM* s);
 
 void Script_RegisterServerEnums(CSquirrelVM* const s);
 

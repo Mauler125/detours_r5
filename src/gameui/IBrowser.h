@@ -26,6 +26,8 @@ public:
     void RefreshServerList(void);
 
     void HiddenServersModal(void);
+
+    void HandleInvalidFields(const bool offline);
     void DrawHostPanel(void);
 
     void UpdateHostingStatus(void);
@@ -72,6 +74,12 @@ private:
     ////////////////////
     string m_hiddenServerRequestMessage;
     ImVec4 m_hiddenServerMessageColor;
+
+    string m_serverName;
+    string m_serverDescription;
+
+    string m_levelName;
+    string m_gameMode;
 };
 
 extern CBrowser g_Browser;

@@ -63,8 +63,9 @@ static ConVar host_autoReloadRate("host_autoReloadRate", "0", FCVAR_RELEASE, "Ti
 static ConVar host_autoReloadRespectGameState("host_autoReloadRespectGameState", "0", FCVAR_RELEASE, "Check the game state before proceeding to auto-reload (don't reload in the middle of a match).");
 #endif // !CLIENT_DLL
 
+ConVar hostdesc("hostdesc", "", FCVAR_RELEASE, "Host game server description.");
+
 #ifdef DEDICATED
-static ConVar hostdesc("hostdesc", "", FCVAR_RELEASE, "Host game server description.");
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
 // Output : Returns true on success, false otherwise.

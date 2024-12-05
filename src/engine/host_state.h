@@ -1,6 +1,8 @@
 #pragma once
 #include "mathlib/vector.h"
 
+extern ConVar hostdesc;
+
 enum class HostStates_t : int
 {
 	HS_NEW_GAME        = 0x0,

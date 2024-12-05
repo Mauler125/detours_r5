@@ -23,9 +23,9 @@ void(*ServerScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
 void(*ClientScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
 void(*UIScriptRegisterEnum_Callback)(CSquirrelVM* const s) = nullptr;
 
-// Admin panel functions, NULL on client only builds.
-void(*CoreServerScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
-void(*AdminPanelScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
+// Admin panel functions, NULL on dedicated and client only builds.
+void(*UiServerScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
+void(*UiAdminPanelScriptRegister_Callback)(CSquirrelVM* const s) = nullptr;
 
 // Registering constants in scripts.
 void(*ScriptConstantRegister_Callback)(CSquirrelVM* const s) = nullptr;
@@ -66,10 +66,11 @@ bool CSquirrelVM::Init(CSquirrelVM* s, SQCONTEXT context, SQFloat curTime)
 		if (UiScriptRegister_Callback)
 			UiScriptRegister_Callback(s);
 
-		if (CoreServerScriptRegister_Callback)
-			CoreServerScriptRegister_Callback(s);
-		if (AdminPanelScriptRegister_Callback)
-			AdminPanelScriptRegister_Callback(s);
+		if (UiServerScriptRegister_Callback)
+			UiServerScriptRegister_Callback(s);
+
+		if (UiAdminPanelScriptRegister_Callback)
+			UiAdminPanelScriptRegister_Callback(s);
 
 		break;
 	}

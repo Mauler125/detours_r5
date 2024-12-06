@@ -272,6 +272,8 @@ void ConVar_InitShipped(void)
 	base_tickinterval_sp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	base_tickinterval_mp->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 
+	mp_gamemode->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+
 	// The base callback is for client builds only, must be replaced with the
 	// dedicated server variant as the original one runs this through
 	// CEngineClient::SetupGamemode(). The callback is effectively the same

@@ -664,7 +664,7 @@ bool CConsole::RunAutoComplete(void)
         {
             const char c = m_inputTextBuf[i];
 
-            if (c == '\0' || isspace(c))
+            if (c == '\0' || V_isspace(c))
             {
                 break;
             }

@@ -277,7 +277,7 @@ bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &hei
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
 
-	Uint32 flags = SDL_WINDOW_OPENGL | SDL_RENDERER_PRESENTVSYNC;
+	Uint32 flags = SDL_WINDOW_OPENGL | SDL_RENDERER_PRESENTVSYNC | SDL_WINDOW_RESIZABLE;
 	if (presentationMode)
 	{
 		// Create a fullscreen window at the native resolution.
@@ -752,6 +752,24 @@ int not_main(int argc, char** argv)
 					}
 					break;
 					
+				case SDL_WINDOWEVENT:
+				{
+					if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+					{
+						// Get the new window size
+						width = event.window.data1;
+						height = event.window.data2;
+
+						// Update OpenGL viewport
+						glViewport(0, 0, width, height);
+
+						glMatrixMode(GL_PROJECTION);
+						glLoadIdentity();
+						gluPerspective(50.0f, (float)width / (float)height, 1.0f, camr);
+					}
+				}
+				break;
+
 				case SDL_QUIT:
 					done = true;
 					break;

@@ -123,7 +123,7 @@ void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
 	if (textureHeader->m_nDepth && !textureHeader->m_nHeight) // Return never gets hit. Maybe its some debug check?
 		return;
 
-	__int64 initialData[4096]{};
+	i64 initialData[4096]{};
 	textureHeader->m_nTextureMipLevels = textureHeader->m_nPermanentMipCount;
 
 	const int totalStreamedMips = textureHeader->m_nOptStreamedMipCount + textureHeader->m_nStreamedMipCount;
@@ -143,24 +143,26 @@ void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
 				if (textureHeader->m_nHeight >> mipLevel > 1)
 					mipHeight = (textureHeader->m_nHeight >> mipLevel) - 1;
 
-				uint8_t x = s_pBytesPerPixel[textureHeader->m_nImageFormat].first;
-				uint8_t y = s_pBytesPerPixel[textureHeader->m_nImageFormat].second;
+				const TextureBytesPerPixel_t& perPixel = s_pBytesPerPixel[textureHeader->m_nImageFormat];
 
-				uint32_t bppWidth = (y + mipWidth) >> (y >> 1);
-				uint32_t bppHeight = (y + mipHeight) >> (y >> 1);
-				uint32_t sliceWidth = x * (y >> (y >> 1));
+				const u8 x = perPixel.x;
+				const u8 y = perPixel.y;
 
-				uint32_t rowPitch = sliceWidth * bppWidth;
-				uint32_t slicePitch = x * bppWidth * bppHeight;
+				const u32 bppWidth = (y + mipWidth) >> (y >> 1);
+				const u32 bppHeight = (y + mipHeight) >> (y >> 1);
+				const u32 sliceWidth = x * (y >> (y >> 1));
 
-				uint32_t subResourceEntry = mipLevel;
+				const u32 rowPitch = sliceWidth * bppWidth;
+				const u32 slicePitch = x * bppWidth * bppHeight;
+
+				u32 subResourceEntry = mipLevel;
 				for (int i = 0; i < textureHeader->m_nArraySize; i++)
 				{
-					uint32_t offsetCurrentResourceData = subResourceEntry << 4u;
+					const u32 offsetCurrentResourceData = subResourceEntry << 4u;
 
-					*(int64_t*)((uint8_t*)initialData + offsetCurrentResourceData) = imageData;
-					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData) = rowPitch;
-					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData + 4) = slicePitch;
+					*(s64*)((u8*)initialData + offsetCurrentResourceData) = imageData;
+					*(u32*)((u8*)&initialData[1] + offsetCurrentResourceData) = rowPitch;
+					*(u32*)((u8*)&initialData[1] + offsetCurrentResourceData + 4) = slicePitch;
 
 					imageData += (slicePitch + ALIGNMENT_SIZE) & ~ALIGNMENT_SIZE;
 					subResourceEntry += textureHeader->m_nPermanentMipCount;
@@ -183,8 +185,9 @@ void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.MiscFlags = 0;
 
-	const uint32_t offsetStartResourceData = mipLevel << 4u;
+	const u32 offsetStartResourceData = mipLevel << 4u;
 	const D3D11_SUBRESOURCE_DATA* subResData = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)initialData + offsetStartResourceData);
+
 	const HRESULT createTextureRes = D3D11Device()->CreateTexture2D(&textureDesc, subResData, &textureHeader->m_ppTexture);
 	if (createTextureRes < S_OK)
 		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create texture \"%s\": error code = %08x\n", textureHeader->m_pDebugName, createTextureRes);
@@ -205,7 +208,8 @@ void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
 
 	const HRESULT createShaderResourceRes = D3D11Device()->CreateShaderResourceView(textureHeader->m_ppTexture, &shaderResource, &textureHeader->m_ppShaderResourceView);
 	if (createShaderResourceRes < S_OK)
-		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create shader resource view for texture \"%s\": error code = %08x\n", textureHeader->m_pDebugName, createShaderResourceRes);
+		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create shader resource view for texture \"%s\" (%llX): error code = %08x\n", 
+			textureHeader->m_pDebugName, textureHeader->m_AssetGuid, createShaderResourceRes);
 }
 #pragma warning( pop )
 

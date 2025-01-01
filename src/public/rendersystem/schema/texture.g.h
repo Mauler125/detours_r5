@@ -36,10 +36,16 @@
 	uint8_t m_nTextureMipLevelsStreamedOpt;
 };
 
+struct TextureBytesPerPixel_s
+{
+	uint8_t x;
+	uint8_t y;
+};
+
 //-----------------------------------------------------------------------------
 // Table definitions
 //-----------------------------------------------------------------------------
-static const pair<uint8_t, uint8_t> s_pBytesPerPixel[] =
+static inline const TextureBytesPerPixel_s s_pBytesPerPixel[] =
 {
   { uint8_t(8u),  uint8_t(4u) },
   { uint8_t(8u),  uint8_t(4u) },
@@ -103,20 +109,6 @@ static const pair<uint8_t, uint8_t> s_pBytesPerPixel[] =
   { uint8_t(4u),  uint8_t(1u) },
   { uint8_t(4u),  uint8_t(1u) },
   { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(0u),  uint8_t(0u) },
-  { uint8_t(0u),  uint8_t(0u) },
-  { uint8_t(5u),  uint8_t(0u) },
-  { uint8_t(0u),  uint8_t(0u) },
-  { uint8_t(5u),  uint8_t(0u) },
-  { uint8_t(0u),  uint8_t(0u) },
-  { uint8_t(1u),  uint8_t(0u) },
-  { uint8_t(0u),  uint8_t(0u) },
-  { uint8_t(2u),  uint8_t(0u) },
-  { uint8_t(0u),  uint8_t(0u) },
-  { uint8_t(0u),  uint8_t(0u) },
-  { uint8_t(0u),  uint8_t(0u) },
-  { uint8_t(1u),  uint8_t(0u) },
-  { uint8_t(0u),  uint8_t(0u) }
 };
 
 // Map dxgi format to txtr asset format
@@ -192,7 +184,7 @@ inline int DxgiFormatToTxtrAsset(DXGI_FORMAT dxgi)
 }
 
 // Map txtr asset format to dxgi format
-static const DXGI_FORMAT g_TxtrAssetToDxgiFormat[] =
+static inline const DXGI_FORMAT g_TxtrAssetToDxgiFormat[] =
 {
 	DXGI_FORMAT_BC1_UNORM,
 	DXGI_FORMAT_BC1_UNORM_SRGB,

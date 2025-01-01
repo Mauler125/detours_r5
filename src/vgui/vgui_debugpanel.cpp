@@ -315,6 +315,15 @@ void CTextOverlay::DrawCrosshairMaterial(void) const
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawStreamOverlay(void) const
 {
+	// todo(amos): the stream overlay will use a lot more memory in tex/mtl
+	// modes on larger levels than the static buffer allows for. But even if we
+	// increase this stack buffer, the RUI will cull strings out as it couldn't
+	// hold all the strings necessary to display it. This whole overlay needs
+	// to be reworked into an ImGui overlay, or a panel that runs alongside
+	// the game. For the buffer, we should allocate it on the heap with help of
+	// the cvar 'stream_overlay_memory'; see the implementation of the command
+	// 'stream_dumpinfo' for more information regarding this cvar. For video
+	// reference, see https://youtu.be/4BuvKotqpWo&t=1070 for an actual impl.
 	static char szLogbuf[4096];
 	static const Color c = { 255, 255, 255, 255 };
 	

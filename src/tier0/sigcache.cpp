@@ -93,7 +93,7 @@ bool CSigCache::ReadCache(const char* szCacheFile)
 	}
 
 	CIOStream reader;
-	if (!reader.Open(szCacheFile, CIOStream::READ | CIOStream::BINARY))
+	if (!reader.Open(szCacheFile, CIOStream::Mode_e::Read))
 	{
 		return false;
 	}
@@ -168,7 +168,7 @@ bool CSigCache::WriteCache(const char* szCacheFile) const
 	}
 
 	CIOStream writer;
-	if (!writer.Open(szCacheFile, CIOStream::WRITE | CIOStream::BINARY))
+	if (!writer.Open(szCacheFile, CIOStream::Mode_e::Write))
 	{
 		Error(eDLL_T::COMMON, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", 
 			__FUNCTION__, szCacheFile);

@@ -303,7 +303,7 @@ void CLauncher::SetupLaunchContext(const char* szConfig, const char* szGameDll, 
     {
         cfgFileName.Format(GAME_CFG_PATH"%s", szConfig);
 
-        if (cfgFile.Open(cfgFileName.String(), CIOStream::READ))
+        if (cfgFile.Open(cfgFileName.String(), CIOStream::Mode_e::Read))
         {
             if (!cfgFile.ReadString(commandLine.Access(), commandLine.GetMaxLength()))
             {

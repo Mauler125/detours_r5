@@ -6,8 +6,7 @@
 //-----------------------------------------------------------------------------
 CIOStream::CIOStream()
 {
-	m_nSize = 0;
-	m_nFlags = Mode_t::NONE;
+	Reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -15,45 +14,76 @@ CIOStream::CIOStream()
 //-----------------------------------------------------------------------------
 CIOStream::~CIOStream()
 {
-	if (m_Stream.is_open())
-		m_Stream.close();
-	if (m_Stream.is_open())
-		m_Stream.close();
+	Close();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: get internal stream mode from selected mode
+//-----------------------------------------------------------------------------
+static std::ios_base::openmode GetInternalStreamMode(const CIOStream::Mode_e mode)
+{
+	switch (mode)
+	{
+	case CIOStream::Mode_e::Read:
+		return (std::ios::in | std::ios::binary);
+	case CIOStream::Mode_e::Write:
+		return (std::ios::out | std::ios::binary);
+	case CIOStream::Mode_e::ReadWrite:
+		return (std::ios::in | std::ios::out | std::ios::binary);
+	case CIOStream::Mode_e::ReadWriteCreate:
+		return (std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+	}
+
+	assert(0); // code bug, can never reach this.
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: opens the file in specified mode
-// Input  : *pFilePath - 
-//			nFlags - 
+// Input  : *filePath - 
+//			mode - 
 // Output : true if operation is successful
 //-----------------------------------------------------------------------------
-bool CIOStream::Open(const char* const pFilePath, const int nFlags)
+bool CIOStream::Open(const char* const filePath, const Mode_e mode)
 {
-	m_nFlags = nFlags;
+	m_flags = GetInternalStreamMode(mode);
+	m_mode = mode;
 
-	if (m_Stream.is_open())
+	if (m_stream.is_open())
 	{
-		m_Stream.close();
+		m_stream.close();
 	}
-	m_Stream.open(pFilePath, nFlags);
-	if (!m_Stream.is_open() || !m_Stream.good())
+
+	m_stream.open(filePath, GetInternalStreamMode(mode));
+
+	if (!m_stream.is_open() || !m_stream.good())
 	{
-		m_nFlags = Mode_t::NONE;
 		return false;
 	}
 
-	if (nFlags & Mode_t::READ)
+	if (IsReadMode())
 	{
 		struct _stat64 status;
-		if (_stat64(pFilePath, &status) != NULL)
+		if (_stat64(filePath, &status) != NULL)
 		{
 			return false;
 		}
 
-		m_nSize = status.st_size;
+		m_size = status.st_size;
 	}
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: resets the state
+//-----------------------------------------------------------------------------
+void CIOStream::Reset()
+{
+	m_size = 0;
+	m_skip = 0;
+	m_mode = Mode_e::None;
+	m_flags = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -61,7 +91,8 @@ bool CIOStream::Open(const char* const pFilePath, const int nFlags)
 //-----------------------------------------------------------------------------
 void CIOStream::Close()
 {
-	m_Stream.close();
+	m_stream.close();
+	Reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -70,67 +101,88 @@ void CIOStream::Close()
 void CIOStream::Flush()
 {
 	if (IsWritable())
-		m_Stream.flush();
+		m_stream.flush();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the position of the current character in the stream
-// Input  : mode - 
 // Output : std::streampos
 //-----------------------------------------------------------------------------
-std::streampos CIOStream::TellGet()
+std::streamoff CIOStream::TellGet()
 {
-	return m_Stream.tellg();
+	assert(IsReadMode());
+	return m_stream.tellg();
 }
-std::streampos CIOStream::TellPut()
+std::streamoff CIOStream::TellPut()
 {
-	return m_Stream.tellp();
+	assert(IsWriteMode());
+	return m_stream.tellp();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the position of the current character in the stream
-// Input  : nOffset - 
-//			mode - 
+// Input  : offset - 
+//			way - 
 //-----------------------------------------------------------------------------
-void CIOStream::SeekGet(const std::streampos nOffset)
+void CIOStream::SeekGet(const std::streamoff offset, const std::ios_base::seekdir way)
 {
-	m_Stream.seekg(nOffset, std::ios::beg);
+	assert(IsReadMode());
+	m_stream.seekg(offset, way);
 }
-void CIOStream::SeekPut(const std::streampos nOffset)
+//-----------------------------------------------------------------------------
+// NOTE: if you seek beyond the end of the file to try and pad it out, use the
+// Pad() method instead as the behavior of seek is operating system dependent
+//-----------------------------------------------------------------------------
+void CIOStream::SeekPut(const std::streamoff offset, const std::ios_base::seekdir way)
 {
-	m_Stream.seekp(nOffset, std::ios::beg);
+	assert(IsWriteMode());
+
+	CalcSkipDelta(offset, way);
+	m_stream.seekp(offset, way);
 }
-void CIOStream::Seek(const std::streampos nOffset)
+void CIOStream::Seek(const std::streamoff offset, const std::ios_base::seekdir way)
 {
-	SeekGet(nOffset);
-	SeekPut(nOffset);
+	if (IsReadMode())
+		SeekGet(offset, way);
+	if (IsWriteMode())
+		SeekPut(offset, way);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns the data (ifstream only)
+// Purpose: returns the data
 // Output : std::filebuf*
 //-----------------------------------------------------------------------------
 const std::filebuf* CIOStream::GetData() const
 {
-	return m_Stream.rdbuf();
+	return m_stream.rdbuf();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns the data size (ifstream only)
+// Purpose: returns the data size
 // Output : std::streampos
 //-----------------------------------------------------------------------------
-const std::streampos CIOStream::GetSize() const
+const std::streamoff CIOStream::GetSize() const
 {
-	return m_nSize;
+	return m_size;
+}
+
+bool CIOStream::IsReadMode() const
+{
+	return (m_flags & std::ios::in);
+}
+
+bool CIOStream::IsWriteMode() const
+{
+	return (m_flags & std::ios::out);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if we are able to read the file
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CIOStream::IsReadable()
+bool CIOStream::IsReadable() const
 {
-	if (!(m_nFlags & Mode_t::READ) || !m_Stream || m_Stream.eof())
+	if (!IsReadMode() || !m_stream || m_stream.eof())
 		return false;
 
 	return true;
@@ -142,7 +194,7 @@ bool CIOStream::IsReadable()
 //-----------------------------------------------------------------------------
 bool CIOStream::IsWritable() const
 {
-	if (!(m_nFlags & Mode_t::WRITE) || !m_Stream)
+	if (!IsWriteMode() || !m_stream)
 		return false;
 
 	return true;
@@ -154,7 +206,7 @@ bool CIOStream::IsWritable() const
 //-----------------------------------------------------------------------------
 bool CIOStream::IsEof() const
 {
-	return m_Stream.eof();
+	return m_stream.eof();
 }
 
 //-----------------------------------------------------------------------------
@@ -162,69 +214,168 @@ bool CIOStream::IsEof() const
 // Input  : &svOut - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CIOStream::ReadString(std::string& svOut)
+bool CIOStream::ReadString(std::string& out)
 {
-	if (IsReadable())
+	if (!IsReadable())
+		return false;
+
+	while (!m_stream.eof())
 	{
-		while (!m_Stream.eof())
-		{
-			const char c = Read<char>();
+		const char c = Read<char>();
 
-			if (c == '\0')
-				break;
+		if (c == '\0')
+			break;
 
-			svOut += c;
-		}
-
-		return true;
+		out += c;
 	}
 
-	return false;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: reads a string from the file into a fixed size buffer
-// Input  : *pBuf - 
-//			nLen - 
+// Input  : *buf - 
+//			len - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CIOStream::ReadString(char* const pBuf, const size_t nLen)
+bool CIOStream::ReadString(char* const buf, const size_t len)
 {
-	if (IsReadable())
+	if (!IsReadable())
+		return false;
+
+	size_t i = 0;
+
+	while (i < len && !m_stream.eof())
 	{
-		size_t i = 0;
+		const char c = Read<char>();
 
-		while (i < nLen && !m_Stream.eof())
-		{
-			const char c = Read<char>();
+		if (c == '\0')
+			break;
 
-			if (c == '\0')
-				break;
-
-			pBuf[i++] = c;
-		}
-
-		return true;
+		buf[i++] = c;
 	}
 
-	return false;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: writes a string to the file
-// Input  : &svInput - 
+// Input  : &input - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CIOStream::WriteString(const std::string& svInput)
+bool CIOStream::WriteString(const std::string& input, const bool nullterminate)
 {
 	if (!IsWritable())
 		return false;
 
-	const char* const szText = svInput.c_str();
-	const size_t nSize = svInput.size();
+	const char* const text = input.c_str();
+	const size_t len = input.length() + nullterminate;
 
-	m_Stream.write(szText, nSize);
-	m_nSize += nSize;
+	m_stream.write(text, len);
+	CalcAddDelta(len);
 
 	return true;
+}
+
+// limit number of io calls and allocations by just using this static buffer
+// for padding out the stream.
+static constexpr size_t PAD_BUF_SIZE = 4096;
+const static char s_padBuf[PAD_BUF_SIZE];
+
+//-----------------------------------------------------------------------------
+// Purpose: pads the out stream up to count bytes
+// Input  : count - 
+//-----------------------------------------------------------------------------
+void CIOStream::Pad(const size_t count)
+{
+	assert(count > 0);
+	size_t remainder = count;
+
+	while (remainder)
+	{
+		const size_t writeCount = (std::min)(count, PAD_BUF_SIZE);
+		Write(s_padBuf, writeCount);
+
+		remainder -= writeCount;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: makes sure that the size gets incremented if we exceeded the end of
+//          the stream with the delta amount
+//-----------------------------------------------------------------------------
+void CIOStream::CalcAddDelta(const size_t count)
+{
+	if (m_skip > 0)
+	{
+		m_skip -= count;
+
+		if (m_skip < 0)
+		{
+			m_size += -m_skip; // Add the overshoot to the file size.
+			m_skip = 0;
+		}
+	}
+	else
+		m_size += count;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: if we seek backwards, and then write new data, we should not add
+//          this to the total output size of the stream as we modify and not
+//          add. we have to keep by how much we shifted backwards and advanced
+//          forward until we can start adding again.
+//-----------------------------------------------------------------------------
+void CIOStream::CalcSkipDelta(const std::streamoff offset, const std::ios_base::seekdir way)
+{
+	switch (way)
+	{
+	case std::ios_base::beg:
+	{
+		if (offset < 0)
+		{
+			assert(false && "Negative offset in std::ios_base::beg is invalid.");
+			return;
+		}
+
+		if (offset > m_size)
+		{
+			m_size = offset;
+			m_skip = 0;
+		}
+		else
+			m_skip = m_size - offset;
+		break;
+	}
+	case std::ios_base::cur:
+	{
+		if (offset > 0)
+			CalcAddDelta(offset);
+		else
+			m_skip += -offset;
+		break;
+	}
+	case std::ios_base::end:
+	{
+		if (offset >= 0)
+		{
+			m_size += offset;
+			m_skip = 0;
+		}
+		else
+			m_skip += -offset;
+		break;
+	}
+	default:
+		assert(false && "Unsupported seek direction.");
+		break;
+	}
+
+	// Ensure m_skip is non-negative, this can happen if you call this method
+	// with cur or end, and a negative value who's absolute value is greater
+	// than the total stream size. If you hit this, you have a bug somewhere.
+	assert(m_skip >= 0);
+
+	if (m_skip < 0)
+		m_skip = 0;
 }

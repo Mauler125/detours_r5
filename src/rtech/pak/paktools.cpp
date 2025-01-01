@@ -365,7 +365,7 @@ bool Pak_UpdatePatchHeaders(uint8_t* const inBuf, const char* const outPakFile)
 
 		// unable to open patch while there should be one, we must calculate
 		// new file sizes here, or else the runtime would fail to load them
-		if (!inPatch.Open(patchFile, CIOStream::READ | CIOStream::BINARY))
+		if (!inPatch.Open(patchFile, CIOStream::Mode_e::Read))
 			return false;
 
 		const size_t fileSize = inPatch.GetSize();

@@ -807,7 +807,7 @@ bool Pak_DecodePakFile(const char* const inPakFile, const char* const outPakFile
 
 	CIOStream inPakStream;
 
-	if (!inPakStream.Open(inPakFile, CIOStream::READ | CIOStream::BINARY))
+	if (!inPakStream.Open(inPakFile, CIOStream::Mode_e::Read))
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s: failed to open pak file '%s' for read!\n",
 			__FUNCTION__, inPakFile);
@@ -817,7 +817,7 @@ bool Pak_DecodePakFile(const char* const inPakFile, const char* const outPakFile
 
 	CIOStream outPakStream;
 
-	if (!outPakStream.Open(outPakFile, CIOStream::WRITE | CIOStream::BINARY))
+	if (!outPakStream.Open(outPakFile, CIOStream::Mode_e::Write))
 	{
 		Error(eDLL_T::RTECH, NO_ERROR, "%s: failed to open pak file '%s' for write!\n",
 			__FUNCTION__, outPakFile);

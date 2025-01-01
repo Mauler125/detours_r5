@@ -3,32 +3,39 @@
 class CIOStream
 {
 public:
-	enum Mode_t
+	enum class Mode_e
 	{
-		NONE = 0,
-		READ = std::ios::in,
-		WRITE = std::ios::out,
-		BINARY = std::ios::binary,
+		None = 0,
+		Read,
+		Write,
+		ReadWrite, // For existing files only.
+		ReadWriteCreate
 	};
 
 	CIOStream();
 	~CIOStream();
 
-	bool Open(const char* const pFilePath, const int nFlags);
+	bool Open(const char* const filePath, const Mode_e mode);
+	inline bool Open(const std::string& filePath, const Mode_e mode) { return Open(filePath.c_str(), mode); };
+
 	void Close();
+	void Reset();
 	void Flush();
 
-	std::streampos TellGet();
-	std::streampos TellPut();
+	std::streamoff TellGet();
+	std::streamoff TellPut();
 
-	void SeekGet(const std::streampos nOffset);
-	void SeekPut(const std::streampos nOffset);
-	void Seek(const std::streampos nOffset);
+	void SeekGet(const std::streamoff offset, const std::ios_base::seekdir way = std::ios::beg);
+	void SeekPut(const std::streamoff offset, const std::ios_base::seekdir way = std::ios::beg);
+	void Seek(const std::streamoff offset, const std::ios_base::seekdir way = std::ios::beg);
 
 	const std::filebuf* GetData() const;
-	const std::streampos GetSize() const;
+	const std::streamoff GetSize() const;
 
-	bool IsReadable();
+	bool IsReadMode() const;
+	bool IsWriteMode() const;
+
+	bool IsReadable() const;
 	bool IsWritable() const;
 
 	bool IsEof() const;
@@ -37,39 +44,39 @@ public:
 	// Purpose: reads any value from the file
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Read(T& tValue)
+	inline void Read(T& value)
 	{
 		if (IsReadable())
-			m_Stream.read(reinterpret_cast<char*>(&tValue), sizeof(tValue));
+			m_stream.read(reinterpret_cast<char*>(&value), sizeof(value));
 	}
 
 	//-----------------------------------------------------------------------------
 	// Purpose: reads any value from the file with specified size
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Read(T* tValue, const size_t nSize)
+	inline void Read(T* const value, const size_t size)
 	{
 		if (IsReadable())
-			m_Stream.read(reinterpret_cast<char*>(tValue), nSize);
+			m_stream.read(reinterpret_cast<char*>(value), size);
 	}
 	template<typename T>
-	void Read(T& tValue, const size_t nSize)
+	inline void Read(T& value, const size_t size)
 	{
 		if (IsReadable())
-			m_Stream.read(reinterpret_cast<char*>(&tValue), nSize);
+			m_stream.read(reinterpret_cast<char*>(&value), size);
 	}
 
 	//-----------------------------------------------------------------------------
 	// Purpose: reads any value from the file and returns it
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	T Read()
+	inline T Read()
 	{
 		T value{};
 		if (!IsReadable())
 			return value;
 
-		m_Stream.read(reinterpret_cast<char*>(&value), sizeof(value));
+		m_stream.read(reinterpret_cast<char*>(&value), sizeof(value));
 		return value;
 	}
 	bool ReadString(std::string& svOut);
@@ -79,31 +86,40 @@ public:
 	// Purpose: writes any value to the file
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Write(T tValue)
+	inline void Write(const T& value)
 	{
 		if (!IsWritable())
 			return;
 
-		m_Stream.write(reinterpret_cast<const char*>(&tValue), sizeof(tValue));
-		m_nSize += sizeof(tValue);
+		const size_t count = sizeof(value);
+
+		m_stream.write(reinterpret_cast<const char*>(&value), count);
+		CalcAddDelta(count);
 	}
 
 	//-----------------------------------------------------------------------------
 	// Purpose: writes any value to the file with specified size
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Write(T* tValue, size_t nSize)
+	inline void Write(const T* const value, const size_t size)
 	{
 		if (!IsWritable())
 			return;
 
-		m_Stream.write(reinterpret_cast<const char*>(tValue), nSize);
-		m_nSize += nSize;
+		m_stream.write(reinterpret_cast<const char*>(value), size);
+		CalcAddDelta(size);
 	}
-	bool WriteString(const std::string& svInput);
+	bool WriteString(const std::string& svInput, const bool nullterminate);
+	void Pad(const size_t count);
+
+protected:
+	void CalcAddDelta(const size_t count);
+	void CalcSkipDelta(const std::streamoff offset, const std::ios_base::seekdir way);
 
 private:
-	std::streampos  m_nSize;  // File size.
-	int             m_nFlags; // Stream flags.
-	std::fstream    m_Stream; // I/O stream.
+	std::fstream            m_stream; // I/O stream.
+	std::streamoff          m_size;   // File size.
+	std::streamoff          m_skip;   // Amount skipped back.
+	std::ios_base::openmode m_flags;  // Stream flags.
+	Mode_e                  m_mode;   // Stream mode.
 };

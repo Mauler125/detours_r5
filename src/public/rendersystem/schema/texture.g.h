@@ -36,7 +36,7 @@
 	uint8_t m_nTextureMipLevelsStreamedOpt;
 };
 
-struct TextureBytesPerPixel_s
+struct TextureBytesPerPixel_t
 {
 	uint8_t x;
 	uint8_t y;
@@ -45,7 +45,7 @@ struct TextureBytesPerPixel_s
 //-----------------------------------------------------------------------------
 // Table definitions
 //-----------------------------------------------------------------------------
-static inline const TextureBytesPerPixel_s s_pBytesPerPixel[] =
+static inline const TextureBytesPerPixel_t s_pBytesPerPixel[] =
 {
   { uint8_t(8u),  uint8_t(4u) },
   { uint8_t(8u),  uint8_t(4u) },

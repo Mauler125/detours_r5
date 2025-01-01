@@ -31,7 +31,7 @@ static void Pak_ListPaks_f()
 
 		const char* const pakStatus = Pak_StatusToString(info.status);
 
-		Msg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11i |\n", info.handle, info.fileName, pakStatus, info.assetCount);
+		Msg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11u |\n", info.handle, info.fileName, pakStatus, info.assetCount);
 		numLoaded++;
 	}
 	Msg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
@@ -46,8 +46,8 @@ Pak_ListTypes_f
 */
 static void Pak_ListTypes_f()
 {
-	Msg(eDLL_T::RTECH, "| ext  | description               | version | header size | native size |\n");
-	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "| ext  | description               | version | alignment | header size | native size |\n");
+	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-----------|-------------|-------------|\n");
 
 	uint32_t numRegistered = 0;
 
@@ -61,12 +61,14 @@ static void Pak_ListTypes_f()
 		FourCCString_t assetExtension;
 		FourCCToString(assetExtension, type.extension);
 
-		Msg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", assetExtension, type.description, type.version, type.headerSize, type.nativeClassSize);
+		Msg(eDLL_T::RTECH, "| %-4s | %-25s | %7u | %9u | %11u | %11u |\n", 
+			assetExtension, type.description, type.version, type.headerAlignment, type.headerSize, type.nativeClassSize);
+
 		numRegistered++;
 	}
-	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
-	Msg(eDLL_T::RTECH, "| %18i registered types.                                   |\n", numRegistered);
-	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-----------|-------------|-------------|\n");
+	Msg(eDLL_T::RTECH, "| %18i registered types.                                               |\n", numRegistered);
+	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-----------|-------------|-------------|\n");
 }
 
 /*

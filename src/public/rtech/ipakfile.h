@@ -36,11 +36,11 @@
 #define PAK_MAX_TRACKED_ASSETS (PAK_MAX_LOADED_ASSETS/2)
 #define PAK_MAX_TRACKED_ASSETS_MASK (PAK_MAX_TRACKED_ASSETS-1)
 
-// max amount of segments a pak file could have
-#define PAK_MAX_SEGMENTS 20
+// max amount of slabs a pak file could have
+#define PAK_MAX_SLABS 20
 
-// max amount of buffers in which segments get copied in
-#define PAK_SEGMENT_BUFFER_TYPES 4
+// max amount of buffers in which slabs get copied in
+#define PAK_SLAB_BUFFER_TYPES 4
 
 // max amount of streaming files that could be opened per set for a pak, so if a
 // pak uses more than one set, this number would be used per set
@@ -112,7 +112,7 @@ typedef uint64_t PakGuid_t;
 //-----------------------------------------------------------------------------
 struct PakPageHeader_s
 {
-	uint32_t segmentIdx;
+	uint32_t slabIndex;
 	uint32_t pageAlignment;
 	uint32_t dataSize;
 };
@@ -203,9 +203,9 @@ struct PakAssetBinding_s
 
 	CAlignedMemAlloc* allocator;
 
-	unsigned int headerSize;
-	unsigned int nativeClassSize; // Native class size, for 'material' it would be CMaterialGlue full size.
-	unsigned int headerAlignment;
+	uint32_t headerSize;
+	uint32_t nativeClassSize; // Native class size, for 'material' it would be CMaterialGlue full size.
+	uint32_t headerAlignment;
 
 	// the type of this asset bind
 	// NOTE: the asset bind will be stubbed if its 'NONE' in runtime!
@@ -229,11 +229,12 @@ struct PakAsset_s
 	uint16_t pageEnd;
 
 	// the number of remaining dependencies that are yet to be resolved
-	uint16_t numRemainingDependencies;
+	int16_t numRemainingDependencies;
+
 	uint32_t dependentsIndex;
-	uint32_t dependenciesIndex;
+	uint32_t usesIndex;
 	uint32_t dependentsCount;
-	uint32_t dependenciesCount;
+	uint32_t usesCount;
 
 	// size of the asset's header
 	uint32_t headerSize;
@@ -313,8 +314,8 @@ public:
 	uint32_t assetCount;
 	const char* fileName;
 	CAlignedMemAlloc* allocator;
-	PakGuid_t* assetGuids; //size of the array is m_nAssetCount
-	void* segmentBuffers[PAK_SEGMENT_BUFFER_TYPES];
+	PakGuid_t* assetGuids; // size of the array is assetCount
+	void* slabBuffers[PAK_SLAB_BUFFER_TYPES];
 	void* guidDestriptors;
 	FILETIME fileTime;
 	PakFile_s* pakFile;
@@ -485,20 +486,20 @@ struct PakFileHeader_s
 	// size of the string array containing paths to external streaming files
 	uint16_t streamingFilesBufSize[STREAMING_SET_COUNT];
 
-	// number of segments in this pak; absolute max = PAK_MAX_SEGMENTS
-	uint16_t virtualSegmentCount;
+	// number of memory slabs in this pak in which pages get allocated to; absolute max = PAK_MAX_SLABS
+	uint16_t memSlabCount;
 
 	// number of memory pages to allocate for this pak
 	uint16_t memPageCount;
 
 	uint16_t patchIndex;
 
-	uint32_t descriptorCount;
+	uint16_t alignment;
 
-	// number of assets in this pak
-	uint32_t assetCount;
-	uint32_t guidDescriptorCount;
-	uint32_t relationsCounts;
+	uint32_t pointerCount;
+	uint32_t assetCount; // number of assets in this pak
+	uint32_t usesCount;
+	uint32_t dependentsCount;
 
 	uint8_t  unk2[0x10];
 
@@ -508,26 +509,28 @@ struct PakFileHeader_s
 	uint8_t  unk3[0x8];
 }; static_assert(sizeof(PakFileHeader_s) == 0x80);
 
-// segment flags
-#define SF_HEAD (0)
-#define SF_TEMP (1 << 0) // 0x1
-#define SF_CPU  (1 << 1) // 0x2
-#define SF_DEV  (1 << 8) // 0x80
+// slab flags
+#define SF_HEAD   (0)
+#define SF_CPU    (1 << 0)
+#define SF_TEMP   (1 << 1)
+#define SF_SERVER (1 << 5)
+#define SF_CLIENT (1 << 6)
+#define SF_DEV    (1 << 8)
 
-struct PakSegmentHeader_s
+struct PakSlabHeader_s
 {
 	int typeFlags;
 	int dataAlignment;
 	size_t dataSize;
 };
 
-struct PakSegmentDescriptor_s
+struct PakSlabDescriptor_s
 {
 	size_t assetTypeCount[PAK_MAX_TRACKED_TYPES];
-	int64_t segmentSizes[PAK_MAX_SEGMENTS];
+	int64_t slabSizes[PAK_MAX_SLABS];
 
-	size_t segmentSizeForType[PAK_SEGMENT_BUFFER_TYPES];
-	int segmentAlignmentForType[PAK_SEGMENT_BUFFER_TYPES];
+	size_t slabSizeForType[PAK_SLAB_BUFFER_TYPES];
+	int slabAlignmentForType[PAK_SLAB_BUFFER_TYPES];
 };
 
 struct PakDecoder_s
@@ -687,7 +690,7 @@ struct PakMemoryData_s
 
 	char* streamingFilePaths[STREAMING_SET_COUNT];
 
-	PakSegmentHeader_s* segmentHeaders;
+	PakSlabHeader_s* slabHeaders;
 	PakPageHeader_s* pageHeaders;
 
 	PakPage_u* virtualPointers;
@@ -704,7 +707,7 @@ struct PakMemoryData_s
 	int someAssetCount;
 	int numShiftedPointers;
 
-	// array of sizes/offsets in the SF_HEAD segment buffer
+	// array of sizes/offsets in the SF_HEAD slab buffer
 	__int64 unkAssetTypeBindingSizes[PAK_MAX_TRACKED_TYPES];
 
 	const char* fileName;
@@ -760,7 +763,7 @@ struct PakFile_s
 
 	inline uint32_t GetPointerCount() const
 	{
-		return GetHeader().descriptorCount;
+		return GetHeader().pointerCount;
 	}
 
 	// --- pages ---
@@ -819,17 +822,17 @@ struct PakFile_s
 		return memoryData.memPageBuffers[ptr->index] + ptr->offset;
 	}
 
-	// --- segments ---
-	inline uint16_t GetSegmentCount() const
+	// --- slabs ---
+	inline uint16_t GetSlabCount() const
 	{
-		return GetHeader().virtualSegmentCount;
+		return GetHeader().memSlabCount;
 	}
 
-	inline const PakSegmentHeader_s* GetSegmentHeader(const uint32_t i) const
+	inline const PakSlabHeader_s* GetSlabHeader(const uint32_t i) const
 	{
-		assert(i < GetSegmentCount());
+		assert(i < GetSlabCount());
 
-		return &memoryData.segmentHeaders[i];
+		return &memoryData.slabHeaders[i];
 	}
 };
 

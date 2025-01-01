@@ -2,9 +2,9 @@
 #define RTECH_PAKALLOC_H
 #include "rtech/ipakfile.h"
 
-extern void Pak_AlignSegmentHeaders(PakFile_s* const pak, PakSegmentDescriptor_s* const desc);
-extern void Pak_AlignSegments(PakFile_s* const pak, PakSegmentDescriptor_s* const desc);
-extern void Pak_CopyPagesToSegments(PakFile_s* const pak, PakLoadedInfo_s* const loadedInfo, PakSegmentDescriptor_s* const desc);
+extern void Pak_AlignSlabHeaders(PakFile_s* const pak, PakSlabDescriptor_s* const desc);
+extern void Pak_AlignSlabData(PakFile_s* const pak, PakSlabDescriptor_s* const desc);
+extern void Pak_CopyPagesToSlabs(PakFile_s* const pak, PakLoadedInfo_s* const loadedInfo, PakSlabDescriptor_s* const desc);
 
 // something with sorting pages?
 inline void (*sub_140442740)(PakAsset_s** assetEntries, PakAsset_s** assetEntry, __int64 idx, PakFile_s* pak);

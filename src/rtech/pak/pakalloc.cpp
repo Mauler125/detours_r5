@@ -8,12 +8,12 @@
 #include "pakalloc.h"
 
 //-----------------------------------------------------------------------------
-// aligns the segment headers for each asset type
+// aligns the slab headers for each asset type
 //-----------------------------------------------------------------------------
-void Pak_AlignSegmentHeaders(PakFile_s* const pak, PakSegmentDescriptor_s* const desc)
+void Pak_AlignSlabHeaders(PakFile_s* const pak, PakSlabDescriptor_s* const desc)
 {
     uint64_t headersSize = 0;
-    uint8_t headerSegmentAlignment = static_cast<int8_t>(desc->segmentAlignmentForType[SF_HEAD]);
+    uint32_t slabHeaderAlignment = desc->slabAlignmentForType[SF_HEAD];
 
     for (uint8_t i = 0; i < PAK_MAX_TRACKED_TYPES; ++i)
     {
@@ -21,19 +21,16 @@ void Pak_AlignSegmentHeaders(PakFile_s* const pak, PakSegmentDescriptor_s* const
 
         if (desc->assetTypeCount[i])
         {
-            // asset header alignment really shouldn't be above 255
-            // if this needs raising, headerSegmentAlignment should be made wider
-            assert(binding.headerAlignment <= UINT8_MAX);
-
+            assert(binding.headerAlignment > 0 && IsPowerOfTwo(binding.headerAlignment));
             const size_t alignedSize = ALIGN_VALUE(headersSize, static_cast<size_t>(binding.headerAlignment));
 
             pak->memoryData.unkAssetTypeBindingSizes[i] = alignedSize;
             headersSize = alignedSize + (desc->assetTypeCount[i] * binding.nativeClassSize);
 
-            desc->segmentSizeForType[SF_HEAD] = headersSize;
+            desc->slabSizeForType[SF_HEAD] = headersSize;
 
-            headerSegmentAlignment = Max(headerSegmentAlignment, static_cast<uint8_t>(binding.headerAlignment));
-            desc->segmentAlignmentForType[SF_HEAD] = headerSegmentAlignment;
+            slabHeaderAlignment = Max(slabHeaderAlignment, binding.headerAlignment);
+            desc->slabAlignmentForType[SF_HEAD] = slabHeaderAlignment;
         }
     }
 }
@@ -41,69 +38,66 @@ void Pak_AlignSegmentHeaders(PakFile_s* const pak, PakSegmentDescriptor_s* const
 //-----------------------------------------------------------------------------
 // aligns each individual non-header segment
 //-----------------------------------------------------------------------------
-void Pak_AlignSegments(PakFile_s* const pak, PakSegmentDescriptor_s* const desc)
+void Pak_AlignSlabData(PakFile_s* const pak, PakSlabDescriptor_s* const desc)
 {
-    for (uint16_t i = 0; i < pak->GetSegmentCount(); ++i)
+    for (uint16_t i = 0; i < pak->GetSlabCount(); ++i)
     {
-        const PakSegmentHeader_s* const segHeader = pak->GetSegmentHeader(i);
+        const PakSlabHeader_s* const slabHeader = pak->GetSlabHeader(i);
+        const uint8_t slabType = slabHeader->typeFlags & (SF_CPU | SF_TEMP);
 
-        const uint8_t segmentType = segHeader->typeFlags & (SF_TEMP | SF_CPU);
-
-        if (segmentType != SF_HEAD) // if not a header segment
+        if (slabType != SF_HEAD) // if not a header slab
         {
             // should this be a hard error on release?
-            // segment alignment must not be 0 and must be a power of two
-            assert(segHeader->dataAlignment > 0 && IsPowerOfTwo(segHeader->dataAlignment));
+            // slab alignment must not be 0 and must be a power of two
+            assert(slabHeader->dataAlignment > 0 && IsPowerOfTwo(slabHeader->dataAlignment));
+            const size_t alignedSlabSize = ALIGN_VALUE(desc->slabSizeForType[slabType], static_cast<size_t>(slabHeader->dataAlignment));
 
-            const size_t alignedSegmentSize = ALIGN_VALUE(desc->segmentSizeForType[segmentType], static_cast<size_t>(segHeader->dataAlignment));
-            //const size_t sizeAligned = ~(m_align - 1) & (m_align - 1 + segmentSizeForType[segmentType]);
+            desc->slabSizes[i] = alignedSlabSize;
+            desc->slabSizeForType[slabType] = alignedSlabSize + slabHeader->dataSize;
 
-            desc->segmentSizes[i] = alignedSegmentSize;
-            desc->segmentSizeForType[segmentType] = alignedSegmentSize + segHeader->dataSize;
-
-            // check if this segment's alignment is higher than the previous highest for this type
-            // if so, increase the alignment to accommodate this segment
-            desc->segmentAlignmentForType[segmentType] = Max(desc->segmentAlignmentForType[segmentType], segHeader->dataAlignment);
+            // check if this slab's alignment is higher than the previous highest for this type
+            // if so, increase the alignment to accommodate this slab
+            desc->slabAlignmentForType[slabType] = Max(desc->slabAlignmentForType[slabType], slabHeader->dataAlignment);
         }
     }
 }
 
 //-----------------------------------------------------------------------------
-// copy's pages into pre-allocated and aligned segments
+// copy's pages into pre-allocated and aligned slabs
 //-----------------------------------------------------------------------------
-void Pak_CopyPagesToSegments(PakFile_s* const pak, PakLoadedInfo_s* const loadedInfo, PakSegmentDescriptor_s* const desc)
+void Pak_CopyPagesToSlabs(PakFile_s* const pak, PakLoadedInfo_s* const loadedInfo, PakSlabDescriptor_s* const desc)
 {
     for (uint32_t i = 0; i < pak->GetPageCount(); ++i)
     {
         const PakPageHeader_s* const pageHeader = pak->GetPageHeader(i);
-        const uint32_t segmentIndex = pageHeader->segmentIdx;
+        const uint32_t slabIndex = pageHeader->slabIndex;
 
-        const PakSegmentHeader_s* const segHeader = pak->GetSegmentHeader(segmentIndex);
-        const int typeFlags = segHeader->typeFlags;
+        const PakSlabHeader_s* const slabHeader = pak->GetSlabHeader(slabIndex);
+        const int typeFlags = slabHeader->typeFlags;
 
         // check if header page
-        if ((typeFlags & (SF_TEMP | SF_CPU)) != 0)
+        if ((typeFlags & (SF_CPU | SF_TEMP)) != 0)
         {
-            // align the segment's current size to the alignment of the new page to get copied in
+            // align the slab's current size to the alignment of the new page to get copied in
             // this ensures that the location holding the page is aligned as required
             // 
-            // since the segment will always have alignment equal to or greater than the page, and that alignment will always be a power of 2
-            // the page does not have to be aligned to the same alignment as the segment, as aligning it to its own alignment is sufficient as long as
+            // since the slab will always have alignment equal to or greater than the page, and that alignment will always be a power of 2
+            // the page does not have to be aligned to the same alignment as the slab, as aligning it to its own alignment is sufficient as long as
             // every subsequent page does the same thing
-            const size_t alignedSegmentSize = ALIGN_VALUE(desc->segmentSizes[segmentIndex], static_cast<size_t>(pageHeader->pageAlignment));
+            const size_t alignedSlabSize = ALIGN_VALUE(desc->slabSizes[slabIndex], static_cast<size_t>(pageHeader->pageAlignment));
 
-            // get a pointer to the newly aligned location within the segment for this page
-            pak->memoryData.memPageBuffers[i] = reinterpret_cast<uint8_t*>(loadedInfo->segmentBuffers[typeFlags & (SF_TEMP | SF_CPU)]) + alignedSegmentSize;
+            // get a pointer to the newly aligned location within the slab for this page
+            pak->memoryData.memPageBuffers[i] = reinterpret_cast<uint8_t*>(loadedInfo->slabBuffers[typeFlags & (SF_CPU | SF_TEMP)]) + alignedSlabSize;
 
-            // update the segment size to reflect the new alignment and page size
-            desc->segmentSizes[segmentIndex] = alignedSegmentSize + pak->memoryData.pageHeaders[i].dataSize;
+            // update the slab size to reflect the new alignment and page size
+            desc->slabSizes[slabIndex] = alignedSlabSize + pak->memoryData.pageHeaders[i].dataSize;
         }
         else
         {
-            // all headers go into one segment and are dealt with separately in Pak_ProcessPakFile
+            // all headers go into one slab and are dealt with separately in Pak_ProcessPakFile
             // since headers must be copied individually into a buffer that is big enough for the "native class" version of the header
             // instead of just the file version
-            pak->memoryData.memPageBuffers[i] = reinterpret_cast<uint8_t*>(loadedInfo->segmentBuffers[SF_HEAD]);
+            pak->memoryData.memPageBuffers[i] = reinterpret_cast<uint8_t*>(loadedInfo->slabBuffers[SF_HEAD]);
         }
     }
 }

@@ -49,16 +49,16 @@ static bool Pak_ResolveAssetDependency(const PakFile_s* const pak, PakGuid_t cur
 //-----------------------------------------------------------------------------
 // resolve guid relations for asset
 //-----------------------------------------------------------------------------
-void Pak_ResolveAssetRelations(PakFile_s* const pak, const PakAsset_s* const asset)
+static void Pak_ResolveAssetRelations(PakFile_s* const pak, const PakAsset_s* const asset)
 {
-    PakPage_u* const pageDescriptors = &pak->memoryData.pageDescriptors[asset->dependenciesIndex];
+    PakPage_u* const pageDescriptors = &pak->memoryData.pageDescriptors[asset->usesIndex];
     uint32_t* const guidDestriptors = (uint32_t*)g_pakGlobals->loadedPaks[pak->memoryData.pakId & PAK_MAX_LOADED_PAKS_MASK].guidDestriptors;
 
     if (pak_debugrelations.GetBool())
         Msg(eDLL_T::RTECH, "Resolving relations for asset: '0x%-16llX', dependencies: %-4u; in pak '%s'\n",
-            asset->guid, asset->dependenciesCount, pak->memoryData.fileName);
+            asset->guid, asset->usesCount, pak->memoryData.fileName);
 
-    for (uint32_t i = 0; i < asset->dependenciesCount; i++)
+    for (uint32_t i = 0; i < asset->usesCount; i++)
     {
         void** const pCurrentGuid = reinterpret_cast<void**>(pak->memoryData.memPageBuffers[pageDescriptors[i].index] + pageDescriptors[i].offset);
 
@@ -93,7 +93,7 @@ void Pak_ResolveAssetRelations(PakFile_s* const pak, const PakAsset_s* const ass
                                 "pak: '%s'\n"
                                 "asset: '0x%llX'\n"
                                 "target: '0x%llX'\n",
-                                i, asset->dependenciesCount,
+                                i, asset->usesCount,
                                 pak->memoryData.fileName,
                                 asset->guid,
                                 targetGuid);
@@ -112,7 +112,7 @@ void Pak_ResolveAssetRelations(PakFile_s* const pak, const PakAsset_s* const ass
     }
 }
 
-uint32_t Pak_ProcessRemainingPagePointers(PakFile_s* const pak)
+static uint32_t Pak_ProcessRemainingPagePointers(PakFile_s* const pak)
 {
     uint32_t processedPointers = 0;
 
@@ -134,7 +134,7 @@ uint32_t Pak_ProcessRemainingPagePointers(PakFile_s* const pak)
     return processedPointers;
 }
 
-void Pak_RunAssetLoadingJobs(PakFile_s* const pak)
+static void Pak_RunAssetLoadingJobs(PakFile_s* const pak)
 {
     pak->numProcessedPointers = Pak_ProcessRemainingPagePointers(pak);
 
@@ -167,7 +167,7 @@ void Pak_RunAssetLoadingJobs(PakFile_s* const pak)
         }
         else
         {
-            if (_InterlockedExchangeAdd16((volatile signed __int16*)&pakAsset->numRemainingDependencies, 0xFFFFu) == 1)
+            if (_InterlockedExchangeAdd16(&pakAsset->numRemainingDependencies, -1) == 1)
                 Pak_ProcessAssetRelationsAndResolveDependencies(pak, pakAsset, currentAsset, assetBind);
 
             _InterlockedDecrement16(&g_pakGlobals->numAssetLoadJobs);
@@ -191,7 +191,7 @@ void Pak_RunAssetLoadingJobs(PakFile_s* const pak)
 //-----------------------------------------------------------------------------
 // load user-requested pak files on-demand
 //-----------------------------------------------------------------------------
-PakHandle_t Pak_LoadAsync(const char* const fileName, CAlignedMemAlloc* const allocator, const int logChannel, const bool bUnk)
+static PakHandle_t Pak_LoadAsync(const char* const fileName, CAlignedMemAlloc* const allocator, const int logChannel, const bool bUnk)
 {
     if (!Pak_FileExists(fileName))
     {
@@ -216,7 +216,7 @@ PakHandle_t Pak_LoadAsync(const char* const fileName, CAlignedMemAlloc* const al
 //-----------------------------------------------------------------------------
 // unloads loaded pak files
 //-----------------------------------------------------------------------------
-void Pak_UnloadAsync(const PakHandle_t handle)
+static void Pak_UnloadAsync(const PakHandle_t handle)
 {
     const PakLoadedInfo_s* const pakInfo = Pak_GetPakInfo(handle);
 
@@ -238,9 +238,8 @@ static const int s_patchCmdToBytesToProcess[] = { CMD_INVALID, CMD_INVALID, CMD_
 #undef CMD_INVALID
 //----------------------------------------------------------------------------------
 // loads and processes a pak file (handles decompression and patching)
-// TODO: !!! FINISH REBUILD !!!
 //----------------------------------------------------------------------------------
-bool Pak_ProcessPakFile(PakFile_s* const pak)
+static bool Pak_ProcessPakFile(PakFile_s* const pak)
 {
     PakFileStream_s* const fileStream = &pak->fileStream;
     PakMemoryData_s* const memoryData = &pak->memoryData;
@@ -522,9 +521,9 @@ bool Pak_ProcessPakFile(PakFile_s* const pak)
     return memoryData->patchSrcSize == 0;
 }
 
-// sets patch variables for copying the next unprocessed page into the relevant segment buffer
+// sets patch variables for copying the next unprocessed page into the relevant slab buffer
 // if this is a header page, fetch info from the next unprocessed asset and copy over the asset's header
-bool Pak_PrepareNextPageForPatching(PakLoadedInfo_s* const loadedInfo, PakFile_s* const pak)
+static bool Pak_PrepareNextPageForPatching(PakLoadedInfo_s* const loadedInfo, PakFile_s* const pak)
 {
     Pak_RunAssetLoadingJobs(pak);
 
@@ -542,7 +541,7 @@ bool Pak_PrepareNextPageForPatching(PakLoadedInfo_s* const loadedInfo, PakFile_s
         : highestProcessedPageIdx - pak->GetPageCount();
 
     const PakPageHeader_s* const nextMemPageHeader = &pak->memoryData.pageHeaders[currentPageIndex];
-    if ((pak->memoryData.segmentHeaders[nextMemPageHeader->segmentIdx].typeFlags & (SF_TEMP | SF_CPU)) != 0)
+    if ((pak->memoryData.slabHeaders[nextMemPageHeader->slabIndex].typeFlags & (SF_CPU | SF_TEMP)) != 0)
     {
         pak->memoryData.patchSrcSize = nextMemPageHeader->dataSize;
         pak->memoryData.patchDstPtr = reinterpret_cast<char*>(pak->memoryData.memPageBuffers[currentPageIndex]);
@@ -556,13 +555,13 @@ bool Pak_PrepareNextPageForPatching(PakLoadedInfo_s* const loadedInfo, PakFile_s
     pak->memoryData.patchSrcSize = pakAsset->headerSize;
     const int assetTypeIdx = pakAsset->HashTableIndexForAssetType();
 
-    pak->memoryData.patchDstPtr = reinterpret_cast<char*>(loadedInfo->segmentBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
+    pak->memoryData.patchDstPtr = reinterpret_cast<char*>(loadedInfo->slabBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
     pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
 
     return true;
 }
 
-bool Pak_ProcessAssets(PakLoadedInfo_s* const loadedInfo)
+static bool Pak_ProcessAssets(PakLoadedInfo_s* const loadedInfo)
 {
     PakFile_s* const pak = loadedInfo->pakFile;
 
@@ -593,8 +592,8 @@ bool Pak_ProcessAssets(PakLoadedInfo_s* const loadedInfo)
         if (v4 >= pageCount)
             shiftedPageIndex -= pageCount;
 
-        // if "temp_" segment
-        if ((pak->memoryData.segmentHeaders[pak->memoryData.pageHeaders[shiftedPageIndex].segmentIdx].typeFlags & (SF_TEMP | SF_CPU)) != 0)
+        // if "temp_" slab
+        if ((pak->memoryData.slabHeaders[pak->memoryData.pageHeaders[shiftedPageIndex].slabIndex].typeFlags & (SF_CPU | SF_TEMP)) != 0)
         {
             if (Pak_PrepareNextPageForPatching(loadedInfo, pak))
                 continue;
@@ -606,12 +605,12 @@ bool Pak_ProcessAssets(PakLoadedInfo_s* const loadedInfo)
         const uint32_t headPageOffset = asset->headPtr.offset;
         char* const v8 = pak->memoryData.patchDstPtr - asset->headerSize;
 
-        const uint32_t newOffsetFromSegmentBufferToHeader = LODWORD(pak->memoryData.patchDstPtr)
+        const uint32_t newOffsetFromSlabBufferToHeader = LODWORD(pak->memoryData.patchDstPtr)
             - asset->headerSize
-            - LODWORD(loadedInfo->segmentBuffers[0]);
-        asset->headPtr.offset = newOffsetFromSegmentBufferToHeader;
+            - LODWORD(loadedInfo->slabBuffers[0]);
+        asset->headPtr.offset = newOffsetFromSlabBufferToHeader;
 
-        const uint32_t offsetSize = newOffsetFromSegmentBufferToHeader - headPageOffset;
+        const uint32_t offsetSize = newOffsetFromSlabBufferToHeader - headPageOffset;
 
         for (uint32_t i = pak->memoryData.numShiftedPointers; i < pak->GetPointerCount(); pak->memoryData.numShiftedPointers = i)
         {
@@ -638,9 +637,9 @@ bool Pak_ProcessAssets(PakLoadedInfo_s* const loadedInfo)
             i = pak->memoryData.numShiftedPointers + 1;
         }
 
-        for (uint32_t j = 0; j < asset->dependenciesCount; ++j)
+        for (uint32_t j = 0; j < asset->usesCount; ++j)
         {
-            PakPage_u* const descriptor = &pak->memoryData.pageDescriptors[asset->dependenciesIndex + j];
+            PakPage_u* const descriptor = &pak->memoryData.pageDescriptors[asset->usesIndex + j];
 
             if (descriptor->index == shiftedPageIndex)
                 descriptor->offset += offsetSize;
@@ -655,7 +654,7 @@ bool Pak_ProcessAssets(PakLoadedInfo_s* const loadedInfo)
             pak->memoryData.patchSrcSize = v17->headerSize;
             const uint8_t assetTypeIdx = v17->HashTableIndexForAssetType();
 
-            pak->memoryData.patchDstPtr = reinterpret_cast<char*>(loadedInfo->segmentBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
+            pak->memoryData.patchDstPtr = reinterpret_cast<char*>(loadedInfo->slabBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
 
             pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
         }
@@ -735,7 +734,7 @@ bool Pak_ProcessAssets(PakLoadedInfo_s* const loadedInfo)
     return true;
 }
 
-void Pak_StubInvalidAssetBinds(PakFile_s* const pak, PakSegmentDescriptor_s* const desc)
+static void Pak_StubInvalidAssetBinds(PakFile_s* const pak, PakSlabDescriptor_s* const desc)
 {
     for (uint32_t i = 0; i < pak->GetAssetCount(); ++i)
     {
@@ -781,16 +780,16 @@ void Pak_StubInvalidAssetBinds(PakFile_s* const pak, PakSegmentDescriptor_s* con
     }
 }
 
-bool Pak_StartLoadingPak(PakLoadedInfo_s* const loadedInfo)
+static bool Pak_StartLoadingPak(PakLoadedInfo_s* const loadedInfo)
 {
     PakFile_s* const pakFile = loadedInfo->pakFile;
 
     if (pakFile->memoryData.patchSrcSize && !Pak_ProcessPakFile(pakFile))
         return false;
 
-    PakSegmentDescriptor_s pakDescriptor = {};
+    PakSlabDescriptor_s slabDesc = {};
 
-    Pak_StubInvalidAssetBinds(pakFile, &pakDescriptor);
+    Pak_StubInvalidAssetBinds(pakFile, &slabDesc);
 
     const uint32_t numAssets = pakFile->GetAssetCount();
 
@@ -799,33 +798,33 @@ bool Pak_StartLoadingPak(PakLoadedInfo_s* const loadedInfo)
 
     sub_140442740(pakFile->memoryData.ppAssetEntries, &pakFile->memoryData.ppAssetEntries[numAssets], numAssets, pakFile);
 
-    // pak must have no more than PAK_MAX_SEGMENTS segments as otherwise we will overrun the above "segmentSizes" array
+    // pak must have no more than PAK_MAX_SLABS slabs as otherwise we will overrun the above "slabSizes" array
     // and write to arbitrary locations on the stack
-    if (pakFile->GetSegmentCount() > PAK_MAX_SEGMENTS)
+    if (pakFile->GetSlabCount() > PAK_MAX_SLABS)
     {
-        Error(eDLL_T::RTECH, EXIT_FAILURE, "Too many segments in pakfile '%s'. Max %i, found %i.\n", pakFile->GetName(), PAK_MAX_SEGMENTS, pakFile->GetSegmentCount());
+        Error(eDLL_T::RTECH, EXIT_FAILURE, "Too many slabs in pakfile '%s'. Max %hu, found %hu.\n", pakFile->GetName(), PAK_MAX_SLABS, pakFile->GetSlabCount());
         return false;
     }
 
-    Pak_AlignSegmentHeaders(pakFile, &pakDescriptor);
-    Pak_AlignSegments(pakFile, &pakDescriptor);
+    Pak_AlignSlabHeaders(pakFile, &slabDesc);
+    Pak_AlignSlabData(pakFile, &slabDesc);
 
-    // allocate segment buffers with predetermined alignments; pages will be
+    // allocate slab buffers with predetermined alignments; pages will be
     // copied into here
-    for (int8_t i = 0; i < PAK_SEGMENT_BUFFER_TYPES; ++i)
+    for (int8_t i = 0; i < PAK_SLAB_BUFFER_TYPES; ++i)
     {
-        if (pakDescriptor.segmentSizeForType[i])
-            loadedInfo->segmentBuffers[i] = AlignedMemAlloc()->Alloc(pakDescriptor.segmentSizeForType[i], pakDescriptor.segmentAlignmentForType[i]);
+        if (slabDesc.slabSizeForType[i])
+            loadedInfo->slabBuffers[i] = AlignedMemAlloc()->Alloc(slabDesc.slabSizeForType[i], slabDesc.slabAlignmentForType[i]);
     }
 
-    Pak_CopyPagesToSegments(pakFile, loadedInfo, &pakDescriptor);
+    Pak_CopyPagesToSlabs(pakFile, loadedInfo, &slabDesc);
 
     const PakFileHeader_s& pakHdr = pakFile->GetHeader();
 
     if (Pak_StreamingEnabled())
         Pak_LoadStreamingData(loadedInfo);
 
-    const __int64 v106 = pakHdr.descriptorCount + 2 * (pakHdr.patchIndex + pakHdr.assetCount + 4ull * pakHdr.assetCount + pakHdr.virtualSegmentCount);
+    const __int64 v106 = pakHdr.pointerCount + 2 * (pakHdr.patchIndex + pakHdr.assetCount + 4ull * pakHdr.assetCount + pakHdr.memSlabCount);
     const __int64 patchDestOffset = pakHdr.GetTotalHeaderSize() + 2 * (pakHdr.patchIndex + 6ull * pakHdr.memPageCount + 4 * v106);
 
     pakFile->dword14 = 1;

@@ -135,7 +135,7 @@ static const unsigned char /*141313180*/ s_defaultDecoderLUT[] =
 //-----------------------------------------------------------------------------
 // checks if we have enough output buffer room to decode the data stream
 //-----------------------------------------------------------------------------
-bool Pak_HasEnoughDecodeBufferAvailable(PakDecoder_s* const decoder, const size_t outLen)
+static bool Pak_HasEnoughDecodeBufferAvailable(PakDecoder_s* const decoder, const size_t outLen)
 {
 	// make sure caller has copied all data out the ring buffer first before
 	// overwriting it with new decoded data
@@ -146,7 +146,7 @@ bool Pak_HasEnoughDecodeBufferAvailable(PakDecoder_s* const decoder, const size_
 //-----------------------------------------------------------------------------
 // checks if we have enough source data streamed to decode the next block
 //-----------------------------------------------------------------------------
-bool Pak_HasEnoughStreamedDataForDecode(PakDecoder_s* const decoder, const size_t inLen)
+static bool Pak_HasEnoughStreamedDataForDecode(PakDecoder_s* const decoder, const size_t inLen)
 {
 	// the decoder needs at least this amount of input data streamed in order
 	// to decode the rest of the pak file, as this is where reading has stopped
@@ -160,7 +160,7 @@ bool Pak_HasEnoughStreamedDataForDecode(PakDecoder_s* const decoder, const size_
 // gets the frame for the data in the ring buffer, the frame returned is always
 // ending to the end of the ring buffer, or the end of the data itself
 //-----------------------------------------------------------------------------
-PakRingBufferFrame_s Pak_DetermineRingBufferFrame(const uint64_t bufMask, const size_t seekPos, const size_t dataLen)
+static PakRingBufferFrame_s Pak_DetermineRingBufferFrame(const uint64_t bufMask, const size_t seekPos, const size_t dataLen)
 {
 	PakRingBufferFrame_s ring;
 	ring.bufIndex = seekPos & bufMask;
@@ -178,7 +178,7 @@ PakRingBufferFrame_s Pak_DetermineRingBufferFrame(const uint64_t bufMask, const 
 //-----------------------------------------------------------------------------
 // initializes the RTech decoder
 //-----------------------------------------------------------------------------
-size_t Pak_RTechDecoderInit(PakDecoder_s* const decoder, const uint8_t* const fileBuffer,
+static size_t Pak_RTechDecoderInit(PakDecoder_s* const decoder, const uint8_t* const fileBuffer,
 	const uint64_t inputMask, const size_t dataSize, const size_t dataOffset, const size_t headerSize)
 {
 	uint64_t frameHeader = *(_QWORD*)((inputMask & (dataOffset + headerSize)) + fileBuffer);
@@ -243,7 +243,7 @@ size_t Pak_RTechDecoderInit(PakDecoder_s* const decoder, const uint8_t* const fi
 //-----------------------------------------------------------------------------
 // decodes the RTech data stream up to available buffer or data
 //-----------------------------------------------------------------------------
-bool Pak_RTechStreamDecode(PakDecoder_s* const decoder, const size_t inLen, const size_t outLen)
+static bool Pak_RTechStreamDecode(PakDecoder_s* const decoder, const size_t inLen, const size_t outLen)
 {
 	bool result; // al
 	uint64_t outBufBytePos; // r15
@@ -570,7 +570,7 @@ LABEL_69:
 //-----------------------------------------------------------------------------
 // initializes the ZStd decoder
 //-----------------------------------------------------------------------------
-size_t Pak_ZStdDecoderInit(PakDecoder_s* const decoder, const uint8_t* frameHeader,
+static size_t Pak_ZStdDecoderInit(PakDecoder_s* const decoder, const uint8_t* frameHeader,
 	const size_t dataSize, const size_t headerSize)
 {
 	ZSTD_DStream* const dctx = ZSTD_createDStream();
@@ -608,7 +608,7 @@ size_t Pak_ZStdDecoderInit(PakDecoder_s* const decoder, const uint8_t* frameHead
 // decodes the ZStd data stream up to available buffer or data, whichever ends
 // first
 //-----------------------------------------------------------------------------
-bool Pak_ZStdStreamDecode(PakDecoder_s* const decoder, const PakRingBufferFrame_s& outFrame, const PakRingBufferFrame_s& inFrame)
+static bool Pak_ZStdStreamDecode(PakDecoder_s* const decoder, const PakRingBufferFrame_s& outFrame, const PakRingBufferFrame_s& inFrame)
 {
 	ZSTD_outBuffer outBuffer = {
 		&decoder->outputBuf[outFrame.bufIndex],

@@ -69,9 +69,9 @@ void FourCCToString(FourCCString_t& buf, const int n);
 
 /////////////////////////////////////////////////////////////////////////////
 // Bytes
-vector<int> StringToBytes(const char* const szInput, const bool bNullTerminator);
+vector<uint8_t> StringToBytes(const char* const szInput, const bool bNullTerminator);
 pair<vector<uint8_t>, string> StringToMaskedBytes(const char* const szInput, const bool bNullTerminator);
-vector<int> PatternToBytes(const char* const szInput);
+vector<uint16_t> PatternToBytes(const char* const szInput);
 pair<vector<uint8_t>, string> PatternToMaskedBytes(const char* const szInput);
 vector<int> IntToDigits(int iValue);
 

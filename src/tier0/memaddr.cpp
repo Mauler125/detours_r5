@@ -78,22 +78,24 @@ CMemory CMemory::FindPattern(const char* szPattern, const Direction searchDirect
 {
 	uint8_t* pScanBytes = reinterpret_cast<uint8_t*>(ptr); // Get the base of the module.
 
-	const vector<int> PatternBytes = PatternToBytes(szPattern); // Convert our pattern to a byte array.
-	const pair<size_t, const int*> bytesInfo = std::make_pair<size_t, const int*>(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+	const vector<uint16_t> PatternBytes = PatternToBytes(szPattern); // Convert our pattern to a byte array.
+	const pair<size_t, const uint16_t*> bytesInfo = std::make_pair<size_t, const uint16_t*>(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+
 	ptrdiff_t occurrences = 0;
 
 	for (long i = 01; i < opCodesToScan + bytesInfo.first; i++)
 	{
 		bool bFound = true;
-		int nMemOffset = searchDirect == Direction::DOWN ? i : -i;
+		const int nMemOffset = searchDirect == Direction::DOWN ? i : -i;
 
-		for (DWORD j = 0ul; j < bytesInfo.first; j++)
+		for (size_t j = 0ull; j < bytesInfo.first; j++)
 		{
 			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 			// our if clause will be false.
 			uint8_t* const pCurrentAddr = (pScanBytes + nMemOffset + j);
 			_mm_prefetch(reinterpret_cast<const char*>(pCurrentAddr + 64), _MM_HINT_T0); // precache some data in L1.
-			if (*pCurrentAddr != bytesInfo.second[j] && bytesInfo.second[j] != -1)
+
+			if (*pCurrentAddr != bytesInfo.second[j] && bytesInfo.second[j] != 0xffff)
 			{
 				bFound = false;
 				break;
@@ -125,8 +127,9 @@ CMemory CMemory::FindPatternSelf(const char* szPattern, const Direction searchDi
 {
 	uint8_t* pScanBytes = reinterpret_cast<uint8_t*>(ptr); // Get the base of the module.
 
-	const vector<int> PatternBytes = PatternToBytes(szPattern); // Convert our pattern to a byte array.
-	const pair<size_t, const int*> bytesInfo = std::make_pair<size_t, const int*>(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+	const vector<uint16_t> PatternBytes = PatternToBytes(szPattern); // Convert our pattern to a byte array.
+	const pair<size_t, const uint16_t*> bytesInfo = std::make_pair<size_t, const uint16_t*>(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+
 	ptrdiff_t occurrences = 0;
 
 	for (long i = 01; i < opCodesToScan + bytesInfo.first; i++)
@@ -134,13 +137,13 @@ CMemory CMemory::FindPatternSelf(const char* szPattern, const Direction searchDi
 		bool bFound = true;
 		int nMemOffset = searchDirect == Direction::DOWN ? i : -i;
 
-		for (DWORD j = 0ul; j < bytesInfo.first; j++)
+		for (size_t j = 0ull; j < bytesInfo.first; j++)
 		{
 			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 			// our if clause will be false.
 			uint8_t* const pCurrentAddr = (pScanBytes + nMemOffset + j);
 			_mm_prefetch(reinterpret_cast<const char*>(pCurrentAddr + 64), _MM_HINT_T0); // precache some data in L1.
-			if (*pCurrentAddr != bytesInfo.second[j] && bytesInfo.second[j] != -1)
+			if (*pCurrentAddr != bytesInfo.second[j] && bytesInfo.second[j] != 0xffff)
 			{
 				bFound = false;
 				break;

@@ -296,9 +296,8 @@ CMemory CModule::FindStringReadOnly(const char* szString, bool bNullTerminator) 
 	}
 
 	// Convert our string to a byte array.
-	const vector<int> vBytes = StringToBytes(szString, bNullTerminator);
-	const pair<size_t, const int*> bytesInfo = std::make_pair<
-		size_t, const int*>(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
+	const vector<uint8_t> vBytes = StringToBytes(szString, bNullTerminator);
+	const pair<size_t, const uint8_t*> bytesInfo = std::make_pair<size_t, const uint8_t*>(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
 
 	// Get start of .rdata section.
 	const uint8_t* pBase = reinterpret_cast<uint8_t*>(readOnlyData.m_pSectionBase);

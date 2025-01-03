@@ -99,26 +99,37 @@ int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 // (overrides level name if stbsp field has value in prerequisites file)
 // Input  : *pszLevelName - 
 //---------------------------------------------------------------------------------
-void StreamDB_Init(const char* pszLevelName)
+static void StreamDB_Init(const char* const pszLevelName)
 {
-	KeyValues* pSettingsKV = Mod_GetLevelSettings(pszLevelName);
+	KeyValues* const pSettingsKV = Mod_GetLevelSettings(pszLevelName);
+	const char* targetStreamDB = pszLevelName;
 
 	if (pSettingsKV)
 	{
-		KeyValues* pStreamKV = pSettingsKV->FindKey("StreamDB");
+		KeyValues* const pStreamKV = pSettingsKV->FindKey("StreamDB");
 
 		if (pStreamKV)
-		{
-			const char* pszColumnName = pStreamKV->GetString();
-			Msg(eDLL_T::MS, "StreamDB_Init: Loading override STBSP file '%s.stbsp'\n", pszColumnName);
-
-			v_StreamDB_Init(pszColumnName);
-			return;
-		}
+			targetStreamDB = pStreamKV->GetString();
 	}
 
-	Msg(eDLL_T::MS, "StreamDB_Init: Loading STBSP file '%s.stbsp'\n", pszLevelName);
-	v_StreamDB_Init(pszLevelName);
+	v_StreamDB_Init(targetStreamDB);
+
+	// If the requested STBSP file doesn't exist, load the dummy file to enable
+	// GPU driven texture streaming.
+	if (s_streamDataBase->fileHandle == FS_ASYNC_FILE_INVALID)
+	{
+		targetStreamDB = STBSP_GPU_DRIVEN_FILE;
+		v_StreamDB_Init(targetStreamDB);
+
+		gpu_driven_tex_stream->SetValue(true);
+	}
+	else
+		gpu_driven_tex_stream->SetValue(false);
+
+	if (s_streamDataBase->fileHandle != FS_ASYNC_FILE_INVALID)
+		Msg(eDLL_T::MS, "StreamDB_Init: Loaded STBSP file '%s.stbsp'\n", targetStreamDB);
+	else
+		Error(eDLL_T::MS, 0, "StreamDB_Init: STBSP file '%s.stbsp' not found; texture streaming unavailable\n", pszLevelName, STBSP_GPU_DRIVEN_FILE);
 }
 
 static ConVar stream_overlay_memory("stream_overlay_memory", "524288", FCVAR_DEVELOPMENTONLY, "Total string memory to allocate for the texture streaming debug overlay.");

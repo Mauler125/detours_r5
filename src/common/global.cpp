@@ -57,6 +57,7 @@ ConVar* r_visualizetraces_duration         = nullptr;
 
 ConVar* stream_overlay                     = nullptr;
 ConVar* stream_overlay_mode                = nullptr;
+ConVar* gpu_driven_tex_stream              = nullptr;
 
 ConVar* eula_version                       = nullptr;
 ConVar* eula_version_accepted              = nullptr;
@@ -186,8 +187,11 @@ void ConVar_InitShipped(void)
 #endif // !DEDICATED
 	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
+#ifndef DEDICATED
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
 	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
+	gpu_driven_tex_stream            = g_pCVar->FindVar("gpu_driven_tex_stream");
+#endif // !DEDICATED
 	sv_cheats                        = g_pCVar->FindVar("sv_cheats");
 	sv_visualizetraces               = g_pCVar->FindVar("sv_visualizetraces");
 	sv_visualizetraces_duration      = g_pCVar->FindVar("sv_visualizetraces_duration");

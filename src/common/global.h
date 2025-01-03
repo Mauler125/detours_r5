@@ -39,10 +39,11 @@ extern ConVar* mp_gamemode;
 #ifndef DEDICATED
 extern ConVar* r_visualizetraces;
 extern ConVar* r_visualizetraces_duration;
-#endif // !DEDICATED
 
 extern ConVar* stream_overlay;
 extern ConVar* stream_overlay_mode;
+extern ConVar* gpu_driven_tex_stream;
+#endif // !DEDICATED
 //-------------------------------------------------------------------------
 // SHARED                                                                 |
 extern ConVar* eula_version;

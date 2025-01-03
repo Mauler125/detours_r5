@@ -58,7 +58,7 @@
 // However, our engine has a working implementation of the GPU driven texture streaming system, and the correct thing
 // to do here is to not force anything, since our SDK will enable the GPU driven texture streaming system if an STBSP
 // file wasn't provided for the level. We turn the conditional jump to an unconditional jump here to skip this code.
-0x3E0363: "EB 0F"
+0x3E0363: "jmp 0Fh"
 
 /////////////////////////////
 /////////////////////////////

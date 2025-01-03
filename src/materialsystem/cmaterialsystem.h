@@ -2,8 +2,9 @@
 #define MATERIALSYSTEM_H
 #include "cmaterialglue.h"
 #include "public/imaterialsystem.h"
-
-#define STREAM_DB_EXT "stbsp"
+#ifndef MATERIALSYSTEM_NODX
+#include "public/rtech/istreamdb.h"
+#endif // !MATERIALSYSTEM_NODX
 
 class CMaterialSystem
 {
@@ -84,11 +85,12 @@ inline const char*(*CMaterialSystem__DrawStreamOverlay)(void* thisptr, uint8_t* 
 inline void(*v_StreamDB_Init)(const char* const pszLevelName);
 
 #ifndef MATERIALSYSTEM_NODX
-inline void** s_pRenderContext; // NOTE: This is some CMaterial instance or array.
-
 inline ssize_t* g_nTotalStreamingTextureMemory    = nullptr;
 inline ssize_t* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline ssize_t* g_nUnusableStreamingTextureMemory = nullptr;
+
+inline void** s_pRenderContext; // NOTE: This is some CMaterial instance or array.
+inline StreamDB_s* s_streamDataBase;
 #endif // !MATERIALSYSTEM_NODX
 
 // TODO: move to materialsystem_global.h!
@@ -124,6 +126,7 @@ class VMaterialSystem : public IDetour
 		LogVarAdr("g_nUnfreeStreamingTextureMemory", g_nUnfreeStreamingTextureMemory);
 		LogVarAdr("g_nUnusableStreamingTextureMemory", g_nUnusableStreamingTextureMemory);
 		LogVarAdr("s_pRenderContext", s_pRenderContext);
+		LogVarAdr("s_streamDataBase", s_streamDataBase);
 		LogVarAdr("g_MaterialAdapterMgr", g_pMaterialAdapterMgr);
 #endif // !MATERIALSYSTEM_NODX
 		LogVarAdr("g_pMaterialSystem", g_pMaterialSystem);
@@ -157,6 +160,7 @@ class VMaterialSystem : public IDetour
 		CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x50).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_nUnusableStreamingTextureMemory);
 
 		CMemory(v_DispatchDrawCall).FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(s_pRenderContext);
+		CMemory(v_StreamDB_Init).FindPattern("C6 05").ResolveRelativeAddressSelf(0x2, 0x7).GetPtr(s_streamDataBase);
 		CMemory(CMaterialSystem__Disconnect).FindPattern("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_pMaterialAdapterMgr);
 #endif // !MATERIALSYSTEM_NODX
 		g_pMaterialSystem = g_GameDll.FindPatternSIMD("8B 41 28 85 C0 7F 18").FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<CMaterialSystem*>();

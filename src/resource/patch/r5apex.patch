@@ -53,6 +53,13 @@
 0x1E3CB6: "xor rax, rax" // NULL RAX instead of mov'ing '0xDEADFEEDDEADFEED' to cache ptr in 'Pak_UpdateModelAsset()'
 0x1E3EE2: "xor rax, rax" // NULL RAX instead of mov'ing '0xDEADFEEDDEADFEED' to cache ptr in 'Pak_UpdateAnimRigAsset()'
 
+// If we don't have an STBSP file, the field s_textureStreamMgr.hasResidentPages will be false. But if the texture
+// stream manager is initialized and the stream mode is set to default, the code will force the stream mode to disabled.
+// However, our engine has a working implementation of the GPU driven texture streaming system, and the correct thing
+// to do here is to not force anything, since our SDK will enable the GPU driven texture streaming system if an STBSP
+// file wasn't provided for the level. We turn the conditional jump to an unconditional jump here to skip this code.
+0x3E0363: "EB 0F"
+
 /////////////////////////////
 /////////////////////////////
 ////    Code defects     ////

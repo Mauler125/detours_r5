@@ -42,6 +42,7 @@ add_sources( SOURCE_GROUP "LiveAPI"
 add_sources( SOURCE_GROUP "Public"
    "${ENGINE_SOURCE_DIR}/public/rtech/iasync.h"
    "${ENGINE_SOURCE_DIR}/public/rtech/ipakfile.h"
+   "${ENGINE_SOURCE_DIR}/public/rtech/istreamdb.h"
 )
 
 end_sources()

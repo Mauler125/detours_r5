@@ -8,6 +8,8 @@
 #include "ipakfile.h"
 
 #define STBSP_FILE_EXTENSION "stbsp"
+#define STBSP_GPU_DRIVEN_FILE "gpu_driven"
+
 #define STBSP_NOMINAL_TEX_RES 4096
 
 struct MaterialGlue_t;

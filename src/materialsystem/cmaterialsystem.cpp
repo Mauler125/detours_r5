@@ -114,22 +114,13 @@ static void StreamDB_Init(const char* const pszLevelName)
 
 	v_StreamDB_Init(targetStreamDB);
 
-	// If the requested STBSP file doesn't exist, load the dummy file to enable
-	// GPU driven texture streaming.
-	if (s_streamDataBase->fileHandle == FS_ASYNC_FILE_INVALID)
-	{
-		targetStreamDB = STBSP_GPU_DRIVEN_FILE;
-		v_StreamDB_Init(targetStreamDB);
+	// If the requested STBSP file doesn't exist, then enable the GPU driven
+	// texture streaming system.
+	const bool gpuDriven = s_streamDataBase->fileHandle == FS_ASYNC_FILE_INVALID;
+	gpu_driven_tex_stream->SetValue(gpuDriven);
 
-		gpu_driven_tex_stream->SetValue(true);
-	}
-	else
-		gpu_driven_tex_stream->SetValue(false);
-
-	if (s_streamDataBase->fileHandle != FS_ASYNC_FILE_INVALID)
+	if (!gpuDriven)
 		Msg(eDLL_T::MS, "StreamDB_Init: Loaded STBSP file '%s.stbsp'\n", targetStreamDB);
-	else
-		Error(eDLL_T::MS, 0, "StreamDB_Init: STBSP file '%s.stbsp' not found; texture streaming unavailable\n", pszLevelName, STBSP_GPU_DRIVEN_FILE);
 }
 
 static ConVar stream_overlay_memory("stream_overlay_memory", "524288", FCVAR_DEVELOPMENTONLY, "Total string memory to allocate for the texture streaming debug overlay.");

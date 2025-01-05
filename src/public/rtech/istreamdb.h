@@ -59,28 +59,40 @@ struct ST_Material
 	char unk2[8];
 };
 
+// todo(amos): this is the texture streaming global state,
+// rename it to TextureStreamMgr_s.
 struct StreamDB_s
 {
-	bool unk_0;
 	bool initialised;
-	char filePath[260];
+	bool hasResidentPages;
+	char filePath[260]; // size=MAX_PATH.
 	char gap_105[2];
-	int fileHandle;
+	int fileHandle; // STBSP file handle.
 	char gap_10b[4];
 	char* stringBuffer;
 	StreamDBHeader_s header;
 	ST_ResidentPage* residentPages;
 	MaterialGlue_t** materials;
 	ST_Material* materialInfo;
-	__int64 maxResidentPageSize;
+	int64 maxResidentPageSize;
 	StreamingDBPageState_s pageStates[4];
-	char gap_320[4];
-	PakStreamSet_e texStreamingMode;
 	int picMip;
 	float streamBspBucketBias;
 	float streamBspDistScale;
 	__int64 unk_338;
-	char gap340[72];
+	uint32 streamBspCellX;
+	uint32 streamBspCellY;
+	int loadedLinkedTextureCount;
+	int totalMipLevelCount;
+	int loadedMipLevelCount;
+	int unk_34;
+	int64 usedStreamingMemory;
+	int64 totalStreamingMemory;
+	int unk_48;
+	int unk_50;
+	Vector3D streamBspCameraPos;
+	float streamBspHalfFovX;
+	float streamBspViewWidth;
 	TextureAsset_t* streamableTextures[4];
 };
 

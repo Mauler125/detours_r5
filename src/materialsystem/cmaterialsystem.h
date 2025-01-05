@@ -2,9 +2,6 @@
 #define MATERIALSYSTEM_H
 #include "cmaterialglue.h"
 #include "public/imaterialsystem.h"
-#ifndef MATERIALSYSTEM_NODX
-#include "public/rtech/istreamdb.h"
-#endif // !MATERIALSYSTEM_NODX
 
 class CMaterialSystem
 {
@@ -82,15 +79,12 @@ inline void(*CMaterialSystem__GetStreamOverlay)(const char* mode, char* buf, siz
 inline const char*(*CMaterialSystem__DrawStreamOverlay)(void* thisptr, uint8_t* a2, void* unused, void* a4);
 #endif // !MATERIALSYSTEM_NODX
 
-inline void(*v_StreamDB_Init)(const char* const pszLevelName);
-
 #ifndef MATERIALSYSTEM_NODX
 inline ssize_t* g_nTotalStreamingTextureMemory    = nullptr;
 inline ssize_t* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline ssize_t* g_nUnusableStreamingTextureMemory = nullptr;
 
 inline void** s_pRenderContext; // NOTE: This is some CMaterial instance or array.
-inline StreamDB_s* s_streamDataBase;
 #endif // !MATERIALSYSTEM_NODX
 
 // TODO: move to materialsystem_global.h!
@@ -119,14 +113,12 @@ class VMaterialSystem : public IDetour
 		LogFunAdr("DispatchDrawCall", v_DispatchDrawCall);
 		LogFunAdr("SpinPresent", v_SpinPresent);
 #endif // !MATERIALSYSTEM_NODX
-		LogFunAdr("StreamDB_Init", v_StreamDB_Init);
 
 #ifndef MATERIALSYSTEM_NODX
 		LogVarAdr("g_nTotalStreamingTextureMemory", g_nTotalStreamingTextureMemory);
 		LogVarAdr("g_nUnfreeStreamingTextureMemory", g_nUnfreeStreamingTextureMemory);
 		LogVarAdr("g_nUnusableStreamingTextureMemory", g_nUnusableStreamingTextureMemory);
 		LogVarAdr("s_pRenderContext", s_pRenderContext);
-		LogVarAdr("s_streamDataBase", s_streamDataBase);
 		LogVarAdr("g_MaterialAdapterMgr", g_pMaterialAdapterMgr);
 #endif // !MATERIALSYSTEM_NODX
 		LogVarAdr("g_pMaterialSystem", g_pMaterialSystem);
@@ -149,8 +141,6 @@ class VMaterialSystem : public IDetour
 		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56").GetPtr(v_DispatchDrawCall);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 8B 15 ?? ?? ?? ??").GetPtr(v_SpinPresent);
 #endif // !MATERIALSYSTEM_NODX
-
-		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9").GetPtr(v_StreamDB_Init);
 	}
 	virtual void GetVar(void) const
 	{
@@ -160,7 +150,6 @@ class VMaterialSystem : public IDetour
 		CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x50).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_nUnusableStreamingTextureMemory);
 
 		CMemory(v_DispatchDrawCall).FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(s_pRenderContext);
-		CMemory(v_StreamDB_Init).FindPattern("C6 05").ResolveRelativeAddressSelf(0x2, 0x7).GetPtr(s_streamDataBase);
 		CMemory(CMaterialSystem__Disconnect).FindPattern("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_pMaterialAdapterMgr);
 #endif // !MATERIALSYSTEM_NODX
 		g_pMaterialSystem = g_GameDll.FindPatternSIMD("8B 41 28 85 C0 7F 18").FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(3, 7).RCast<CMaterialSystem*>();

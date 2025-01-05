@@ -10,6 +10,8 @@ add_sources( SOURCE_GROUP "Private"
     "cmaterialsystem.h"
     "cshaderglue.cpp"
     "cshaderglue.h"
+    "texturestreaming.cpp"
+    "texturestreaming.h"
 )
 
 add_sources( SOURCE_GROUP "Public"

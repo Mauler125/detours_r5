@@ -94,35 +94,6 @@ int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 }
 
 #ifndef MATERIALSYSTEM_NODX
-//---------------------------------------------------------------------------------
-// Purpose: loads and processes STBSP files
-// (overrides level name if stbsp field has value in prerequisites file)
-// Input  : *pszLevelName - 
-//---------------------------------------------------------------------------------
-static void StreamDB_Init(const char* const pszLevelName)
-{
-	KeyValues* const pSettingsKV = Mod_GetLevelSettings(pszLevelName);
-	const char* targetStreamDB = pszLevelName;
-
-	if (pSettingsKV)
-	{
-		KeyValues* const pStreamKV = pSettingsKV->FindKey("StreamDB");
-
-		if (pStreamKV)
-			targetStreamDB = pStreamKV->GetString();
-	}
-
-	v_StreamDB_Init(targetStreamDB);
-
-	// If the requested STBSP file doesn't exist, then enable the GPU driven
-	// texture streaming system.
-	const bool gpuDriven = s_streamDataBase->fileHandle == FS_ASYNC_FILE_INVALID;
-	gpu_driven_tex_stream->SetValue(gpuDriven);
-
-	if (!gpuDriven)
-		Msg(eDLL_T::MS, "StreamDB_Init: Loaded STBSP file '%s.stbsp'\n", targetStreamDB);
-}
-
 static ConVar stream_overlay_memory("stream_overlay_memory", "524288", FCVAR_DEVELOPMENTONLY, "Total string memory to allocate for the texture streaming debug overlay.");
 
 /*
@@ -240,7 +211,6 @@ void VMaterialSystem::Detour(const bool bAttach) const
 	DetourSetup(&CMaterialSystem__SwapBuffers, &CMaterialSystem::SwapBuffers, bAttach);
 	DetourSetup(&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx, bAttach);
 
-	DetourSetup(&v_StreamDB_Init, &StreamDB_Init, bAttach);
 	DetourSetup(&v_DispatchDrawCall, &DispatchDrawCall, bAttach);
 	DetourSetup(&v_SpinPresent, &SpinPresent, bAttach);
 #endif // !MATERIALSYSTEM_NODX

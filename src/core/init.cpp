@@ -44,6 +44,7 @@
 #include "materialsystem/cmaterialsystem.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
+#include "materialsystem/texturestreaming.h"
 #include "vgui/vgui_baseui_interface.h"
 #include "vgui/vgui_debugpanel.h"
 #include "vgui/vgui_fpspanel.h"
@@ -561,6 +562,7 @@ void DetourRegister() // Register detour classes to be searched and hooked.
 #ifndef DEDICATED
 	REGISTER(VMaterialGlue);
 	REGISTER(VShaderGlue);
+	REGISTER(VTextureStreaming);
 
 	// Studio
 	REGISTER(VStudioRenderContext);

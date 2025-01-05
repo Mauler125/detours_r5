@@ -24,7 +24,7 @@ static void StreamDB_Init(const char* const pszLevelName)
 
 	// If the requested STBSP file doesn't exist, then enable the GPU driven
 	// texture streaming system.
-	const bool gpuDriven = s_streamDataBase->fileHandle == FS_ASYNC_FILE_INVALID;
+	const bool gpuDriven = s_textureStreamMgr->fileHandle == FS_ASYNC_FILE_INVALID;
 	gpu_driven_tex_stream->SetValue(gpuDriven);
 
 	if (!gpuDriven)

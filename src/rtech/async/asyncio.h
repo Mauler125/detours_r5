@@ -87,8 +87,7 @@ class V_AsyncIO : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		extern void(*v_StreamDB_Init)(const char* const pszLevelName);
-		const CMemory streamDbBase(v_StreamDB_Init);
+		const CMemory streamDbBase = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9");
 
 		g_pAsyncFileSlots = streamDbBase.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<AsyncHandleTracker_s*>();
 		g_pAsyncFileSlotMgr = streamDbBase.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(0x3, 0x7).RCast<RHashMap_MT*>();

@@ -67,12 +67,12 @@ struct TextureStreamMgr_s
 	int fileHandle; // STBSP file handle.
 	char gap_10b[4];
 	char* stringBuffer;
-	StreamDBHeader_s header;
-	ST_ResidentPage* residentPages;
+	StreamDB_Header_s header;
+	StreamDB_ResidentPage_s* residentPages;
 	MaterialGlue_t** materials;
-	ST_Material* materialInfo;
+	StreamDB_Material_s* materialInfo;
 	int64 maxResidentPageSize;
-	StreamingDBPageState_s pageStates[4];
+	StreamDB_PageState_s pageStates[4];
 	int picMip;
 	float streamBspBucketBias;
 	float streamBspDistScale;

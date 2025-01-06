@@ -5,14 +5,7 @@
 #include "public/materialsystem/shader_vcs_version.h"
 #include "public/rendersystem/schema/texture.g.h"
 
-struct MaterialDXState_t
-{
-	uint32_t blendState[8];
-	unsigned int unkFlags;
-	unsigned __int16 depthStencilFlags;
-	unsigned __int16 rasterizerFlags;
-	char pad[8];
-};
+#define MATERIAL_RENDER_PARAMS_COUNT 2 // the same for r2 and r5
 
 #pragma pack(push, 1)
 class CMaterialGlue : public IMaterialInternal
@@ -51,7 +44,7 @@ public:
 
 	uint64_t flags; // 0x0088
 
-	MaterialDXState_t dxStates[2];
+	MaterialRenderParams_s renderParams[MATERIAL_RENDER_PARAMS_COUNT];
 
 	uint16_t numAnimationFrames; // used in CMaterialGlue::GetNumAnimationFrames (0x1403B4250), which is called from GetSpriteInfo @ 0x1402561FC
 	uint8_t materialType;

@@ -3,6 +3,70 @@
 
 // See https://www.gdcvault.com/play/1024418/Efficient-Texture-Streaming-in-Titanfall
 #define MATERIAL_HISTOGRAM_BIN_COUNT 16
+#define MATERIAL_BLEND_STATE_COUNT 8 // R2 is 4
+
+struct MaterialBlendState_s
+{
+	MaterialBlendState_s() = default;
+
+	MaterialBlendState_s(const bool bUnknown, const bool bBlendEnable,
+		const D3D11_BLEND _srcBlend, const D3D11_BLEND _destBlend,
+		const D3D11_BLEND_OP _blendOp, const D3D11_BLEND _srcBlendAlpha,
+		const D3D11_BLEND _destBlendAlpha, const D3D11_BLEND_OP _blendOpAlpha,
+		const int8 _renderTargetWriteMask)
+	{
+		unknown = bUnknown ? 1 : 0;
+		blendEnable = bBlendEnable ? 1 : 0;
+
+		srcBlend = _srcBlend;
+		destBlend = _destBlend;
+		blendOp = _blendOp;
+		srcBlendAlpha = _srcBlendAlpha;
+		destBlendAlpha = _destBlendAlpha;
+		blendOpAlpha = _blendOpAlpha;
+
+		renderTargetWriteMask = _renderTargetWriteMask & 0xF;
+	}
+
+	MaterialBlendState_s(const uint32 _flags)
+	{
+		unknown = (_flags & 1);
+		blendEnable = ((_flags >> 1) & 1);
+
+		srcBlend = ((_flags >> 2) & 0x1F);
+		destBlend = ((_flags >> 7) & 0x1F);
+		blendOp = ((_flags >> 12) & 7);
+		srcBlendAlpha = ((_flags >> 15) & 0x1F);
+		destBlendAlpha = ((_flags >> 20) & 0x1F);
+		blendOpAlpha = ((_flags >> 25) & 7);
+
+		renderTargetWriteMask = (_flags >> 28) & 0xF;
+	}
+
+	uint32 unknown : 1;
+	uint32 blendEnable : 1;
+	uint32 srcBlend : 5;
+	uint32 destBlend : 5;
+	uint32 blendOp : 3;
+	uint32 srcBlendAlpha : 5;
+	uint32 destBlendAlpha : 5;
+	uint32 blendOpAlpha : 3;
+	uint32 renderTargetWriteMask : 4;
+};
+
+// Aligned to 16 bytes so this struct can be loaded with 3 SIMD instructions.
+struct ALIGN16 MaterialRenderParams_s
+{
+	// Bitfield defining a D3D11_RENDER_TARGET_BLEND_DESC for each of the 8 possible DX render targets
+	MaterialBlendState_s blendState[MATERIAL_BLEND_STATE_COUNT];
+	uint32 blendStateMask;
+
+	// Flags to determine how the D3D11_DEPTH_STENCIL_DESC is defined for this material.
+	uint16 depthStencilFlags;
+
+	// Flags to determine how the D3D11_RASTERIZER_DESC is defined.
+	uint16 rasterizerFlags;
+};
 
 abstract_class IMaterial
 {

@@ -1,39 +1,41 @@
 #ifndef TEXTURE_G_H
 #define TEXTURE_G_H
+#include <rtech/ipakfile.h>
 
 //-----------------------------------------------------------------------------
 // Structure definitions
 //-----------------------------------------------------------------------------
 /*schema*/ struct TextureDesc_s
 {
-	uint64      m_AssetGuid;
-	const char* m_pDebugName;
-	uint16      m_nWidth;
-	uint16      m_nHeight;
-	uint16      m_nDepth;
-	uint16      m_nImageFormat;
+	PakGuid_t   assetGuid;
+	const char* debugName;
+	uint16      width;
+	uint16      height;
+	uint16      depth;
+	uint16      imageFormat;
 };
 
 /*schema*/ struct TextureAsset_s : public TextureDesc_s
 {
-	uint32 m_nDataLength;
-	uint8 unknown_2;
-	uint8 m_nOptStreamedMipCount;
-	uint8 m_nArraySize;
-	uint8 m_nLayerCount;
-	uint8 m_nCPUAccessFlag; // [ PIXIE ]: In RTech::CreateDXBuffer textureDescription Usage is determined by the CPU Access Flag so I assume it's the same case here.
-	uint8 m_nPermanentMipCount;
-	uint8 m_nStreamedMipCount;
-	uint8 unknown_4[13];
-	__int64 m_nPixelCount;
-	uint8 unknown_5[3];
-	uint8 m_nTotalStreamedMipCount; // Does not get set until after RTech::CreateDXTexture.
+	uint32 dataSize;
+	uint8 swizzleType;
+	uint8 optStreamedMipLevels;
+	uint8 arraySize;
+	uint8 layerCount;
+	uint8 usageFlags; // [ PIXIE ]: In RTech::CreateDXBuffer textureDescription Usage is determined by the CPU Access Flag so I assume it's the same case here.
+	uint8 permanentMipLevels;
+	uint8 streamedMipLevels;
+	uint8 unkPerMip[13];
+	uint64 texelCount;
+	uint16 streamedTextureIndex;
+	uint8 loadedStreamedMipLevelCount;
+	uint8 totalStreamedMipLevelCount; // Does not get set until after RTech::CreateDXTexture.
 	uint8 unk4[228];
 	uint8 unk5[57];
-	ID3D11Texture2D* m_ppTexture;
-	ID3D11ShaderResourceView* m_ppShaderResourceView;
-	uint8 m_nTextureMipLevels;
-	uint8 m_nTextureMipLevelsStreamedOpt;
+	ID3D11Texture2D* pInputTexture;
+	ID3D11ShaderResourceView* pShaderResourceView;
+	uint8 textureMipLevels;
+	uint8 textureMipLevelsStreamedOpt;
 };
 
 struct TextureBytesPerPixel_s

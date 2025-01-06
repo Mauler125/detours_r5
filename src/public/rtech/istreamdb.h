@@ -10,9 +10,6 @@
 #define STBSP_FILE_EXTENSION "stbsp"
 #define STBSP_NOMINAL_TEX_RES 4096
 
-struct MaterialGlue_t;
-struct TextureAsset_s;
-
 struct StreamDBLump_s
 {
 	uint64_t offset;

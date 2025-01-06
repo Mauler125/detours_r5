@@ -13,6 +13,9 @@
 #define TEXTURESTREAMING_H
 #include "public/rtech/istreamdb.h"
 
+struct MaterialGlue_t;
+struct TextureAsset_s;
+
 struct TextureStreamMgr_Task_s
 {
 	TextureAsset_s* textureAsset;

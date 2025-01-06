@@ -11,7 +11,7 @@
 #define STBSP_NOMINAL_TEX_RES 4096
 
 struct MaterialGlue_t;
-struct TextureAsset_t;
+struct TextureAsset_s;
 
 struct StreamDBLump_s
 {

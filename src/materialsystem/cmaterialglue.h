@@ -33,8 +33,8 @@ public:
 
 	CShaderGlue* shaderset; //0x0058
 
-	TextureHeader_t** textureHandles; //0x0060
-	TextureHeader_t** streamingTextureHandles; //0x0068
+	TextureAsset_s** textureHandles; //0x0060
+	TextureAsset_s** streamingTextureHandles; //0x0068
 
 	int16_t numStreamingTextureHandles; //0x0070
 

@@ -4,111 +4,111 @@
 //-----------------------------------------------------------------------------
 // Structure definitions
 //-----------------------------------------------------------------------------
-/*schema*/ struct TextureDesc_t
+/*schema*/ struct TextureDesc_s
 {
-	uint64_t         m_AssetGuid;
-	const char*      m_pDebugName;
-	uint16           m_nWidth;
-	uint16           m_nHeight;
-	uint16           m_nDepth;
-	uint16_t         m_nImageFormat;
+	uint64      m_AssetGuid;
+	const char* m_pDebugName;
+	uint16      m_nWidth;
+	uint16      m_nHeight;
+	uint16      m_nDepth;
+	uint16      m_nImageFormat;
 };
 
-/*schema*/ struct TextureHeader_t : public TextureDesc_t
+/*schema*/ struct TextureAsset_s : public TextureDesc_s
 {
-	uint32_t m_nDataLength;
-	uint8_t unknown_2;
-	uint8_t m_nOptStreamedMipCount;
-	uint8_t m_nArraySize;
-	uint8_t m_nLayerCount;
-	uint8_t m_nCPUAccessFlag; // [ PIXIE ]: In RTech::CreateDXBuffer textureDescription Usage is determined by the CPU Access Flag so I assume it's the same case here.
-	uint8_t m_nPermanentMipCount;
-	uint8_t m_nStreamedMipCount;
-	uint8_t unknown_4[13];
+	uint32 m_nDataLength;
+	uint8 unknown_2;
+	uint8 m_nOptStreamedMipCount;
+	uint8 m_nArraySize;
+	uint8 m_nLayerCount;
+	uint8 m_nCPUAccessFlag; // [ PIXIE ]: In RTech::CreateDXBuffer textureDescription Usage is determined by the CPU Access Flag so I assume it's the same case here.
+	uint8 m_nPermanentMipCount;
+	uint8 m_nStreamedMipCount;
+	uint8 unknown_4[13];
 	__int64 m_nPixelCount;
-	uint8_t unknown_5[3];
-	uint8_t m_nTotalStreamedMipCount; // Does not get set until after RTech::CreateDXTexture.
-	uint8_t unk4[228];
-	uint8_t unk5[57];
+	uint8 unknown_5[3];
+	uint8 m_nTotalStreamedMipCount; // Does not get set until after RTech::CreateDXTexture.
+	uint8 unk4[228];
+	uint8 unk5[57];
 	ID3D11Texture2D* m_ppTexture;
 	ID3D11ShaderResourceView* m_ppShaderResourceView;
-	uint8_t m_nTextureMipLevels;
-	uint8_t m_nTextureMipLevelsStreamedOpt;
+	uint8 m_nTextureMipLevels;
+	uint8 m_nTextureMipLevelsStreamedOpt;
 };
 
-struct TextureBytesPerPixel_t
+struct TextureBytesPerPixel_s
 {
-	uint8_t x;
-	uint8_t y;
+	uint8 x;
+	uint8 y;
 };
 
 //-----------------------------------------------------------------------------
 // Table definitions
 //-----------------------------------------------------------------------------
-static inline const TextureBytesPerPixel_t s_pBytesPerPixel[] =
+static inline const TextureBytesPerPixel_s s_pBytesPerPixel[] =
 {
-  { uint8_t(8u),  uint8_t(4u) },
-  { uint8_t(8u),  uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(8u),  uint8_t(4u) },
-  { uint8_t(8u),  uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(4u) },
-  { uint8_t(16u), uint8_t(1u) },
-  { uint8_t(16u), uint8_t(1u) },
-  { uint8_t(16u), uint8_t(1u) },
-  { uint8_t(12u), uint8_t(1u) },
-  { uint8_t(12u), uint8_t(1u) },
-  { uint8_t(12u), uint8_t(1u) },
-  { uint8_t(8u),  uint8_t(1u) },
-  { uint8_t(8u),  uint8_t(1u) },
-  { uint8_t(8u),  uint8_t(1u) },
-  { uint8_t(8u),  uint8_t(1u) },
-  { uint8_t(8u),  uint8_t(1u) },
-  { uint8_t(8u),  uint8_t(1u) },
-  { uint8_t(8u),  uint8_t(1u) },
-  { uint8_t(8u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
-  { uint8_t(1u),  uint8_t(1u) },
-  { uint8_t(1u),  uint8_t(1u) },
-  { uint8_t(1u),  uint8_t(1u) },
-  { uint8_t(1u),  uint8_t(1u) },
-  { uint8_t(1u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(4u),  uint8_t(1u) },
-  { uint8_t(2u),  uint8_t(1u) },
+  { u8(8u),  u8(4u) },
+  { u8(8u),  u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(8u),  u8(4u) },
+  { u8(8u),  u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(4u) },
+  { u8(16u), u8(1u) },
+  { u8(16u), u8(1u) },
+  { u8(16u), u8(1u) },
+  { u8(12u), u8(1u) },
+  { u8(12u), u8(1u) },
+  { u8(12u), u8(1u) },
+  { u8(8u),  u8(1u) },
+  { u8(8u),  u8(1u) },
+  { u8(8u),  u8(1u) },
+  { u8(8u),  u8(1u) },
+  { u8(8u),  u8(1u) },
+  { u8(8u),  u8(1u) },
+  { u8(8u),  u8(1u) },
+  { u8(8u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(2u),  u8(1u) },
+  { u8(1u),  u8(1u) },
+  { u8(1u),  u8(1u) },
+  { u8(1u),  u8(1u) },
+  { u8(1u),  u8(1u) },
+  { u8(1u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(4u),  u8(1u) },
+  { u8(2u),  u8(1u) },
 };
 
 // Map dxgi format to txtr asset format

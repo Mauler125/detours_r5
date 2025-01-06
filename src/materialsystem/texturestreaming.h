@@ -15,7 +15,7 @@
 
 struct TextureStreamMgr_Task_s
 {
-	TextureAsset_t* textureAsset;
+	TextureAsset_s* textureAsset;
 
 	// The mip level count to load or drop.
 	uint8 mipLevelCount;
@@ -87,7 +87,7 @@ struct TextureStreamMgr_s
 	Vector3D streamBspCameraPos;
 	float streamBspHalfFovX;
 	float streamBspViewWidth;
-	TextureAsset_t* streamableTextures[4];
+	TextureAsset_s* streamableTextures[4];
 };
 
 inline void(*v_StreamDB_Init)(const char* const pszLevelName);

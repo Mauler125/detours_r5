@@ -58,6 +58,15 @@ struct TextureStreamMgr_TaskList_s
 	TextureStreamMgr_Task_s* dropLimit;
 };
 
+enum TextureStreamMode_e : uint8
+{
+	TSM_OPMODE_LEGACY_PICMIP = 0,
+	TSM_OPMODE_DYNAMIC,
+	TSM_OPMODE_ALL,
+	TSM_OPMODE_NONE,
+	TSM_OPMODE_PAUSED,
+};
+
 struct TextureStreamMgr_s
 {
 	bool initialised;
@@ -73,10 +82,13 @@ struct TextureStreamMgr_s
 	StreamDB_Material_s* materialInfo;
 	int64 maxResidentPageSize;
 	StreamDB_PageState_s pageStates[4];
+	bool unk_320;
+	char gap_321[3];
+	TextureStreamMode_e texStreamMode;
 	int picMip;
 	float streamBspBucketBias;
 	float streamBspDistScale;
-	__int64 unk_338;
+	uint64 highPriorityMemoryBudget;
 	uint32 streamBspCellX;
 	uint32 streamBspCellY;
 	int loadedLinkedTextureCount;
@@ -85,7 +97,7 @@ struct TextureStreamMgr_s
 	int unk_34;
 	int64 usedStreamingMemory;
 	int64 totalStreamingMemory;
-	int unk_48;
+	int thisFrame;
 	int unk_50;
 	Vector3D streamBspCameraPos;
 	float streamBspHalfFovX;

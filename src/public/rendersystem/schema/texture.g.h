@@ -1,6 +1,7 @@
 #ifndef TEXTURE_G_H
 #define TEXTURE_G_H
 #include <rtech/ipakfile.h>
+#include <imaterial.h>
 
 //-----------------------------------------------------------------------------
 // Structure definitions
@@ -30,8 +31,18 @@
 	uint16 streamedTextureIndex;
 	uint8 loadedStreamedMipLevelCount;
 	uint8 totalStreamedMipLevelCount; // Does not get set until after RTech::CreateDXTexture.
-	uint8 unk4[228];
+
+	int lastUsedFrame;
+	int lastFrame;
+
+	int unknown;
+
+	float accumStreamDB[MATERIAL_HISTOGRAM_BIN_COUNT];
+	float accumGPUDriven[MATERIAL_HISTOGRAM_BIN_COUNT];
+
+	char unk_84[88];
 	uint8 unk5[57];
+
 	ID3D11Texture2D* pInputTexture;
 	ID3D11ShaderResourceView* pShaderResourceView;
 	uint8 textureMipLevels;

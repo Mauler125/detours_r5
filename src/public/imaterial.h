@@ -68,6 +68,20 @@ struct ALIGN16 MaterialRenderParams_s
 	uint16 rasterizerFlags;
 };
 
+enum MaterialShaderType_e : uint8 // From RSX and RePak
+{
+	RGDU, // Static model with regular vertices.
+	RGDP, // Static model with packed vertices.
+	RGDC, // Static model with packed vertices.
+	SKNU, // Skinned model with regular vertices.
+	SKNP, // Skinned model with packed vertices.
+	SKNC, // Skinned model with packed vertices.
+	WLDU, // World geometry with regular vertices.
+	WLDC, // World geometry with packed vertices.
+	PTCU, // Particles with regular vertices.
+	PTCS, // Particles sprites?.
+};
+
 abstract_class IMaterial
 {
 public:

@@ -1,6 +1,9 @@
 #ifndef IMATERIAL_H
 #define IMATERIAL_H
 
+// See https://www.gdcvault.com/play/1024418/Efficient-Texture-Streaming-in-Titanfall
+#define MATERIAL_HISTOGRAM_BIN_COUNT 16
+
 abstract_class IMaterial
 {
 public:

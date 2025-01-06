@@ -75,15 +75,9 @@ inline void(*CMaterialSystem__GetScreenSize)(CMaterialSystem* pMatSys, float* ou
 
 inline void*(*v_DispatchDrawCall)(int64_t a1, uint64_t a2, int a3, int a4, int64_t a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, int a11, __m128* a12, int a13, int64_t a14);
 inline ssize_t(*v_SpinPresent)(void);
-inline void(*CMaterialSystem__GetStreamOverlay)(const char* mode, char* buf, size_t bufSize);
-inline const char*(*CMaterialSystem__DrawStreamOverlay)(void* thisptr, uint8_t* a2, void* unused, void* a4);
 #endif // !MATERIALSYSTEM_NODX
 
 #ifndef MATERIALSYSTEM_NODX
-inline ssize_t* g_nTotalStreamingTextureMemory    = nullptr;
-inline ssize_t* g_nUnfreeStreamingTextureMemory   = nullptr;
-inline ssize_t* g_nUnusableStreamingTextureMemory = nullptr;
-
 inline void** s_pRenderContext; // NOTE: This is some CMaterial instance or array.
 #endif // !MATERIALSYSTEM_NODX
 
@@ -108,16 +102,11 @@ class VMaterialSystem : public IDetour
 		LogFunAdr("CMaterialSystem::SwapBuffers", CMaterialSystem__SwapBuffers);
 		LogFunAdr("CMaterialSystem::FindMaterialEx", CMaterialSystem__FindMaterialEx);
 		LogFunAdr("CMaterialSystem::GetScreenSize", CMaterialSystem__GetScreenSize);
-		LogFunAdr("CMaterialSystem::GetStreamOverlay", CMaterialSystem__GetStreamOverlay);
-		LogFunAdr("CMaterialSystem::DrawStreamOverlay", CMaterialSystem__DrawStreamOverlay);
 		LogFunAdr("DispatchDrawCall", v_DispatchDrawCall);
 		LogFunAdr("SpinPresent", v_SpinPresent);
 #endif // !MATERIALSYSTEM_NODX
 
 #ifndef MATERIALSYSTEM_NODX
-		LogVarAdr("g_nTotalStreamingTextureMemory", g_nTotalStreamingTextureMemory);
-		LogVarAdr("g_nUnfreeStreamingTextureMemory", g_nUnfreeStreamingTextureMemory);
-		LogVarAdr("g_nUnusableStreamingTextureMemory", g_nUnusableStreamingTextureMemory);
 		LogVarAdr("s_pRenderContext", s_pRenderContext);
 		LogVarAdr("g_MaterialAdapterMgr", g_pMaterialAdapterMgr);
 #endif // !MATERIALSYSTEM_NODX
@@ -135,8 +124,6 @@ class VMaterialSystem : public IDetour
 
 		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??").GetPtr(CMaterialSystem__FindMaterialEx);
 		g_GameDll.FindPatternSIMD("8B 05 ?? ?? ?? ?? 89 02 8B 05 ?? ?? ?? ?? 41 89 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 8B 05 ?? ?? ?? ??").GetPtr(CMaterialSystem__GetScreenSize);
-		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 80 7C 24 ?? ?? 0F 84 ?? ?? ?? ?? 48 89 9C 24 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(CMaterialSystem__GetStreamOverlay);
-		g_GameDll.FindPatternSIMD("41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 ??").GetPtr(CMaterialSystem__DrawStreamOverlay);
 
 		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56").GetPtr(v_DispatchDrawCall);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 8B 15 ?? ?? ?? ??").GetPtr(v_SpinPresent);
@@ -145,10 +132,6 @@ class VMaterialSystem : public IDetour
 	virtual void GetVar(void) const
 	{
 #ifndef MATERIALSYSTEM_NODX
-		CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x1C).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_nTotalStreamingTextureMemory);
-		CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x2D).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_nUnfreeStreamingTextureMemory);
-		CMemory(CMaterialSystem__DrawStreamOverlay).Offset(0x50).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_nUnusableStreamingTextureMemory);
-
 		CMemory(v_DispatchDrawCall).FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(s_pRenderContext);
 		CMemory(CMaterialSystem__Disconnect).FindPattern("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(g_pMaterialAdapterMgr);
 #endif // !MATERIALSYSTEM_NODX

@@ -18,6 +18,7 @@
 #include "windows/id3dx.h"
 #include "gameui/imgui_system.h"
 #include "materialsystem/cmaterialglue.h"
+#include "materialsystem/texturestreaming.h"
 #endif // !MATERIALSYSTEM_NODX
 #include "materialsystem/cmaterialsystem.h"
 
@@ -111,7 +112,7 @@ static void Mat_DumpStreamInfo_f(const CCommand& args)
 	const char* const mode = args.ArgC() >= 2 ? args.Arg(1) : stream_overlay_mode->GetString();
 	char* const scratch = stringBuf.get();
 
-	CMaterialSystem__GetStreamOverlay(mode, scratch, stringMem);
+	TextureStreamMgr_GetStreamOverlay(mode, scratch, stringMem);
 	Msg(eDLL_T::MS, "%s\n", scratch);
 }
 

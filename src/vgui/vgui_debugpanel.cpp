@@ -14,6 +14,7 @@
 #include <vgui/vgui_debugpanel.h>
 #include <vguimatsurface/MatSystemSurface.h>
 #include <materialsystem/cmaterialsystem.h>
+#include <materialsystem/texturestreaming.h>
 #ifndef CLIENT_DLL
 #include <engine/server/server.h>
 #endif // !CLIENT_DLL
@@ -288,7 +289,7 @@ void CTextOverlay::DrawGPUStats(void) const
 	static const Color c = { 255, 255, 255, 255 };
 
 	DrawFormat(nWidth, nHeight, c, "%8zd/%8zd/%8zdkiB unusable/unfree/total GPU Streaming Texture memory\n",
-		*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nTotalStreamingTextureMemory / 1024);
+		g_textureStreamMemoryUsed[TML_TRACKER_UNUSABE] / 1024, g_textureStreamMemoryUsed[TML_TRACKER_UNFREE] / 1024, *g_textureStreamMemoryTarget / 1024);
 }
 
 //-----------------------------------------------------------------------------
@@ -327,7 +328,7 @@ void CTextOverlay::DrawStreamOverlay(void) const
 	static char szLogbuf[4096];
 	static const Color c = { 255, 255, 255, 255 };
 	
-	CMaterialSystem__GetStreamOverlay(stream_overlay_mode->GetString(), szLogbuf, sizeof(szLogbuf));
+	TextureStreamMgr_GetStreamOverlay(stream_overlay_mode->GetString(), szLogbuf, sizeof(szLogbuf));
 	CMatSystemSurface__DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), "%s", szLogbuf);
 }
 

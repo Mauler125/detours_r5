@@ -183,7 +183,7 @@ void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = textureHeader->m_nCPUAccessFlag != 2 ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	textureDesc.MiscFlags = 0;
+	textureDesc.MiscFlags = 2 * (textureHeader->m_nLayerCount & 2);
 
 	const u32 offsetStartResourceData = mipLevel << 4u;
 	const D3D11_SUBRESOURCE_DATA* subResData = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)initialData + offsetStartResourceData);
@@ -195,11 +195,19 @@ void CreateTextureResource(TextureHeader_t* textureHeader, INT_PTR imageData)
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResource{};
 	shaderResource.Format = dxgiFormat;
 	shaderResource.Texture2D.MipLevels = textureHeader->m_nTextureMipLevels;
+
 	if (textureHeader->m_nArraySize > 1) // Do we have a texture array?
 	{
-		shaderResource.Texture2DArray.FirstArraySlice = 0;
-		shaderResource.Texture2DArray.ArraySize = textureHeader->m_nArraySize;
-		shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2DARRAY;
+		const bool isCubeMap = (textureHeader->m_nLayerCount & 2);
+
+		if (!isCubeMap)
+		{
+			shaderResource.Texture2DArray.FirstArraySlice = 0;
+			shaderResource.Texture2DArray.ArraySize = textureHeader->m_nArraySize;
+			shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2DARRAY;
+		}
+		else
+			shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURECUBE;
 	}
 	else
 	{

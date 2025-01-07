@@ -57,7 +57,7 @@ struct MaterialGlue_s
 	uint32 materialFlags2;
 
 	MaterialRenderParams_s renderParams[MATERIAL_RENDER_PARAMS_COUNT];
-	uint32 numAnimationFrames;
+	uint16 numAnimationFrames;
 	MaterialShaderType_e materialType;
 	uint8 uberBufferFlags;
 

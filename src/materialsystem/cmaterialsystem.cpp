@@ -199,6 +199,35 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: same as StreamDB_CreditWorldTextures, but also takes the coverage
+//          of the dynamic model into account.
+// Input  : *pMatSys - 
+//			*materialGlue - 
+//			a3 - 
+//			a4 - 
+//			a5 - 
+//			*pViewOrigin - 
+//			tanOfHalfFov - 
+//			viewWidthPixels - 
+//			a9 - 
+//-----------------------------------------------------------------------------
+void CMaterialSystem::CreditModelTextures(CMaterialSystem* const pMatSys, CMaterialGlue* const materialGlue, __int64 a3, __int64 a4, unsigned int a5, const Vector3D* const pViewOrigin, const float tanOfHalfFov, const float viewWidthPixels, int a9)
+{
+	if (!materialGlue->CanCreditModelTextures())
+		return;
+
+	// If we use the GPU driven texture streaming system, do not run this code
+	// as the compute shaders deals with both static and dynamic model textures.
+	if (gpu_driven_tex_stream->GetBool())
+		return;
+
+	MaterialGlue_s* const material = materialGlue->Get();
+	material->lastFrame = s_textureStreamMgr->thisFrame;
+
+	v_StreamDB_CreditModelTextures(material->streamingTextureHandles, material->streamingTextureHandleCount, a3, a4, a5, pViewOrigin, tanOfHalfFov, viewWidthPixels, a9);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: updates the stream camera used for getting the column from the STBSP
 // Input  : *pMatSys - 
 //			*camPos - 
@@ -234,6 +263,7 @@ void VMaterialSystem::Detour(const bool bAttach) const
 	DetourSetup(&CMaterialSystem__SwapBuffers, &CMaterialSystem::SwapBuffers, bAttach);
 	DetourSetup(&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx, bAttach);
 
+	DetourSetup(&CMaterialSystem__CreditModelTextures, &CMaterialSystem::CreditModelTextures, bAttach);
 	DetourSetup(&CMaterialSystem__UpdateStreamCamera, &CMaterialSystem::UpdateStreamCamera, bAttach);
 
 	DetourSetup(&v_DispatchDrawCall, &DispatchDrawCall, bAttach);

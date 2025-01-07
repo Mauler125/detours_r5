@@ -119,6 +119,8 @@ enum TextureStreamMemory_e
 };
 
 inline void(*v_StreamDB_Init)(const char* const pszLevelName);
+inline void(*v_StreamDB_CreditWorldTextures)(TextureStreamMgr_TaskList_s* const taskList);
+inline void(*v_StreamDB_CreditWorldTextures_Legacy)(TextureStreamMgr_TaskList_s* const taskList);
 
 inline void(*TextureStreamMgr_GetStreamOverlay)(const char* const mode, char* const buf, const size_t bufSize);
 inline const char* (*TextureStreamMgr_DrawStreamOverlayToInterface)(void* thisptr, uint8_t* a2, void* unused, void* debugOverlayIface);
@@ -134,6 +136,8 @@ class VTextureStreaming : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogFunAdr("StreamDB_Init", v_StreamDB_Init);
+		LogFunAdr("StreamDB_CreditWorldTextures", v_StreamDB_CreditWorldTextures);
+		LogFunAdr("StreamDB_CreditWorldTextures_Legacy", v_StreamDB_CreditWorldTextures_Legacy);
 
 		LogFunAdr("TextureStreamMgr_GetStreamOverlay", TextureStreamMgr_GetStreamOverlay);
 		LogFunAdr("TextureStreamMgr_DrawStreamOverlayToInterface", TextureStreamMgr_DrawStreamOverlayToInterface);
@@ -146,6 +150,9 @@ class VTextureStreaming : public IDetour
 	virtual void GetFun(void) const
 	{
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9").GetPtr(v_StreamDB_Init);
+
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? EB ?? 48 8B CF E8 ?? ?? ?? ?? 4C 8D 25").FollowNearCallSelf().GetPtr(v_StreamDB_CreditWorldTextures);
+		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8D 25 ?? ?? ?? ?? 4C 89 64 24").FollowNearCallSelf().GetPtr(v_StreamDB_CreditWorldTextures_Legacy);
 
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 80 7C 24 ?? ?? 0F 84 ?? ?? ?? ?? 48 89 9C 24 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(TextureStreamMgr_GetStreamOverlay);
 		g_GameDll.FindPatternSIMD("41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 ??").GetPtr(TextureStreamMgr_DrawStreamOverlayToInterface);

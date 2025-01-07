@@ -121,6 +121,7 @@ enum TextureStreamMemory_e
 inline void(*v_StreamDB_Init)(const char* const pszLevelName);
 inline void(*v_StreamDB_CreditWorldTextures)(TextureStreamMgr_TaskList_s* const taskList);
 inline void(*v_StreamDB_CreditWorldTextures_Legacy)(TextureStreamMgr_TaskList_s* const taskList);
+inline void(*v_StreamDB_CreditModelTextures)(TextureAsset_s** const textureAssets, const int textureCount, __int64 a3, __int64 a4, unsigned int a5, const Vector3D* const pViewOrigin, const float tanOfHalfFov, const float viewWidthPixels, int a9);
 
 inline void(*TextureStreamMgr_GetStreamOverlay)(const char* const mode, char* const buf, const size_t bufSize);
 inline const char* (*TextureStreamMgr_DrawStreamOverlayToInterface)(void* thisptr, uint8_t* a2, void* unused, void* debugOverlayIface);
@@ -139,6 +140,8 @@ class VTextureStreaming : public IDetour
 		LogFunAdr("StreamDB_CreditWorldTextures", v_StreamDB_CreditWorldTextures);
 		LogFunAdr("StreamDB_CreditWorldTextures_Legacy", v_StreamDB_CreditWorldTextures_Legacy);
 
+		LogFunAdr("StreamDB_CreditModelTextures", v_StreamDB_CreditModelTextures);
+
 		LogFunAdr("TextureStreamMgr_GetStreamOverlay", TextureStreamMgr_GetStreamOverlay);
 		LogFunAdr("TextureStreamMgr_DrawStreamOverlayToInterface", TextureStreamMgr_DrawStreamOverlayToInterface);
 
@@ -153,6 +156,8 @@ class VTextureStreaming : public IDetour
 
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? EB ?? 48 8B CF E8 ?? ?? ?? ?? 4C 8D 25").FollowNearCallSelf().GetPtr(v_StreamDB_CreditWorldTextures);
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8D 25 ?? ?? ?? ?? 4C 89 64 24").FollowNearCallSelf().GetPtr(v_StreamDB_CreditWorldTextures_Legacy);
+
+		g_GameDll.FindPatternSIMD("4C 89 44 24 ?? 89 54 24 ?? 48 89 4C 24 ?? 55 56").GetPtr(v_StreamDB_CreditModelTextures);
 
 		g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 80 7C 24 ?? ?? 0F 84 ?? ?? ?? ?? 48 89 9C 24 ?? ?? ?? ??").FollowNearCallSelf().GetPtr(TextureStreamMgr_GetStreamOverlay);
 		g_GameDll.FindPatternSIMD("41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 ??").GetPtr(TextureStreamMgr_DrawStreamOverlayToInterface);

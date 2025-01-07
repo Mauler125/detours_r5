@@ -136,7 +136,11 @@ private:
 	virtual void stub_34() const = 0;
 	virtual void stub_35() const = 0;
 	virtual void stub_36() const = 0;
-	virtual void stub_37() const = 0;
+
+public:
+	virtual bool CanCreditModelTextures() = 0;
+
+private:
 	virtual void stub_38() const = 0;
 	virtual void stub_39() const = 0;
 	virtual void stub_40() const = 0;

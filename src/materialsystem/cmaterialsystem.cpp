@@ -197,6 +197,28 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 
 	return vecScreenSize;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: updates the stream camera used for getting the column from the STBSP
+// Input  : *pMatSys - 
+//			*camPos - 
+//			*camAng - 
+//			halfFovX - 
+//			viewWidth - 
+//-----------------------------------------------------------------------------
+void CMaterialSystem::UpdateStreamCamera(CMaterialSystem* const pMatSys, const Vector3D* const camPos, 
+	const QAngle* const camAng, const float halfFovX, const float viewWidth)
+{
+	// The stream camera is only used for the STBSP. If we use the GPU feedback
+	// driven texture streaming system instead, do not run this code.
+	if (gpu_driven_tex_stream->GetBool())
+		return;
+
+	// NOTE: 'camAng' is set and provided to the function below, but the actual
+	// function that updates the global state (StreamDB_SetCameraPosition)
+	// isn't using it. The parameter is unused.
+	CMaterialSystem__UpdateStreamCamera(pMatSys, camPos, camAng, halfFovX, viewWidth);
+}
 #endif // !MATERIALSYSTEM_NODX
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -211,6 +233,8 @@ void VMaterialSystem::Detour(const bool bAttach) const
 #ifndef MATERIALSYSTEM_NODX
 	DetourSetup(&CMaterialSystem__SwapBuffers, &CMaterialSystem::SwapBuffers, bAttach);
 	DetourSetup(&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx, bAttach);
+
+	DetourSetup(&CMaterialSystem__UpdateStreamCamera, &CMaterialSystem::UpdateStreamCamera, bAttach);
 
 	DetourSetup(&v_DispatchDrawCall, &DispatchDrawCall, bAttach);
 	DetourSetup(&v_SpinPresent, &SpinPresent, bAttach);

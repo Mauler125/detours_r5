@@ -15,6 +15,8 @@ public:
 	static void* SwapBuffers(CMaterialSystem* pMatSys);
 	static CMaterialGlue* FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 	static Vector2D GetScreenSize(CMaterialSystem* pMatSys = nullptr);
+
+	static void UpdateStreamCamera(CMaterialSystem* const pMatSys, const Vector3D* const camPos, const QAngle* const camAng, const float halfFovX, const float viewWidth);
 #endif // !MATERIALSYSTEM_NODX
 
 	// TODO: reverse the vftable!
@@ -73,6 +75,8 @@ inline void*(*CMaterialSystem__SwapBuffers)(CMaterialSystem* pMatSys);
 inline CMaterialGlue*(*CMaterialSystem__FindMaterialEx)(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
 inline void(*CMaterialSystem__GetScreenSize)(CMaterialSystem* pMatSys, float* outX, float* outY);
 
+inline void(*CMaterialSystem__UpdateStreamCamera)(CMaterialSystem* const pMatSys, const Vector3D* const camPos, const QAngle* const camAng, const float halfFovX, const float viewWidth);
+
 inline void*(*v_DispatchDrawCall)(int64_t a1, uint64_t a2, int a3, int a4, int64_t a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, int a11, __m128* a12, int a13, int64_t a14);
 inline ssize_t(*v_SpinPresent)(void);
 #endif // !MATERIALSYSTEM_NODX
@@ -102,6 +106,7 @@ class VMaterialSystem : public IDetour
 		LogFunAdr("CMaterialSystem::SwapBuffers", CMaterialSystem__SwapBuffers);
 		LogFunAdr("CMaterialSystem::FindMaterialEx", CMaterialSystem__FindMaterialEx);
 		LogFunAdr("CMaterialSystem::GetScreenSize", CMaterialSystem__GetScreenSize);
+		LogFunAdr("CMaterialSystem::UpdateStreamCamera", CMaterialSystem__UpdateStreamCamera);
 		LogFunAdr("DispatchDrawCall", v_DispatchDrawCall);
 		LogFunAdr("SpinPresent", v_SpinPresent);
 #endif // !MATERIALSYSTEM_NODX
@@ -124,6 +129,8 @@ class VMaterialSystem : public IDetour
 
 		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??").GetPtr(CMaterialSystem__FindMaterialEx);
 		g_GameDll.FindPatternSIMD("8B 05 ?? ?? ?? ?? 89 02 8B 05 ?? ?? ?? ?? 41 89 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 8B 05 ?? ?? ?? ??").GetPtr(CMaterialSystem__GetScreenSize);
+
+		g_GameDll.FindPatternSIMD("48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 44 0F 29 44 24").GetPtr(CMaterialSystem__UpdateStreamCamera);
 
 		g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56").GetPtr(v_DispatchDrawCall);
 		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 8B 15 ?? ?? ?? ??").GetPtr(v_SpinPresent);

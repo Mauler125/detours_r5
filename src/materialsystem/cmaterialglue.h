@@ -6,67 +6,88 @@
 #include "public/rendersystem/schema/texture.g.h"
 
 #define MATERIAL_RENDER_PARAMS_COUNT 2 // the same for r2 and r5
+#define MATERIAL_SAMPLER_COUNT 4
 
-#pragma pack(push, 1)
+class CMaterialGlue;
+
+enum MaterialDepthPass_e
+{
+	DEPTH_SHADOW,
+	DEPTH_PREPASS,
+	DEPTH_VSM,
+	DEPTH_SHADOW_TIGHT,
+
+	MATERIAL_DEPTH_PASS_MAT_COUNT,
+};
+
+// Virtual function-less material instance.
+struct MaterialGlue_s
+{
+	PakGuid_t guid;
+	const char* name;
+
+	const char* surfaceProp;
+	const char* surfaceProp2;
+
+	CMaterialGlue* depthMaterials[MATERIAL_DEPTH_PASS_MAT_COUNT];
+	CMaterialGlue* colpassMaterial;
+
+	CShaderGlue* shaderset;
+
+	TextureAsset_s** textureHandles;
+	TextureAsset_s** streamingTextureHandles;
+	uint16 streamingTextureHandleCount;
+
+	uint16 width;
+	uint16 height;
+	uint16 depth;
+
+	// An array of indices into sampler states array. must be set properly to
+	// have accurate texture tiling. Used in CShaderGlue::SetupShader (1403B3C60)
+	byte samplers[MATERIAL_SAMPLER_COUNT];// example: 0x1D0300;
+
+	uint32 unk_7C;
+
+	// some features? mostly differs per material with different shader types, but
+	// it seems mostly unused by the runtime too.
+	uint32 unk_80_0x1F5A92BD;
+	uint32 unk_84;
+
+	uint32 materialFlags;
+	uint32 materialFlags2;
+
+	MaterialRenderParams_s renderParams[MATERIAL_RENDER_PARAMS_COUNT];
+	uint32 numAnimationFrames;
+	MaterialShaderType_e materialType;
+	uint8 uberBufferFlags;
+
+	int dwordf4;
+	void* textureAnim;
+	ID3D11Buffer* uberBuffer;
+	void** pID3D11BufferVTable;
+	void* viewBuffer;
+
+	// Last frame this material was used to shift the texture streaming histogram.
+	uint32 lastFrame;
+
+	uint16 m_iUnknown4;
+	uint16 m_iUnknown5;
+	uint16 m_iUnknown6;
+};
+
 class CMaterialGlue : public IMaterialInternal
 {
 public:
-	uint8_t pad_0008[8]; //0x0008
-	uint64_t assetGuid; //0x0010
-	const char* name; //0x0018
+	inline const MaterialGlue_s* Get() const { return &material; }
+	inline MaterialGlue_s* Get() { return &material; }
 
-	const char* surfaceProp; //0x0020
-	const char* surfaceProp2; //0x0028
+private:
+	byte reserved[8];
+	MaterialGlue_s material;
 
-	CMaterialGlue* depthShadowMaterial; //0x0030
-	CMaterialGlue* depthPrepassMaterial; //0x0038
-	CMaterialGlue* depthVSMMaterial; //0x0040
-	CMaterialGlue* depthShadowTightMaterial; //0x0048
-	CMaterialGlue* colpassMaterial; //0x0050
-
-	CShaderGlue* shaderset; //0x0058
-
-	TextureAsset_s** textureHandles; //0x0060
-	TextureAsset_s** streamingTextureHandles; //0x0068
-
-	int16_t numStreamingTextureHandles; //0x0070
-
-	int16_t width; //0x0072 
-	int16_t height; //0x0074
-	int16_t depth; //0x0076
-
-	uint32_t samplers; //0x0078
-
-	char padding_7C[4]; //0x007C
-
-	uint32_t unk_80;
-	uint32_t unk_84;
-
-	uint64_t flags; // 0x0088
-
-	MaterialRenderParams_s renderParams[MATERIAL_RENDER_PARAMS_COUNT];
-
-	uint16_t numAnimationFrames; // used in CMaterialGlue::GetNumAnimationFrames (0x1403B4250), which is called from GetSpriteInfo @ 0x1402561FC
-	uint8_t materialType;
-	uint8_t bytef3;
-
-	char padding_F4[4];
-
-	void* textureAnim;
-	void** dxBuffer;
-	void** unkD3DPointer; // was m_pID3D11BufferVTable
-	void* viewsBuffer;
-
-	uint32_t unknown3; //0x0118
-	uint16_t unknown4; //0x011C
-	uint16_t unknown5; //0x011E
-	uint16_t unknown6; //0x0120
-	uint64_t unknown7; //0x0122
-	uint32_t unknown8; //0x012A
-	uint16_t unknown9; //0x012E
 }; //Size: 0x0130 confirmed end size.
+
 static_assert(sizeof(CMaterialGlue) == 0x130);
-#pragma pack(pop)
 #endif // !DEDICATED
 
 inline void* g_pMaterialGlueVFTable = nullptr;

@@ -287,50 +287,48 @@ Mat_CrossHair_f
   Print the material under the crosshair.
 =====================
 */
+static void PrintChildMat(const CMaterialGlue* const materialGlue, const char* const text)
+{
+	Msg(eDLL_T::MS, " |-+\n");
+	Msg(eDLL_T::MS, " | |-+ Child material ----------------------------------------\n");
+	Msg(eDLL_T::MS, text, materialGlue);
+
+	if (materialGlue)
+	{
+		const MaterialGlue_s* const material = materialGlue->Get();
+
+		Msg(eDLL_T::MS, " |     |-- Pak GUID: '%llX'\n", material->guid);
+		Msg(eDLL_T::MS, " |     |-- Material name: '%s'\n", material->name);
+	}
+}
+
 void Mat_CrossHair_f(const CCommand& args)
 {
-	CMaterialGlue* material = v_GetMaterialAtCrossHair();
+	const CMaterialGlue* const materialGlue = v_GetMaterialAtCrossHair();
+	const MaterialGlue_s* const material = materialGlue->Get();
+
 	if (material)
 	{
 		Msg(eDLL_T::MS, "______________________________________________________________\n");
 		Msg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
-		Msg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
-		Msg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->assetGuid);
-		Msg(eDLL_T::MS, " |-- Num Streaming Textures: '%d'\n", material->numStreamingTextureHandles);
-		Msg(eDLL_T::MS, " |-- Material width: '%d'\n", material->width);
-		Msg(eDLL_T::MS, " |-- Material height: '%d'\n", material->height);
-		Msg(eDLL_T::MS, " |-- Samplers: '%08X'\n", material->samplers);
-
-		std::function<void(CMaterialGlue*, const char*)> fnPrintChild = [](CMaterialGlue* material, const char* print)
-		{
-			Msg(eDLL_T::MS, " |-+\n");
-			Msg(eDLL_T::MS, " | |-+ Child material ----------------------------------------\n");
-			Msg(eDLL_T::MS, print, material);
-			Msg(eDLL_T::MS, " |     |-- GUID: '%llX'\n", material->assetGuid);
-			Msg(eDLL_T::MS, " |     |-- Material name: '%s'\n", material->name);
-		};
+		Msg(eDLL_T::MS, " |-- Address: '%llX'\n", material);
+		Msg(eDLL_T::MS, " |-- Pak GUID: '%llX'\n", material->guid);
+		Msg(eDLL_T::MS, " |-- Samplers: '%08X'\n", *(uint32*)material->samplers);
+		Msg(eDLL_T::MS, " |-- Streaming handles: '%hu'\n", material->streamingTextureHandleCount);
+		Msg(eDLL_T::MS, " |-- Material width: '%hu'\n", material->width);
+		Msg(eDLL_T::MS, " |-- Material height: '%hu'\n", material->height);
 
 		Msg(eDLL_T::MS, " |-- Material name: '%s'\n", material->name);
 		Msg(eDLL_T::MS, " |-- Material surface name 1: '%s'\n", material->surfaceProp);
 		Msg(eDLL_T::MS, " |-- Material surface name 2: '%s'\n", material->surfaceProp2);
-		Msg(eDLL_T::MS, " |-- DX buffer: '%llX'\n", material->dxBuffer);
-		Msg(eDLL_T::MS, " |-- DX buffer VFTable: '%llX'\n", material->unkD3DPointer);
+		Msg(eDLL_T::MS, " |-- Uber buffer: '%llX'\n", material->uberBuffer);
+		Msg(eDLL_T::MS, " |-- View buffer: '%llX'\n", material->viewBuffer);
 
-		material->depthShadowMaterial
-			? fnPrintChild(material->depthShadowMaterial, " |   |-+ DepthShadow: '%llX'\n")
-			: Msg(eDLL_T::MS, " |   |-+ DepthShadow: 'NULL'\n");
-		material->depthPrepassMaterial
-			? fnPrintChild(material->depthPrepassMaterial, " |   |-+ DepthPrepass: '%llX'\n")
-			: Msg(eDLL_T::MS, " |   |-+ DepthPrepass: 'NULL'\n");
-		material->depthVSMMaterial
-			? fnPrintChild(material->depthVSMMaterial, " |   |-+ DepthVSM: '%llX'\n")
-			: Msg(eDLL_T::MS, " |   |-+ DepthVSM: 'NULL'\n");
-		material->depthShadowTightMaterial
-			? fnPrintChild(material->depthShadowTightMaterial, " |   |-+ DepthShadowTight: '%llX'\n")
-			: Msg(eDLL_T::MS, " |   |-+ DepthShadowTight: 'NULL'\n");
-		material->colpassMaterial
-			? fnPrintChild(material->colpassMaterial, " |   |-+ ColPass: '%llX'\n")
-			: Msg(eDLL_T::MS, " |   |-+ ColPass: 'NULL'\n");
+		PrintChildMat(material->depthMaterials[DEPTH_SHADOW], " |   |-+ Depth shadow: '%llX'\n");
+		PrintChildMat(material->depthMaterials[DEPTH_PREPASS], " |   |-+ Depth prepass: '%llX'\n");
+		PrintChildMat(material->depthMaterials[DEPTH_VSM], " |   |-+ Depth VSM: '%llX'\n");
+		PrintChildMat(material->depthMaterials[DEPTH_SHADOW_TIGHT], " |   |-+ Depth shadow tight: '%llX'\n");
+		PrintChildMat(material->colpassMaterial, " |   |-+ Color pass: '%llX'\n");
 
 		Msg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
 		Msg(eDLL_T::MS, " |-- Texture handles: '%llX'\n", material->textureHandles);

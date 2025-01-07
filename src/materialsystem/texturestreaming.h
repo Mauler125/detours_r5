@@ -13,7 +13,7 @@
 #define TEXTURESTREAMING_H
 #include "public/rtech/istreamdb.h"
 
-struct MaterialGlue_t;
+struct MaterialGlue_s;
 struct TextureAsset_s;
 
 struct TextureStreamMgr_Task_s
@@ -78,7 +78,7 @@ struct TextureStreamMgr_s
 	char* stringBuffer;
 	StreamDB_Header_s header;
 	StreamDB_ResidentPage_s* residentPages;
-	MaterialGlue_t** materials;
+	MaterialGlue_s** materials;
 	StreamDB_Material_s* materialInfo;
 	int64 maxResidentPageSize;
 	StreamDB_PageState_s pageStates[4];

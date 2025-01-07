@@ -297,18 +297,21 @@ void CTextOverlay::DrawGPUStats(void) const
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawCrosshairMaterial(void) const
 {
-	CMaterialGlue* pMaterialGlue = v_GetMaterialAtCrossHair();
-	if (!pMaterialGlue)
+	const CMaterialGlue* const materialGlue = v_GetMaterialAtCrossHair();
+
+	if (!materialGlue)
 		return;
 
+	const MaterialGlue_s* const material = materialGlue->Get();
 	static const Color c = { 255, 255, 255, 255 };
-	DrawFormat(cl_materialinfo_offset_x.GetInt(), cl_materialinfo_offset_y.GetInt(), c, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nstc: %i\ntc: %i",
-		pMaterialGlue->name,
-		pMaterialGlue->assetGuid,
-		pMaterialGlue->width, pMaterialGlue->height,
-		pMaterialGlue->surfaceProp, pMaterialGlue->surfaceProp2,
-		pMaterialGlue->numStreamingTextureHandles,
-		pMaterialGlue->shaderset->m_nTextureInputCount);
+
+	DrawFormat(cl_materialinfo_offset_x.GetInt(), cl_materialinfo_offset_y.GetInt(), c, "name: %s\nguid: %llx\ndimensions: %hu x %hu\nsurface: %s/%s\nstc: %hu\ntc: %hu",
+		material->name,
+		material->guid,
+		material->width, material->height,
+		material->surfaceProp, material->surfaceProp2,
+		material->streamingTextureHandleCount,
+		material->shaderset->m_nTextureInputCount);
 }
 
 //-----------------------------------------------------------------------------

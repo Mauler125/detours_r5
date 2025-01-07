@@ -2,7 +2,7 @@
 #define IMATERIALSYSTEM_H
 
 #define NVIDIA_VENDOR_ID 0x10DE
-#define AMD_VENDOR_ID 0x10EE
+#define AMD_VENDOR_ID 0x1002
 
 //-----------------------------------------------------------------------------
 // Material adapter info..

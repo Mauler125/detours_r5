@@ -91,6 +91,8 @@ void CImguiSystem::Shutdown()
 
 	m_initialized = false;
 	m_hasNewFrame = false;
+
+	m_surfaceList.Purge();
 }
 
 //-----------------------------------------------------------------------------

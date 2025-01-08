@@ -362,9 +362,6 @@ void DirectX_Shutdown()
 	if (ImguiSystem()->IsInitialized())
 	{
 		ImguiSystem()->Shutdown();
-
-		ImguiSystem()->RemoveSurface(&g_Browser);
-		ImguiSystem()->RemoveSurface(&g_Console);
 	}
 }
 

@@ -10,6 +10,7 @@
 #include "geforce/reflex.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
+#include "gameui/IStreamOverlay.h"
 #include "gameui/imgui_system.h"
 #include "engine/framelimit.h"
 #include "engine/sys_mainwind.h"
@@ -330,6 +331,7 @@ void DirectX_Init()
 		{
 			ImguiSystem()->AddSurface(&g_Console);
 			ImguiSystem()->AddSurface(&g_Browser);
+			ImguiSystem()->AddSurface(&g_streamOverlay);
 		}
 		else
 		{

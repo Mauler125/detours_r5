@@ -95,29 +95,6 @@ int CMaterialSystem::Shutdown(CMaterialSystem* thisptr)
 }
 
 #ifndef MATERIALSYSTEM_NODX
-static ConVar stream_overlay_memory("stream_overlay_memory", "524288", FCVAR_DEVELOPMENTONLY, "Total string memory to allocate for the texture streaming debug overlay.");
-
-/*
-=====================
-Mat_DumpStreamInfo_f
-
-  Prints the stream info to the console.
-=====================
-*/
-static void Mat_DumpStreamInfo_f(const CCommand& args)
-{
-	const int stringMem = stream_overlay_memory.GetInt();
-	std::unique_ptr<char[]> stringBuf(new char[stringMem]);
-
-	const char* const mode = args.ArgC() >= 2 ? args.Arg(1) : stream_overlay_mode->GetString();
-	char* const scratch = stringBuf.get();
-
-	TextureStreamMgr_GetStreamOverlay(mode, scratch, stringMem);
-	Msg(eDLL_T::MS, "%s\n", scratch);
-}
-
-static ConCommand stream_dumpinfo("stream_dumpinfo", Mat_DumpStreamInfo_f, "Dump texture streaming debug info to the console", FCVAR_DEVELOPMENTONLY, nullptr, "tex mtl bsp short");
-
 //---------------------------------------------------------------------------------
 // Purpose: draw frame
 //---------------------------------------------------------------------------------

@@ -33,7 +33,6 @@ public:
 	void DrawSimStats(void) const;
 	void DrawGPUStats(void) const;
 	void DrawCrosshairMaterial(void) const;
-	void DrawStreamOverlay(void) const;
 
 	void Con_NPrintf(void);
 

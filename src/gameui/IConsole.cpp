@@ -186,6 +186,9 @@ void CConsole::RunFrame(void)
 //-----------------------------------------------------------------------------
 bool CConsole::DrawSurface(void)
 {
+    if (!IsVisible())
+        return false;
+
     if (!ImGui::Begin(m_surfaceLabel, &m_activated, ImGuiWindowFlags_None, &ResetInput))
     {
         ImGui::End();

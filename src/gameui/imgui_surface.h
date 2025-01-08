@@ -23,8 +23,8 @@ public:
 	// inlines:
 	inline void ToggleActive() { m_activated ^= true; }
 
-	inline bool IsActivated() { return m_activated; }
-	inline bool IsVisible() { return m_fadeAlpha > 0.0f; }
+	inline bool IsActivated() const { return m_activated; }
+	inline bool IsVisible() const { return m_fadeAlpha > 0.0f; }
 
 protected:
 	const char* m_surfaceLabel;

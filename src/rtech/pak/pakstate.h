@@ -60,8 +60,8 @@ struct PakLoadFuncs_s
 	void (*HelpWithPendingRequests)();
 
 	// lock and wait for a specific pakfile to load by pakid, and help with other
-	// allocated jobs in the mean time
-	void (*WaitForAsyncLoad)(const PakHandle_t handle, void(* const finishCallback));
+	// allocated jobs in the mean time. returns false if status is PAK_STATUS_ERROR
+	bool (*WaitForAsyncLoad)(const PakHandle_t handle, void(* const finishCallback));
 
 	// lock and wait for a specific pakfile to unload by pakid, and help with other
 	// allocated jobs in the mean time

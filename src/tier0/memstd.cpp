@@ -13,20 +13,19 @@
 //-----------------------------------------------------------------------------
 // Purpose: initialize the global memory allocator singleton pointer
 //-----------------------------------------------------------------------------
-static bool s_bAllocatorInitialized = false;
+static std::atomic_bool s_bAllocatorInitialized = false;
 static void InitAllocator()
 {
-    if (!s_bAllocatorInitialized)
-    {
-        s_bAllocatorInitialized = true;
-        const QWORD imageBase = CModule::GetProcessEnvironmentBlock()->ImageBaseAddress;
+    if (s_bAllocatorInitialized.exchange(true))
+        return;
 
-        CreateGlobalMemAlloc = CModule::GetExportedSymbol(imageBase,
-            "CreateGlobalMemAlloc").RCast<CStdMemAlloc* (*)(void)>();
+    const QWORD imageBase = CModule::GetProcessEnvironmentBlock()->ImageBaseAddress;
 
-        g_pMemAllocSingleton = CModule::GetExportedSymbol(imageBase,
-            "g_pMemAllocSingleton").DerefSelf().RCast<CStdMemAlloc*>();
-    }
+    CreateGlobalMemAlloc = CModule::GetExportedSymbol(imageBase,
+        "CreateGlobalMemAlloc").RCast<CStdMemAlloc * (*)(void)>();
+
+    g_pMemAllocSingleton = CModule::GetExportedSymbol(imageBase,
+        "g_pMemAllocSingleton").DerefSelf().RCast<CStdMemAlloc*>();
 }
 
 //-----------------------------------------------------------------------------

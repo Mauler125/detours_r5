@@ -15,7 +15,7 @@ Host_Shutdown
  systems
 ==================
 */
-void Host_Shutdown()
+static void Host_Shutdown()
 {
 #ifndef DEDICATED
 	DirectX_Shutdown();
@@ -31,7 +31,7 @@ Host_Status_PrintClient
  to console
 ==================
 */
-void Host_Status_PrintClient(CClient* client, bool bShowAddress, void (*print) (const char* fmt, ...))
+static void Host_Status_PrintClient(CClient* client, bool bShowAddress, void (*print) (const char* fmt, ...))
 {
 	CNetChan* nci = client->GetNetChan();
 	const char* state = "challenging";
@@ -70,7 +70,7 @@ DFS_InitializeFeatureFlagDefinitions
  flag definitions
 ==================
 */
-bool DFS_InitializeFeatureFlagDefinitions(const char* pszFeatureFlags)
+static bool DFS_InitializeFeatureFlagDefinitions(const char* pszFeatureFlags)
 {
 	if (CommandLine()->CheckParm("-nodfs"))
 		return false;

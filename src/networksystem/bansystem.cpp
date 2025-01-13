@@ -36,7 +36,7 @@ void CBanSystem::LoadList(void)
 	pBuf[nRead] = '\0'; // Null terminate the string buffer containing our banned list.
 
 	rapidjson::Document document;
-	if (document.Parse(pBuf.get()).HasParseError())
+	if (document.Parse(pBuf.get()).HasParseError(), nRead)
 	{
 		Warning(eDLL_T::SERVER, "%s: JSON parse error at position %zu: %s\n",
 			__FUNCTION__, document.GetErrorOffset(), rapidjson::GetParseError_En(document.GetParseError()));

@@ -32,6 +32,17 @@
 namespace rapidjson { typedef ::std::size_t SizeType; }
 
 #include "rapidjson/rapidjson.h"
+
+#ifdef RAPIDJSON_USE_CUSTOM_ALLOCATOR
+// Must be included before the RapidJSON includes
+// as this replaces the default allocator. The new
+// allocator takes SIMD alignment into account, but
+// isn't strictly necessary when using RAPIDJSON_SIMD.
+#include "tier2/jsonalloc.h"
+#define RAPIDJSON_DEFAULT_ALLOCATOR ::RAPIDJSON_NAMESPACE::MemoryPoolAllocator<JSONAllocator>
+#define RAPIDJSON_DEFAULT_STACK_ALLOCATOR ::RAPIDJSON_NAMESPACE::MemoryPoolAllocator<JSONAllocator>
+#endif // RAPIDJSON_USE_CUSTOM_ALLOCATOR
+
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"

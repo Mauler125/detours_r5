@@ -37,12 +37,12 @@ enum JoystickAxis_t
 	MAX_JOYSTICK_AXES,
 };
 
-enum JoystickDeadzoneIndex_t
+enum JoystickType_t
 {
-	JOYSTICK_DEADZONE_NONE = 0,
-	JOYSTICK_DEADZONE_XBOX360,
-	JOYSTICK_DEADZONE_XBOX1,
-	JOYSTICK_DEADZONE_OTHER
+	JOYSTICK_TYPE_NONE = 0,
+	JOYSTICK_TYPE_XBOX360,
+	JOYSTICK_TYPE_XBOX1,
+	JOYSTICK_TYPE_PS4
 };
 
 //-----------------------------------------------------------------------------

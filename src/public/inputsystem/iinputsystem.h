@@ -75,7 +75,7 @@ public:
 	virtual int GetButtonPressedTick( const ButtonCode_t code ) const = 0;
 
 	/// Returns the joystick deadzone index for connected hardware.
-	virtual JoystickDeadzoneIndex_t GetJoystickDeadzoneIndex( ) const = 0;
+	virtual JoystickType_t GetJoystickType( ) const = 0;
 
 	/// DoNothing; VFTable padding.
 	virtual bool ReturnFalse( ) const = 0;

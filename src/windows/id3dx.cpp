@@ -191,7 +191,8 @@ void CreateTextureResource(TextureAsset_s* textureHeader, INT_PTR imageData)
 
 	const HRESULT createTextureRes = D3D11Device()->CreateTexture2D(&textureDesc, subResData, &textureHeader->pInputTexture);
 	if (createTextureRes < S_OK)
-		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create texture \"%s\": error code = %08x\n", textureHeader->debugName, createTextureRes);
+		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create texture \"%s\" (%llX): error code = %08x\n",
+			textureHeader->debugName, textureHeader->assetGuid, createTextureRes);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResource{};
 	shaderResource.Format = dxgiFormat;

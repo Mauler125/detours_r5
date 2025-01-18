@@ -305,10 +305,11 @@ static void PrintChildMat(const CMaterialGlue* const materialGlue, const char* c
 void Mat_CrossHair_f(const CCommand& args)
 {
 	const CMaterialGlue* const materialGlue = v_GetMaterialAtCrossHair();
-	const MaterialGlue_s* const material = materialGlue->Get();
 
-	if (material)
+	if (materialGlue)
 	{
+		const MaterialGlue_s* const material = materialGlue->Get();
+
 		Msg(eDLL_T::MS, "______________________________________________________________\n");
 		Msg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
 		Msg(eDLL_T::MS, " |-- Address: '%llX'\n", material);

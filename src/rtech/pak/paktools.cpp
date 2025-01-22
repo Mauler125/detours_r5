@@ -263,7 +263,7 @@ PakLoadedInfo_s* Pak_GetPakInfo(const PakHandle_t pakId)
 //-----------------------------------------------------------------------------
 const PakLoadedInfo_s* Pak_GetPakInfo(const char* const pakName)
 {
-	for (int16_t i = 0; i < g_pakGlobals->loadedPakCount; ++i)
+	for (int16_t i = 0; i < PAK_MAX_LOADED_PAKS; ++i)
 	{
 		const PakLoadedInfo_s* const info = &g_pakGlobals->loadedPaks[i];
 		if (!info)

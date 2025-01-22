@@ -22,7 +22,7 @@ static void Pak_ListPaks_f()
 
 	uint32_t numLoaded = 0;
 
-	for (int16_t i = 0, n = g_pakGlobals->loadedPakCount; i < n; ++i)
+	for (uint16_t i = 0, n = PAK_MAX_LOADED_PAKS; i < n; ++i)
 	{
 		const PakLoadedInfo_s& info = g_pakGlobals->loadedPaks[i];
 

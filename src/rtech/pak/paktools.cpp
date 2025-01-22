@@ -263,7 +263,14 @@ PakLoadedInfo_s* Pak_GetPakInfo(const PakHandle_t pakId)
 //-----------------------------------------------------------------------------
 const PakLoadedInfo_s* Pak_GetPakInfo(const char* const pakName)
 {
-	for (int16_t i = 0; i < PAK_MAX_LOADED_PAKS; ++i)
+	// a pak under the same name can be loaded more than once, the hotswap
+	// system just switches the asset pointers to the new 'live' pak if
+	// there are assets that overlap the ones in the previous pak. we want
+	// to find the most recently loaded pak under the provided name and
+	// return that to the caller. the higher the handle, the newer it is.
+	PakHandle_t highestHandle = PAK_INVALID_HANDLE;
+
+	for (uint16_t i = 0; i < PAK_MAX_LOADED_PAKS; ++i)
 	{
 		const PakLoadedInfo_s* const info = &g_pakGlobals->loadedPaks[i];
 		if (!info)
@@ -275,11 +282,17 @@ const PakLoadedInfo_s* Pak_GetPakInfo(const char* const pakName)
 		if (strcmp(pakName, info->fileName) != 0)
 			continue;
 
-		return info;
+		if (info->handle > highestHandle)
+			highestHandle = info->handle;
 	}
 
-	DevWarning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for name '%s'\n", __FUNCTION__, pakName);
-	return nullptr;
+	if (highestHandle == PAK_INVALID_HANDLE)
+	{
+		DevWarning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for name '%s'\n", __FUNCTION__, pakName);
+		return nullptr;
+	}
+
+	return Pak_GetPakInfo(highestHandle);
 }
 
 //-----------------------------------------------------------------------------

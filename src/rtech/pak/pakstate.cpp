@@ -35,7 +35,7 @@ static void Pak_ListPaks_f()
 		numLoaded++;
 	}
 	Msg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
-	Msg(eDLL_T::RTECH, "| %18i loaded paks.                                                                                |\n", numLoaded);
+	Msg(eDLL_T::RTECH, "| %18u loaded paks.                                                                                |\n", numLoaded);
 	Msg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
 }
 
@@ -51,7 +51,7 @@ static void Pak_ListTypes_f()
 
 	uint32_t numRegistered = 0;
 
-	for (int8_t i = 0; i < PAK_MAX_TRACKED_TYPES; ++i)
+	for (uint8_t i = 0; i < PAK_MAX_TRACKED_TYPES; ++i)
 	{
 		const PakAssetBinding_s& type = g_pakGlobals->assetBindings[i];
 
@@ -67,7 +67,7 @@ static void Pak_ListTypes_f()
 		numRegistered++;
 	}
 	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-----------|-------------|-------------|\n");
-	Msg(eDLL_T::RTECH, "| %18i registered types.                                               |\n", numRegistered);
+	Msg(eDLL_T::RTECH, "| %18u registered types.                                               |\n", numRegistered);
 	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-----------|-------------|-------------|\n");
 }
 

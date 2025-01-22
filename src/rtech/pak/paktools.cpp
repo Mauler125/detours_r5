@@ -287,7 +287,7 @@ const PakLoadedInfo_s* Pak_GetPakInfo(const char* const pakName)
 //-----------------------------------------------------------------------------
 PakPatchDataHeader_s* Pak_GetPatchDataHeader(PakFileHeader_s* const pakHeader)
 {
-	// shouldn't be called if the pak doesn1't have patches!
+	// shouldn't be called if the pak doesn't have patches!
 	assert(pakHeader->patchIndex > 0);
 	return reinterpret_cast<PakPatchDataHeader_s*>(reinterpret_cast<uint8_t* const>(pakHeader) + sizeof(PakFileHeader_s));
 }

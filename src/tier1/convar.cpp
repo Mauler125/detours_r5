@@ -680,6 +680,10 @@ void ConVar::InternalSetValue(const char* value)
 		m_Value.m_nValue = (int)(m_Value.m_fValue);
 	}
 
+	// Note(amos): send the value that can potentially be null,
+	// since we want to track those too
+	TrackValueChange(value);
+
 	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
 	{
 		ChangeStringValue(newVal);
@@ -1020,7 +1024,7 @@ void ConVar::Create(const char* pName, const char* pDefaultValue, int flags /*= 
 	}
 
 
-	TrackDefaultValue(m_Value.m_pszString);
+	TrackValueChange(m_Value.m_pszString);
 
 	// Only 1 of the 2 can be set on a ConVar, both means there is a bug in
 	// your code, fix it!

@@ -244,7 +244,7 @@ private:
 	virtual void                InternalSetColorValue(Color value);
 
 	// DoNothing in the engine, probably for tracking/debugging cvar strings in debug.
-	virtual void                TrackDefaultValue(const char* value) { };
+	virtual void                TrackValueChange(const char* value) { };
 
 	virtual bool                ClampValue(float& flValue);
 

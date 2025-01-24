@@ -659,13 +659,13 @@ void ConVar::InternalSetValue(const char* value)
 	if (!newVal)
 		newVal = "";
 
-	if (!InternalSetColorFromString(value))
+	if (!InternalSetColorFromString(newVal))
 	{
 		// Not a color, do the standard thing
-		float fNewValue = (float)atof(value);
+		float fNewValue = (float)atof(newVal);
 		if (!IsFinite(fNewValue))
 		{
-			DevWarning(eDLL_T::COMMON, "Warning: %s = '%s' is infinite, clamping value.\n", GetName(), value);
+			DevWarning(eDLL_T::COMMON, "Warning: %s = '%s' is infinite, clamping value.\n", GetName(), newVal);
 			fNewValue = FLT_MAX;
 		}
 

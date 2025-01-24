@@ -103,7 +103,7 @@ public:
 
 	// Utilities for convars accessed by the material system thread
 	virtual bool			IsMaterialThreadSetAllowed() const = 0;
-	virtual void			QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue) = 0;
+	virtual void			QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue/*pValue is allowed to be null*/) = 0;
 	virtual void			QueueMaterialThreadSetValue(ConVar* pConVar, int nValue) = 0;
 	virtual void			QueueMaterialThreadSetValue(ConVar* pConVar, float flValue) = 0;
 	virtual bool			HasQueuedMaterialThreadConVarSets() const = 0;

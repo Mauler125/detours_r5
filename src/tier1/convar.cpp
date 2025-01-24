@@ -647,7 +647,9 @@ void ConVar::InternalSetValue(const char* value)
 		if (g_pCVar && !g_pCVar->IsMaterialThreadSetAllowed())
 		{
 			g_pCVar->QueueMaterialThreadSetValue(this, value);
-			return;
+
+			if (!IsFlagSet(FCVAR_STUDIO_SYSTEM))
+				return;
 		}
 	}
 

@@ -324,7 +324,7 @@ void CBanSystem::AuthorPlayerByName(const char* playerName, const bool shouldBan
 		{
 			if (strcmp(playerName, pNetChan->GetName()) == NULL) // Our wanted name?
 			{
-				if (shouldBan && AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+				if (shouldBan && AddEntry(pNetChan->GetAddress(true), pClient->GetNucleusID()) && !bSave)
 					bSave = true;
 
 				pClient->Disconnect(REP_MARK_BAD, reason);
@@ -389,7 +389,7 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 					continue;
 			}
 
-			if (shouldBan && AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+			if (shouldBan && AddEntry(pNetChan->GetAddress(true), pClient->GetNucleusID()) && !bSave)
 				bSave = true;
 
 			pClient->Disconnect(REP_MARK_BAD, reason);
@@ -397,10 +397,12 @@ void CBanSystem::AuthorPlayerById(const char* playerHandle, const bool shouldBan
 		}
 		else
 		{
-			if (strcmp(playerHandle, pNetChan->GetAddress()) != NULL)
+			const char* const chanAddr = pNetChan->GetAddress(true);
+
+			if (strcmp(playerHandle, chanAddr) != NULL)
 				continue;
 
-			if (shouldBan && AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+			if (shouldBan && AddEntry(chanAddr, pClient->GetNucleusID()) && !bSave)
 				bSave = true;
 
 			pClient->Disconnect(REP_MARK_BAD, reason);

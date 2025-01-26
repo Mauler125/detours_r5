@@ -116,7 +116,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 		return nullptr;
 
 	char* pszPersonaName = pChallenge->personaName;
-	uint64_t nNucleusID = pChallenge->personaId;
+	NucleusID_t nNucleusID = pChallenge->personaId;
 
 	char pszAddresBuffer[128]; // Render the client's address.
 	pChallenge->netAdr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer), true);

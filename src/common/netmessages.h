@@ -464,13 +464,13 @@ class SVC_SetClassVar : public CNetMessage
 {
 public:
 	SVC_SetClassVar() = default;
-	SVC_SetClassVar(const char* setting, const char* var)
+	SVC_SetClassVar(const char* key, const char* value)
 	{
-		V_strncpy(m_szSetting, setting, sizeof(m_szSetting));
-		V_strncpy(m_szVariable, var, sizeof(m_szVariable));
+		V_strncpy(m_szKey, key, sizeof(m_szKey));
+		V_strncpy(m_szValue, value, sizeof(m_szValue));
 
-		m_szSetting[sizeof(m_szSetting) - 1] = '\0';
-		m_szVariable[sizeof(m_szVariable) - 1] = '\0';
+		m_szKey[sizeof(m_szKey) - 1] = '\0';
+		m_szValue[sizeof(m_szValue) - 1] = '\0';
 
 		m_nGroup = 2; // must be set to 2 to avoid being copied into replay buffer
 	}
@@ -486,15 +486,15 @@ public:
 	virtual const char*		ToString(void) const
 	{
 		static char szBuf[4096];
-		V_snprintf(szBuf, sizeof(szBuf), "%s: setting \"%s\", variable \"%s\"", this->GetName(), m_szSetting, m_szVariable);
+		V_snprintf(szBuf, sizeof(szBuf), "%s: key \"%s\", value \"%s\"", this->GetName(), m_szKey, m_szValue);
 
 		return szBuf;
 	};
 
 	virtual size_t			GetSize(void) const { return sizeof(SVC_SetClassVar); }
 
-	char m_szSetting[128];
-	char m_szVariable[128];
+	char m_szKey[128];
+	char m_szValue[128];
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////

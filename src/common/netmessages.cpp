@@ -70,24 +70,24 @@ bool SVC_UserMessage::ProcessImpl()
 ///////////////////////////////////////////////////////////////////////////////////
 bool SVC_SetClassVar::ReadFromBuffer(bf_read* buffer)
 {
-	const bool set = buffer->ReadString(m_szSetting, sizeof(m_szSetting));
-	const bool var = buffer->ReadString(m_szVariable, sizeof(m_szVariable));
+	const bool key = buffer->ReadString(m_szKey, sizeof(m_szKey));
+	const bool val = buffer->ReadString(m_szValue, sizeof(m_szValue));
 
-	return set && var;
+	return key && val;
 }
 bool SVC_SetClassVar::WriteToBuffer(bf_write* buffer)
 {
-	const bool set = buffer->WriteString(m_szSetting);
-	const bool var = buffer->WriteString(m_szVariable);
+	const bool key = buffer->WriteString(m_szKey);
+	const bool val = buffer->WriteString(m_szValue);
 
-	return set && var;
+	return key && val;
 }
 bool SVC_SetClassVar::Process(void)
 {
 	const char* pArgs[3] = {
 		"_setClassVarClient",
-		m_szSetting,
-		m_szVariable
+		m_szKey,
+		m_szValue
 	};
 
 	CCommand command((int)V_ARRAYSIZE(pArgs), pArgs, cmd_source_t::kCommandSrcCode);

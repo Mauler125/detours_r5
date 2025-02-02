@@ -120,7 +120,7 @@ private:
 	CTether m_tethers[2];
 	EHANDLE m_titanSoul;
 	Vector3D m_lastFootstepDamagePos;
-	bool m_lastFoostepDamageOnGround;
+	bool m_lastFootstepDamageOnGround;
 	char gap_1781[3];
 	int m_muzzleAttachment[2];
 	int m_weaponHandAttachment;

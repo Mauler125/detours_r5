@@ -25,7 +25,7 @@ void Pak_AlignSlabHeaders(PakFile_s* const pak, PakSlabDescriptor_s* const desc)
             const size_t alignedSize = ALIGN_VALUE(headersSize, static_cast<size_t>(binding.headerAlignment));
 
             pak->memoryData.unkAssetTypeBindingSizes[i] = alignedSize;
-            headersSize = alignedSize + (desc->assetTypeCount[i] * binding.nativeClassSize);
+            headersSize = alignedSize + (desc->assetTypeCount[i] * binding.structSize);
 
             desc->slabSizeForType[SF_HEAD] = headersSize;
 

@@ -46,7 +46,7 @@ Pak_ListTypes_f
 */
 static void Pak_ListTypes_f()
 {
-	Msg(eDLL_T::RTECH, "| ext  | description               | version | alignment | header size | native size |\n");
+	Msg(eDLL_T::RTECH, "| ext  | description               | version | alignment | header size | struct size |\n");
 	Msg(eDLL_T::RTECH, "|------|---------------------------|---------|-----------|-------------|-------------|\n");
 
 	uint32_t numRegistered = 0;
@@ -62,7 +62,7 @@ static void Pak_ListTypes_f()
 		FourCCToString(assetExtension, type.extension);
 
 		Msg(eDLL_T::RTECH, "| %-4s | %-25s | %7u | %9u | %11u | %11u |\n", 
-			assetExtension, type.description, type.version, type.headerAlignment, type.headerSize, type.nativeClassSize);
+			assetExtension, type.description, type.version, type.headerAlignment, type.headerSize, type.structSize);
 
 		numRegistered++;
 	}

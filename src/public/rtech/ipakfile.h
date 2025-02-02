@@ -204,7 +204,7 @@ struct PakAssetBinding_s
 	CAlignedMemAlloc* allocator;
 
 	uint32_t headerSize;
-	uint32_t nativeClassSize; // Native class size, for 'material' it would be CMaterialGlue full size.
+	uint32_t structSize; // Native class size, for 'material' it would be CMaterialGlue full size.
 	uint32_t headerAlignment;
 
 	// the type of this asset bind

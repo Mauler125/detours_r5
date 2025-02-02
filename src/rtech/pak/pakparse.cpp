@@ -556,7 +556,7 @@ static bool Pak_PrepareNextPageForPatching(PakLoadedInfo_s* const loadedInfo, Pa
     const int assetTypeIdx = pakAsset->HashTableIndexForAssetType();
 
     pak->memoryData.patchDstPtr = reinterpret_cast<char*>(loadedInfo->slabBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
-    pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
+    pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pakGlobals->assetBindings[assetTypeIdx].structSize;
 
     return true;
 }
@@ -656,7 +656,7 @@ static bool Pak_ProcessAssets(PakLoadedInfo_s* const loadedInfo)
 
             pak->memoryData.patchDstPtr = reinterpret_cast<char*>(loadedInfo->slabBuffers[0]) + pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx];
 
-            pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pakGlobals->assetBindings[assetTypeIdx].nativeClassSize;
+            pak->memoryData.unkAssetTypeBindingSizes[assetTypeIdx] += g_pakGlobals->assetBindings[assetTypeIdx].structSize;
         }
         else
         {
@@ -756,7 +756,7 @@ static void Pak_StubInvalidAssetBinds(PakFile_s* const pak, PakSlabDescriptor_s*
             assetBinding->replaceAssetFunc = nullptr;
             assetBinding->allocator = AlignedMemAlloc();
             assetBinding->headerSize = asset->headerSize;
-            assetBinding->nativeClassSize = asset->headerSize;
+            assetBinding->structSize = asset->headerSize;
             assetBinding->headerAlignment = pak->memoryData.pageHeaders[asset->headPtr.index].pageAlignment;
             assetBinding->type = PakAssetBinding_s::STUB;
         }

@@ -117,6 +117,6 @@ void MilesCore::Detour(const bool bAttach) const
 	DetourSetup(&v_AIL_LogFunc, &AIL_LogFunc, bAttach);
 	DetourSetup(&v_Miles_Initialize, &Miles_Initialize, bAttach);
 	DetourSetup(&v_MilesQueueEventRun, &MilesQueueEventRun, bAttach);
-	DetourSetup(&v_MilesBankPatch, &MilesBankPatch, bAttach);
+	//DetourSetup(&v_MilesBankPatch, &MilesBankPatch, bAttach);
 	DetourSetup(&v_CSOM_AddEventToQueue, &CSOM_AddEventToQueue, bAttach);
 }

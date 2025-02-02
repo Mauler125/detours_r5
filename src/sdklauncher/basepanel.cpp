@@ -104,7 +104,7 @@ void CSurface::Init()
 	this->m_PlaylistLabel->SetSize({ 50, 25 });
 	this->m_PlaylistLabel->SetLocation({ 365, 53 });
 	this->m_PlaylistLabel->SetTabIndex(0);
-	this->m_PlaylistLabel->SetText("Playlist");
+	this->m_PlaylistLabel->SetText("Mode");
 	this->m_PlaylistLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_PlaylistLabel->SetTextAlign(Drawing::ContentAlignment::TopLeft);
 	this->m_GameGroup->AddControl(this->m_PlaylistLabel);

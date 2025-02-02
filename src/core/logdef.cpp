@@ -2,12 +2,7 @@
 #include "core/logdef.h"
 
 std::shared_ptr<spdlog::logger> g_TermLogger;
-std::shared_ptr<spdlog::logger> g_ImGuiLogger;
-
 std::shared_ptr<spdlog::logger> g_SuppementalToolsLogger;
-
-std::ostringstream g_LogStream;
-std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
 
 #ifndef _TOOLS
 static void SpdLog_CreateRotatingLoggers()
@@ -68,16 +63,6 @@ void SpdLog_Init(const bool bAnsiColor)
 	}
 
 	g_LogSessionDirectory = fmt::format("platform/logs/{:s}", g_LogSessionUUID);
-	/************************
-	 * IMGUI LOGGER SETUP   *
-	 ************************/
-	{
-		g_LogSink = std::make_shared<spdlog::sinks::ostream_sink_st>(g_LogStream);
-		g_ImGuiLogger = std::make_shared<spdlog::logger>("game_console", g_LogSink);
-		spdlog::register_logger(g_ImGuiLogger); // in-game console logger.
-		g_ImGuiLogger->set_pattern("%v");
-		g_ImGuiLogger->set_level(spdlog::level::trace);
-	}
 #endif // !_TOOLS
 	/************************
 	 * WINDOWS LOGGER SETUP *
@@ -99,7 +84,6 @@ void SpdLog_Init(const bool bAnsiColor)
 		{
 			g_TermLogger->set_pattern("%v");
 		}
-		//g_TermLogger->set_level(spdlog::level::trace);
 	}
 
 #ifndef _TOOLS

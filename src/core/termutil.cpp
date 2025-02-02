@@ -1,19 +1,19 @@
 #include "core/stdafx.h"
 #include "core/termutil.h"
 
-const char* g_svGreyF   = "";
-const char* g_svRedF    = "";
-const char* g_svGreenF  = "";
-const char* g_svBlueF   = "";
-const char* g_svYellowF = "";
+std::string g_svGreyF;
+std::string g_svRedF;
+std::string g_svGreenF;
+std::string g_svBlueF;
+std::string g_svYellowF;
 
-const char* g_svGreyB   = "";
-const char* g_svRedB    = "";
-const char* g_svGreenB  = "";
-const char* g_svBlueB   = "";
-const char* g_svYellowB = "";
+std::string g_svGreyB;
+std::string g_svRedB;
+std::string g_svGreenB;
+std::string g_svBlueB;
+std::string g_svYellowB;
 
-const char* g_svReset   = "";
+std::string g_svReset;
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the global ansi escape sequences.

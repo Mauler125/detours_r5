@@ -121,8 +121,8 @@ static void HostState_KeepAlive()
 						{
 							g_ServerHostManager.SetCurrentToken(hostToken);
 							Msg(eDLL_T::SERVER, "Published server with token: %s'%s%s%s'\n",
-								g_svReset, g_svGreyB,
-								hostToken.c_str(), g_svReset);
+								g_svReset.c_str(), g_svGreyB.c_str(),
+								hostToken.c_str(), g_svReset.c_str());
 						}
 					}
 

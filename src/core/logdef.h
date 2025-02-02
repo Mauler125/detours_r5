@@ -22,11 +22,6 @@ extern std::shared_ptr<spdlog::logger> g_ImGuiLogger;
 extern std::shared_ptr<spdlog::logger> g_SuppementalToolsLogger;
 #endif // _TOOLS
 
-//-------------------------------------------------------------------------
-// IMGUI CONSOLE SINK                                                     |
-extern std::ostringstream g_LogStream;
-extern std::shared_ptr<spdlog::sinks::ostream_sink_st> g_LogSink;
-
 void SpdLog_Init(const bool bAnsiColor);
 void SpdLog_Shutdown(void);
 

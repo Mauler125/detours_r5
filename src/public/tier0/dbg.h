@@ -95,6 +95,11 @@ constexpr const char* s_ScriptAnsiColor[4] =
 	"\033[38;2;151;149;163mScript(X):"
 };
 
+// "Native", "Script" and "Netcon" have the same length, so we can cheat here.
+constexpr size_t s_ContextPrefixTextSize = sizeof("Native(X):") - 1;
+constexpr size_t s_AnsiColorTextSize = sizeof(s_CommonAnsiColor) - 1;
+constexpr size_t s_FullAnsiContextPrefixTextSize = s_AnsiColorTextSize + s_ContextPrefixTextSize;
+
 //////////////////////////////////////////////////////////////////////////
 // Legacy Logging System
 //////////////////////////////////////////////////////////////////////////

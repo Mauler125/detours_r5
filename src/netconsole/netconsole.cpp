@@ -193,7 +193,7 @@ void CNetCon::TrySetKey(const char* const pKey)
 	if (!*pKey)
 	{
 		Warning(eDLL_T::CLIENT, "No key provided; using default %s'%s%s%s'\n",
-			g_svReset, g_svGreyB, DEFAULT_NET_ENCRYPTION_KEY, g_svReset);
+			g_svReset.c_str(), g_svGreyB.c_str(), DEFAULT_NET_ENCRYPTION_KEY, g_svReset.c_str());
 
 		SetKey(DEFAULT_NET_ENCRYPTION_KEY, true);
 	}
@@ -377,7 +377,7 @@ bool CNetCon::Connect(const char* pHostName, const int nPort)
 	if (m_bEncryptFrames)
 	{
 		Msg(eDLL_T::CLIENT, "Attempting connection to '%s' with key %s'%s%s%s'\n",
-			pHostName, g_svReset, g_svGreyB, GetKey(), g_svReset);
+			pHostName, g_svReset.c_str(), g_svGreyB.c_str(), GetKey(), g_svReset.c_str());
 	}
 	else
 	{

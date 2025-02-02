@@ -95,7 +95,7 @@ void CRConServer::Init(const char* pPassword, const char* pNetKey)
 	m_Socket.CreateListenSocket(m_Address);
 
 	Msg(eDLL_T::SERVER, "Remote server access initialized ('%s') with key %s'%s%s%s'\n",
-		m_Address.ToString(), g_svReset, g_svGreyB, GetKey(), g_svReset);
+		m_Address.ToString(), g_svReset.c_str(), g_svGreyB.c_str(), GetKey(), g_svReset.c_str());
 
 	m_bInitialized = true;
 }

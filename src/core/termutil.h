@@ -1,16 +1,16 @@
 #pragma once
-extern const char* g_svGreyF;
-extern const char* g_svRedF;
-extern const char* g_svGreenF;
-extern const char* g_svBlueF;
-extern const char* g_svYellowF;
+extern std::string g_svGreyF;
+extern std::string g_svRedF;
+extern std::string g_svGreenF;
+extern std::string g_svBlueF;
+extern std::string g_svYellowF;
 
-extern const char* g_svGreyB;
-extern const char* g_svRedB;
-extern const char* g_svGreenB;
-extern const char* g_svBlueB;
-extern const char* g_svYellowB;
+extern std::string g_svGreyB;
+extern std::string g_svRedB;
+extern std::string g_svGreenB;
+extern std::string g_svBlueB;
+extern std::string g_svYellowB;
 
-extern const char* g_svReset;
+extern std::string g_svReset;
 
 void AnsiColors_Init();

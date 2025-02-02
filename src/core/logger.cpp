@@ -72,21 +72,24 @@ ImVec4 GetColorForContext(LogType_t type, eDLL_T context)
 }
 #endif // !DEDICATED && !_TOOLS
 
-const char* GetContextNameByIndex(eDLL_T context, const bool ansiColor = false)
+static const char* GetContextNameByIndex(eDLL_T context, size_t& numTotalChars, size_t& numAnsiChars, const bool ansiColor)
 {
-	int index = static_cast<int>(context);
-	const char* contextName = s_DefaultAnsiColor;
+	const int index = static_cast<int>(context);
+	const char* contextName;
 
 	switch (context)
 	{
 	case eDLL_T::SCRIPT_SERVER:
 		contextName = s_ScriptAnsiColor[0];
+		numTotalChars = s_FullAnsiContextPrefixTextSize;
 		break;
 	case eDLL_T::SCRIPT_CLIENT:
 		contextName = s_ScriptAnsiColor[1];
+		numTotalChars = s_FullAnsiContextPrefixTextSize;
 		break;
 	case eDLL_T::SCRIPT_UI:
 		contextName = s_ScriptAnsiColor[2];
+		numTotalChars = s_FullAnsiContextPrefixTextSize;
 		break;
 	case eDLL_T::SERVER:
 	case eDLL_T::CLIENT:
@@ -102,17 +105,22 @@ const char* GetContextNameByIndex(eDLL_T context, const bool ansiColor = false)
 	case eDLL_T::SYSTEM_WARNING:
 	case eDLL_T::SYSTEM_ERROR:
 		contextName = s_DllAnsiColor[index];
+		numTotalChars = context >= eDLL_T::COMMON ? s_AnsiColorTextSize : s_FullAnsiContextPrefixTextSize;
 		break;
-	case eDLL_T::NONE:
 	default:
+		contextName = s_DefaultAnsiColor;
+		numTotalChars = s_AnsiColorTextSize;
 		break;
 	}
 
 	if (!ansiColor)
 	{
 		// Shift # chars to skip ANSI row.
-		contextName += sizeof(s_DefaultAnsiColor) - 1;
+		contextName += s_AnsiColorTextSize;
+		numTotalChars -= s_AnsiColorTextSize;
 	}
+	else
+		numAnsiChars = s_AnsiColorTextSize;
 
 	return contextName;
 }
@@ -147,11 +155,16 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	const char* pszUpTime = pszUptimeOverride ? pszUptimeOverride : Plat_GetProcessUpTime();
 	string message(pszUpTime);
 
+	const size_t contextTextStartIndex = message.length();
+
 	const bool bToConsole = (logLevel >= LogLevel_t::LEVEL_CONSOLE);
 	const bool bUseColor = (bToConsole && g_bSpdLog_UseAnsiClr);
 
-	const char* pszContext = GetContextNameByIndex(context, bUseColor);
-	message.append(pszContext);
+	size_t numTotalContextTextChars = 0;
+	size_t numAnsiContextChars = 0;
+
+	const char* pszContext = GetContextNameByIndex(context, numTotalContextTextChars, numAnsiContextChars, bUseColor);
+	message.append(pszContext, numTotalContextTextChars);
 
 #if !defined (DEDICATED) && !defined (_TOOLS)
 	ImVec4 overlayColor = GetColorForContext(logType, context);
@@ -166,6 +179,9 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	NOTE_UNUSED(pszLogger);
 #endif // !_TOOLS
 
+	const size_t messageTextStartIndex = message.length();
+	size_t numMessageAnsiChars = 0;
+
 	//-------------------------------------------------------------------------
 	// Setup logger and context
 	//-------------------------------------------------------------------------
@@ -178,6 +194,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		if (bUseColor)
 		{
 			message.append(g_svYellowF);
+			numMessageAnsiChars = g_svYellowF.length();
 		}
 		break;
 	case LogType_t::LOG_ERROR:
@@ -187,6 +204,7 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		if (bUseColor)
 		{
 			message.append(g_svRedF);
+			numMessageAnsiChars = g_svRedF.length();
 		}
 		break;
 #ifndef _TOOLS
@@ -248,12 +266,28 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 
 			if (bUseColor)
 			{
-				message.append(g_svRedF);
+				if (logType != LogType_t::LOG_ERROR)
+				{
+					if (numMessageAnsiChars > 0)
+						message.replace(messageTextStartIndex, numMessageAnsiChars, g_svRedF);
+					else
+						message.append(g_svRedF);
+
+					numMessageAnsiChars = g_svRedF.length();
+				}
 			}
 		}
 		else if (bUseColor && bWarning)
 		{
-			message.append(g_svYellowF);
+			if (logType != LogType_t::LOG_ERROR)
+			{
+				if (numMessageAnsiChars > 0)
+					message.replace(messageTextStartIndex, numMessageAnsiChars, g_svYellowF);
+				else
+					message.append(g_svYellowF);
+
+				numMessageAnsiChars = g_svYellowF.length();
+			}
 		}
 	}
 #endif // !_TOOLS
@@ -267,9 +301,24 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	{
 		g_TermLogger->debug(message);
 
+		// Remove ANSI rows if we have them, before emitting to file or over wire.
 		if (bUseColor)
 		{
-			// Remove ANSI rows before emitting to file or over wire.
+			// Start with the message first because else the indices will shift.
+			// The message colors comes after the context colors.
+			if (numMessageAnsiChars > 0)
+			{
+				message.erase(messageTextStartIndex, numMessageAnsiChars);
+				numMessageAnsiChars = 0;
+			}
+
+			if (numAnsiContextChars > 0)
+			{
+				message.erase(contextTextStartIndex, numAnsiContextChars);
+				numAnsiContextChars = 0;
+			}
+
+			// Remove anything else that was passed in as a format argument.
 			message = std::regex_replace(message, s_AnsiRowRegex, "");
 		}
 	}
@@ -282,7 +331,9 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 	// Output is always logged to the file.
 	std::shared_ptr<spdlog::logger> ntlogger = spdlog::get(pszLogger); // <-- Obtain by 'pszLogger'.
 	assert(ntlogger.get() != nullptr);
-	ntlogger->debug(message);
+
+	if (ntlogger)
+		ntlogger->debug(message);
 
 	if (bToConsole)
 	{
@@ -294,25 +345,17 @@ void EngineLoggerSink(LogType_t logType, LogLevel_t logLevel, eDLL_T context,
 		}
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		g_ImGuiLogger->debug(message);
-
-		const string logStreamBuf = g_LogStream.str();
-		g_Console.AddLog(logStreamBuf.c_str(), ImGui::ColorConvertFloat4ToU32(overlayColor));
+		g_Console.AddLog(message.c_str(), ImGui::ColorConvertFloat4ToU32(overlayColor));
 
 		// We can only log to the in-game overlay console when the SDK has
 		// been fully initialized, due to the use of ConVar's.
 		if (g_bSdkInitialized && logLevel >= LogLevel_t::LEVEL_NOTIFY)
 		{
 			// Draw to mini console.
-			g_TextOverlay.AddLog(overlayContext, logStreamBuf.c_str());
+			g_TextOverlay.AddLog(overlayContext, message.c_str());
 		}
 #endif // !DEDICATED
 	}
-
-#ifndef DEDICATED
-	g_LogStream.str(string());
-	g_LogStream.clear();
-#endif // !DEDICATED
 
 #else
 	if (g_SuppementalToolsLogger)

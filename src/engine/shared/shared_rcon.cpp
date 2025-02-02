@@ -344,19 +344,19 @@ void RCON_KeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValu
 		RCONClient()->SetKey(RCONServer()->GetKey()); // Sync server & client keys
 
 		Msg(eDLL_T::ENGINE, "Installed RCON Key: %s'%s%s%s'\n",
-			g_svReset, g_svGreyB, RCONClient()->GetKey(), g_svReset);
+			g_svReset.c_str(), g_svGreyB.c_str(), RCONClient()->GetKey(), g_svReset.c_str());
 #else
 #ifdef DEDICATED
 		RCONServer()->SetKey(pNewString);
 
 		Msg(eDLL_T::SERVER, "Installed RCON Key: %s'%s%s%s'\n",
-			g_svReset, g_svGreyB, RCONServer()->GetKey(), g_svReset);
+			g_svReset.c_str(), g_svGreyB.c_str(), RCONServer()->GetKey(), g_svReset.c_str());
 #endif // DEDICATED
 #ifdef CLIENT_DLL
 		RCONClient()->SetKey(pNewString);
 
 		Msg(eDLL_T::CLIENT, "Installed RCON Key: %s'%s%s%s'\n",
-			g_svReset, g_svGreyB, RCONClient()->GetKey(), g_svReset);
+			g_svReset.c_str(), g_svGreyB.c_str(), RCONClient()->GetKey(), g_svReset.c_str());
 #endif // CLIENT_DLL
 
 #endif // !DEDICATED && !CLIENT_DLL

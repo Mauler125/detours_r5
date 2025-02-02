@@ -181,7 +181,7 @@ void NET_Config()
 void NET_PrintKey()
 {
 	Msg(eDLL_T::ENGINE, "Installed NetKey: %s'%s%s%s'\n",
-		g_svReset, g_svGreyB, g_pNetKey->GetBase64NetKey(), g_svReset);
+		g_svReset.c_str(), g_svGreyB.c_str(), g_pNetKey->GetBase64NetKey(), g_svReset.c_str());
 }
 
 //-----------------------------------------------------------------------------

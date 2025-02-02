@@ -240,7 +240,7 @@ namespace VScriptCode
 
             if (!VALID_CHARSTAR(val))
             {
-                v_SQVM_ScriptError("Empty or null class var");
+                v_SQVM_ScriptError("Empty or null class value");
                 SCRIPT_CHECK_AND_RETURN(v, SQ_ERROR);
             }
 

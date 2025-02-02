@@ -59,8 +59,10 @@ private:
 };
 COMPILE_TIME_ASSERT(sizeof(CClientEntityList) == 0x3800C0);
 
-inline IClientEntityList* g_pClientEntityList = nullptr;
+inline IClientNetworkable* (*v_ClientEntityList_GetClientNetworkable)(IClientEntityList* const entList, const int entNum);
+inline IClientEntity* (*v_ClientEntityList_GetClientEntity)(IClientEntityList* const entList, const int entNum);
 
+inline IClientEntityList* g_pClientEntityList = nullptr;
 extern CClientEntityList* g_clientEntityList;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,14 +75,18 @@ class VClientEntityList : public IDetour
 	{
 		LogVarAdr("g_clientEntityList", g_clientEntityList);
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+		g_GameDll.FindPatternSIMD("48 63 C2 48 03 C0 48 8B 44 C1").GetPtr(v_ClientEntityList_GetClientNetworkable);
+		g_GameDll.FindPatternSIMD("83 FA ?? 7F ?? B8 ?? ?? ?? ?? 2B C2 48 63 D0 48 C1 E2 ?? 48 8B 8C 0A ?? ?? ?? ?? EB ?? 85 D2 78 ?? 48 63 C2 48 C1 E0 ?? 48 8B 8C 08 ?? ?? ?? ?? 48 85 C9 74 ?? 48 8B 01 48 FF 60 ?? 33 C0 C3 CC 80 FA").GetPtr(v_ClientEntityList_GetClientEntity);
+	}
 	virtual void GetVar(void) const
 	{
 		g_GameDll.FindPatternSIMD("48 8D 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 44 89 0D").
 			ResolveRelativeAddressSelf(3, 7).ResolveRelativeAddressSelf(3, 7).GetPtr(g_clientEntityList);
 	}
 	virtual void GetCon(void) const { }
-	virtual void Detour(const bool bAttach) const { };
+	virtual void Detour(const bool bAttach) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 

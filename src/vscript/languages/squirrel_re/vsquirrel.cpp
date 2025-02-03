@@ -223,6 +223,13 @@ SQRESULT CSquirrelVM::RegisterFunction(const SQChar* scriptName, const SQChar* n
 	return results;
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: Finds a function in the squirrel VM
+// Input  : *pszFunctionName - 
+//			*pszFunctionSig - 
+//			 hScope - 
+// Output: Function handle on success NULL on failure
+//---------------------------------------------------------------------------------
 const HSCRIPT CSquirrelVM::FindFunction(const char* const pszFunctionName, const char* const pszFunctionSig, HSCRIPT hScope)
 {
 	return CSquirrelVM__FindFunction(this, pszFunctionName, pszFunctionSig, hScope);

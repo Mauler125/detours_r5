@@ -912,22 +912,19 @@ void CConsole::DetermineAutoCompleteWindowRect(void)
 //-----------------------------------------------------------------------------
 bool CConsole::LoadFlagIcons(void)
 {
+    HMODULE sdkModule = reinterpret_cast<HMODULE>(g_SDKDll.GetModuleBase());
     bool ret = false;
 
     // Get all flag image resources for displaying flags.
     for (int i = IDB_PNG3, k = NULL; i <= IDB_PNG32; i++, k++)
     {
-        m_vecFlagIcons.push_back(MODULERESOURCE(GetModuleResource(i)));
+        m_vecFlagIcons.push_back(MODULERESOURCE(GetModuleResource(sdkModule, i)));
         MODULERESOURCE& rFlagIcon = m_vecFlagIcons[k];
 
         ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(rFlagIcon.m_pData), // !TODO: Fall-back texture.
             static_cast<int>(rFlagIcon.m_nSize), &rFlagIcon.m_idIcon, &rFlagIcon.m_nWidth, &rFlagIcon.m_nHeight);
 
-        if (!ret)
-        {
-            Assert(0, "Texture flags load failed for %i", i);
-            break;
-        }
+        Assert(ret, "Texture flags load failed for %i", i);
     }
 
     m_autoCompleteTexturesLoaded = ret;

@@ -26,4 +26,4 @@ struct MODULERESOURCE
 	int m_nHeight;
 };
 
-MODULERESOURCE GetModuleResource(int iResource);
+MODULERESOURCE GetModuleResource(HMODULE hModule, const int iResource);

@@ -48,6 +48,7 @@ CBrowser::CBrowser(void)
     : m_reclaimFocusOnTokenField(false)
     , m_queryNewListNonRecursive(false)
     , m_queryGlobalBanList(true)
+    , m_lockedIconShaderResource(nullptr)
     , m_hostMessageColor(1.00f, 1.00f, 1.00f, 1.00f)
     , m_hiddenServerMessageColor(0.00f, 1.00f, 0.00f, 1.00f)
 {
@@ -56,8 +57,6 @@ CBrowser::CBrowser(void)
     memset(m_serverTokenTextBuf, '\0', sizeof(m_serverTokenTextBuf));
     memset(m_serverAddressTextBuf, '\0', sizeof(m_serverAddressTextBuf));
     memset(m_serverNetKeyTextBuf, '\0', sizeof(m_serverNetKeyTextBuf));
-
-    m_lockedIconDataResource = GetModuleResource(IDB_PNG2);
 
     m_levelName = "mp_lobby";
     m_gameMode = "dev_default";
@@ -78,7 +77,10 @@ bool CBrowser::Init(void)
 {
     SetStyleVar(927.f, 524.f, -500.f, 50.f);
 
-    bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_lockedIconDataResource.m_pData), int(m_lockedIconDataResource.m_nSize),
+    HMODULE sdkModule = reinterpret_cast<HMODULE>(g_SDKDll.GetModuleBase());
+    m_lockedIconDataResource = GetModuleResource(sdkModule, IDB_PNG2);
+
+    const bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_lockedIconDataResource.m_pData), int(m_lockedIconDataResource.m_nSize),
         &m_lockedIconShaderResource, &m_lockedIconDataResource.m_nWidth, &m_lockedIconDataResource.m_nHeight);
 
     IM_ASSERT(ret && m_lockedIconShaderResource);

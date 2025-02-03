@@ -9,27 +9,22 @@
 //#############################################################################
 // 
 //#############################################################################
-MODULERESOURCE GetModuleResource(int iResource)
+MODULERESOURCE GetModuleResource(HMODULE hModule, const int iResource)
 {
-    static HGLOBAL rcData = NULL;
-    HMODULE handle;
-
-    GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)"unnamed", &handle);
-
-    HRSRC rc = FindResource(handle, MAKEINTRESOURCE(iResource), MAKEINTRESOURCE(PNG));
+    const HRSRC rc = FindResource(hModule, MAKEINTRESOURCE(iResource), MAKEINTRESOURCE(PNG));
     if (!rc)
     {
-        assert(rc == NULL);
+        assert(0);
         return MODULERESOURCE();
     }
 
-    rcData = LoadResource(handle, rc);
+    const HGLOBAL rcData = LoadResource(hModule, rc);
     if (!rcData)
     {
-        assert(rcData == NULL);
+        assert(0);
         return MODULERESOURCE();
     }
-    return (MODULERESOURCE(LockResource(rcData), SizeofResource(handle, rc)));
+
+    return (MODULERESOURCE(LockResource(rcData), SizeofResource(hModule, rc)));
 }
 ///////////////////////////////////////////////////////////////////////////////

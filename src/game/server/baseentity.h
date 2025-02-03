@@ -21,6 +21,7 @@
 #include "networkproperty.h"
 //#include "entitylist.h"
 #include "entityoutput.h"
+#include "vscript/ivscript.h"
 
 //-----------------------------------------------------------------------------
 
@@ -57,6 +58,8 @@ public:
 	inline string_t GetEntityName(void) const { return m_iName; }
 
 	inline int		GetFlags(void) const { return m_fFlags; }
+
+	const HSCRIPT GetScriptInstance();
 
 protected:
 	void* m_collideable;
@@ -276,5 +279,24 @@ protected:
 	int m_realmsTransmitMaskCachedSerialNumber;
 };
 static_assert(sizeof(CBaseEntity) == 0xB08);
+
+inline const HSCRIPT(*v_CBaseEntity__GetScriptInstance)(CBaseEntity* thisp);
+
+///////////////////////////////////////////////////////////////////////////////
+class VCBaseEntity : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		LogFunAdr("CBaseEntity::GetScriptInstance", v_CBaseEntity__GetScriptInstance);
+	}
+	virtual void GetFun(void) const
+	{
+		g_GameDll.FindPatternSIMD("48 8B C4 56 41 56 48 81 EC ?? ?? ?? ?? 48 83 B9").GetPtr(v_CBaseEntity__GetScriptInstance);
+	}
+	virtual void GetVar(void) const {}
+	virtual void GetCon(void) const {}
+	virtual void Detour(const bool bAttach) const {};
+};
+///////////////////////////////////////////////////////////////////////////////
 
 #endif // BASEENTITY_H

@@ -39,12 +39,12 @@ struct SQVM : public CHAINABLE_OBJ
 	// ================================= //
 	_BYTE gap1C[8];
 	void* _callstack;
-	int _unk;
-	int _bottom;
+	SQInteger _stacklevel;
+	SQInteger _bottom;
 	SQObjectPtr* _stackbase;
 	SQSharedState* _sharedstate;
 	char gap68[16];
-	int _top;
+	SQInteger _top;
 	sqvector<SQObjectPtr> _stack;
 	char gap_98[24];
 	SQObjectPtr temp_reg;
@@ -52,11 +52,12 @@ struct SQVM : public CHAINABLE_OBJ
 	SQObjectPtr _roottable;
 	SQObjectPtr _lasterror;
 	char gap_100[48];
-	int _nnativecalls;
+	SQInteger _nnativecalls;
 	SQBool _suspended;
 	SQBool _suspended_root;
-	char gap_13C[8];
-	int suspended_traps;
+	SQInteger _callsstacksize;
+	SQInteger _alloccallsstacksize;
+	SQInteger suspended_traps;
 };
 static_assert(offsetof(SQVM, _top) == 0x78);
 static_assert(offsetof(SQVM, _nnativecalls) == 0x130);

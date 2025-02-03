@@ -9,7 +9,7 @@ struct SQSharedState;
 
 struct SQRefCounted
 {
-	SQRefCounted() { _uiRef = 0; _weakref = NULL; _globalnum = NULL; unk2 = NULL; }
+	SQRefCounted() { _uiRef = 0; _weakref = NULL; _context = NULL; _extraData = NULL; }
 
 	virtual ~SQRefCounted();
 	virtual void Release() = 0;
@@ -19,10 +19,12 @@ struct SQRefCounted
 	SQUnsignedInteger _uiRef;
 	SQObject* _weakref; // this is not an sqobject!
 
-	// index into the global array; see [r5apex + B1C7DE] for assignment
-	// and [r5apex + B2CAF8] for usage
-	SQInteger _globalnum;
-	void* unk2; // unknown
+	// vm context used to track total memory usage of the vm, indexes
+	// into  s_perVmScriptMemUsage in SQWeakRef::Release(), see:
+	// - r5apex + B1C7DE] for assignment.
+	// - [r5apex + B2CAF8] for usage.
+	SQInteger _context;
+	void* _extraData; // unknown
 };
 
 struct SQWeakRef : SQRefCounted

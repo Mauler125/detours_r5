@@ -57,3 +57,8 @@ inline int CBaseEntity::GetModelIndex(void) const
 {
 	return m_nModelIndex;
 }
+
+const HSCRIPT CBaseEntity::GetScriptInstance()
+{
+	return v_CBaseEntity__GetScriptInstance(this);
+}

@@ -145,7 +145,7 @@ bool CSquirrelVM::Run(const SQChar* const script)
 //			hScope - 
 // Output : SCRIPT_DONE on success, SCRIPT_ERROR otherwise
 //---------------------------------------------------------------------------------
-ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope)
+ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, const ScriptVariant_t* const pArgs, unsigned int nArgs, ScriptVariant_t* const pReturn, HSCRIPT hScope)
 {
 	const SQObjectPtr* const f = reinterpret_cast<SQObjectPtr*>(hFunction);
 
@@ -188,7 +188,7 @@ ScriptStatus_t CSquirrelVM::ExecuteFunction(HSCRIPT hFunction, void** pArgs, uns
 	return result;
 }
 
-ScriptStatus_t Script_ExecuteFunction(CSquirrelVM* s, HSCRIPT hFunction, void** pArgs, unsigned int nArgs, void* pReturn, HSCRIPT hScope)
+ScriptStatus_t Script_ExecuteFunction(CSquirrelVM* s, HSCRIPT hFunction, const ScriptVariant_t* const pArgs, unsigned int nArgs, ScriptVariant_t* const pReturn, HSCRIPT hScope)
 {
 	return s->ExecuteFunction(hFunction, pArgs, nArgs, pReturn, hScope);
 }
@@ -221,6 +221,18 @@ SQRESULT CSquirrelVM::RegisterFunction(const SQChar* scriptName, const SQChar* n
 
 	SQRESULT results = CSquirrelVM__RegisterFunction(this, &binding, 1);
 	return results;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: Finds a function in the squirrel VM
+// Input  : *pszFunctionName - 
+//			*pszFunctionSig - 
+//			 hScope - 
+// Output: Function handle on success NULL on failure
+//---------------------------------------------------------------------------------
+const HSCRIPT CSquirrelVM::FindFunction(const char* const pszFunctionName, const char* const pszFunctionSig, HSCRIPT hScope)
+{
+	return CSquirrelVM__FindFunction(this, pszFunctionName, pszFunctionSig, hScope);
 }
 
 //---------------------------------------------------------------------------------

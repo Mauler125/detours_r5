@@ -15,6 +15,9 @@
 
 class C_BaseEntity : public IClientEntity, public IClientModelRenderable
 {
+public:
+	const HSCRIPT GetScriptInstance();
+
 protected:
 	char pad0[16];
 	void* unkHandle;
@@ -88,5 +91,24 @@ protected:
 };
 
 static_assert(sizeof(C_BaseEntity) == 0xA00);
+
+inline HSCRIPT(*v_C_BaseEntity__GetScriptInstance)(C_BaseEntity* thisp);
+
+///////////////////////////////////////////////////////////////////////////////
+class VC_BaseEntity : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		LogFunAdr("C_BaseEntity::GetScriptInstance", v_C_BaseEntity__GetScriptInstance);
+	}
+	virtual void GetFun(void) const
+	{
+		g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 56 48 83 EC ?? 80 B9 ?? ?? ?? ?? ?? 48 8B F1 75").GetPtr(v_C_BaseEntity__GetScriptInstance);
+	}
+	virtual void GetVar(void) const {}
+	virtual void GetCon(void) const {}
+	virtual void Detour(const bool bAttach) const {};
+};
+///////////////////////////////////////////////////////////////////////////////
 
 #endif // C_BASEENTITY_H

@@ -207,9 +207,66 @@ void Mod_GetAllInstalledMaps()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: returns whether the load job for given pak id is finished
+//-----------------------------------------------------------------------------
+static bool Mod_IsPakLoadFinished(const PakHandle_t pakId)
+{
+    if (pakId == PAK_INVALID_HANDLE)
+        return true;
+
+    const PakLoadedInfo_s* const pli = Pak_GetPakInfo(pakId);
+
+    if (pli->handle != pakId)
+        return false;
+
+    const PakStatus_e stat = pli->status;
+
+    if (stat != PakStatus_e::PAK_STATUS_LOADED && 
+        stat != PakStatus_e::PAK_STATUS_ERROR)
+        return false;
+
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns whether the load job for custom pak batch for given common
+//          pak is finished
+//-----------------------------------------------------------------------------
+static bool CustomPakData_IsPakLoadFinished(const CommonPakData_s::PakType_e commonType)
+{
+    switch (commonType)
+    {
+    case CommonPakData_s::PakType_e::PAK_TYPE_UI_GM:
+        return Mod_IsPakLoadFinished(s_customPakData.handles[CustomPakData_s::PakType_e::PAK_TYPE_UI_SDK]);
+    case CommonPakData_s::PakType_e::PAK_TYPE_COMMON:
+        return true;
+    case CommonPakData_s::PakType_e::PAK_TYPE_COMMON_GM:
+        return Mod_IsPakLoadFinished(s_customPakData.handles[CustomPakData_s::PakType_e::PAK_TYPE_COMMON_SDK]);
+    case CommonPakData_s::PakType_e::PAK_TYPE_LOBBY:
+        // Check for preloaded paks at this stage (loaded from preload.rson).
+        for (int i = 0, n = s_customPakData.numPreload; i < n; i++)
+        {
+            if (!Mod_IsPakLoadFinished(s_customPakData.handles[CustomPakData_s::PAK_TYPE_COUNT + i]))
+                return false;
+        }
+        break;
+    case CommonPakData_s::PakType_e::PAK_TYPE_LEVEL:
+        // Check for extra level paks at this stage (loaded from <levelname>.kv).
+        for (int i = CustomPakData_s::PAK_TYPE_COUNT + s_customPakData.numPreload, n = s_customPakData.numHandles; i < n; i++)
+        {
+            if (!Mod_IsPakLoadFinished(s_customPakData.handles[i]))
+                return false;
+        }
+        break;
+    }
+
+    return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: processes queued pak files
 //-----------------------------------------------------------------------------
-void Mod_QueuedPakCacheFrame()
+static void Mod_QueuedPakCacheFrame()
 {
 #ifndef DEDICATED
     bool bUnconnected = !(*g_pClientState_Shifted)->IsConnected();
@@ -321,8 +378,6 @@ void Mod_QueuedPakCacheFrame()
                         break;
                     }
 
-                    g_pakLoadApi->UnloadAsync(data->pakId);
-
                     if (numLeftToProcess == CommonPakData_s::PakType_e::PAK_TYPE_LEVEL)
                     {
                         Mod_UnloadLevelPaks(); // Unload mod pak files.
@@ -334,7 +389,10 @@ void Mod_QueuedPakCacheFrame()
                             s_pLevelSetKV = nullptr;
                         }
                     }
-                    else if (numLeftToProcess == CommonPakData_s::PakType_e::PAK_TYPE_LOBBY)
+
+                    g_pakLoadApi->UnloadAsync(data->pakId);
+
+                    if (numLeftToProcess == CommonPakData_s::PakType_e::PAK_TYPE_LOBBY)
                     {
                         Mod_UnloadPreloadedPaks();
                         s_customPakData.basePaksLoaded = false;
@@ -416,7 +474,7 @@ void Mod_QueuedPakCacheFrame()
                             {
                                 if (*g_bPakFifoLockAcquiredInMainThread)
                                 {
-                                    *g_bPakFifoLockAcquiredInMainThread = 0;
+                                    *g_bPakFifoLockAcquiredInMainThread = false;
                                     JT_ReleaseFifoLock(pakFifoLock);
                                 }
                             }
@@ -443,7 +501,7 @@ void Mod_QueuedPakCacheFrame()
 
     commonData->pakId = g_pakLoadApi->LoadAsync(name, AlignedMemAlloc(), 4, 0);
 
-    if (s_customPakData.basePaksLoaded && !s_customPakData.levelResourcesLoaded)
+    if (it == CommonPakData_s::PakType_e::PAK_TYPE_LEVEL)
     {
         Mod_LoadLevelPaks(s_CurrentLevelName.String());
         s_customPakData.levelResourcesLoaded = true;
@@ -459,16 +517,8 @@ void Mod_QueuedPakCacheFrame()
 
 CHECK_FOR_FAILURE:
 
-    if (commonData->pakId != PAK_INVALID_HANDLE)
-    {
-        const PakLoadedInfo_s* const pli = Pak_GetPakInfo(commonData->pakId);
-
-        if (pli->handle != commonData->pakId || ((pli->status - 9) & 0xFFFFFFFB) != 0)
-        {
-            *g_pPakPrecacheJobFinished = false;
-            return;
-        }
-    }
+    if (!Mod_IsPakLoadFinished(commonData->pakId) || !CustomPakData_IsPakLoadFinished(CommonPakData_s::PakType_e(it)))
+        *g_pPakPrecacheJobFinished = false;
 
     goto LOOP_AGAIN_OR_FINISH;
 }

@@ -12,9 +12,9 @@ class KeyValues;
 // loads for a level, this is used for load/unload management during level
 // changes or engine shutdown
 //-----------------------------------------------------------------------------
-struct CommonPakData_t
+struct CommonPakData_s
 {
-	enum EPakType
+	enum PakType_e
 	{
 		// the UI pak assigned to the current gamemode (range in GameMode_t)
 		PAK_TYPE_UI_GM = 0,
@@ -32,7 +32,7 @@ struct CommonPakData_t
 		PAK_TYPE_COUNT
 	};
 
-	CommonPakData_t()
+	CommonPakData_s()
 	{
 		Reset();
 	}
@@ -62,9 +62,9 @@ struct CommonPakData_t
 // loaded with the settings KV for that level, these paks are loaded after the
 // common paks are loaded, but unloaded before the common paks are unloaded
 //-----------------------------------------------------------------------------
-struct CustomPakData_t
+struct CustomPakData_s
 {
-	enum EPakType
+	enum PakType_e
 	{
 		// the pak that loads after CommonPakData_t::PAK_TYPE_UI_GM has loaded, and
 		// unloads before CommonPakData_t::PAK_TYPE_UI_GM gets unloaded
@@ -83,10 +83,10 @@ struct CustomPakData_t
 		// the absolute max number of custom paks, note that the engine's limit
 		// could still be reached before this number as game scripts and other
 		// code still loads paks such as gladiator cards or load screens
-		MAX_CUSTOM_PAKS = (PAK_MAX_LOADED_PAKS - CommonPakData_t::PAK_TYPE_COUNT)
+		MAX_CUSTOM_PAKS = (PAK_MAX_LOADED_PAKS - CommonPakData_s::PAK_TYPE_COUNT)
 	};
 
-	CustomPakData_t()
+	CustomPakData_s()
 	{
 		for (size_t i = 0; i < V_ARRAYSIZE(handles); i++)
 		{
@@ -107,8 +107,8 @@ struct CustomPakData_t
 	void UnloadAndRemoveNonPreloaded();
 	void UnloadAndRemovePreloaded();
 
-	PakHandle_t LoadBasePak(const char* const pakFile, const EPakType type);
-	void UnloadBasePak(const EPakType type);
+	PakHandle_t LoadBasePak(const char* const pakFile, const PakType_e type);
+	void UnloadBasePak(const PakType_e type);
 
 private:
 	void UnloadAndRemovePak(const int index);
@@ -128,7 +128,7 @@ public:
 };
 
 // array size = CommonPakData_t::PAK_TYPE_COUNT
-inline CommonPakData_t* g_commonPakData;
+inline CommonPakData_s* g_commonPakData;
 
 inline void(*v_Mod_LoadPakForMap)(const char* szLevelName);
 inline void(*v_Mod_QueuedPakCacheFrame)(void);

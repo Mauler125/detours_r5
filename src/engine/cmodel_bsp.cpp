@@ -31,13 +31,13 @@
 CUtlVector<CUtlString> g_InstalledMaps;
 CFmtStrN<MAX_MAP_NAME> s_CurrentLevelName;
 
-static CustomPakData_t s_customPakData;
+static CustomPakData_s s_customPakData;
 static KeyValues* s_pLevelSetKV = nullptr;
 
 //-----------------------------------------------------------------------------
 // Purpose: load a custom pak and add it to the list
 //-----------------------------------------------------------------------------
-PakHandle_t CustomPakData_t::LoadAndAddPak(const char* const pakFile)
+PakHandle_t CustomPakData_s::LoadAndAddPak(const char* const pakFile)
 {
     if (numHandles >= MAX_CUSTOM_PAKS)
     {
@@ -60,7 +60,7 @@ PakHandle_t CustomPakData_t::LoadAndAddPak(const char* const pakFile)
 // NOTE   : the array must be kept contiguous; this means that the last pak in
 //          the array should always be unloaded fist!
 //-----------------------------------------------------------------------------
-void CustomPakData_t::UnloadAndRemovePak(const int index)
+void CustomPakData_s::UnloadAndRemovePak(const int index)
 {
     const PakHandle_t pakId = handles[index];
     assert(pakId != PAK_INVALID_HANDLE); // invalid handles should not be inserted
@@ -75,12 +75,12 @@ void CustomPakData_t::UnloadAndRemovePak(const int index)
 // Purpose: preload a custom pak; this keeps it available throughout the
 //          duration of the process, unless manually removed by user.
 //-----------------------------------------------------------------------------
-PakHandle_t CustomPakData_t::PreloadAndAddPak(const char* const pakFile)
+PakHandle_t CustomPakData_s::PreloadAndAddPak(const char* const pakFile)
 {
     // this must never be called after a non-preloaded pak has been added!
     // preloaded paks must always appear before custom user requested paks
     // due to the unload order: user-requested -> preloaded -> sdk -> core.
-    assert(handles[CustomPakData_t::PAK_TYPE_COUNT+numPreload] == PAK_INVALID_HANDLE);
+    assert(handles[CustomPakData_s::PAK_TYPE_COUNT+numPreload] == PAK_INVALID_HANDLE);
 
     const PakHandle_t pakId = LoadAndAddPak(pakFile);
 
@@ -93,7 +93,7 @@ PakHandle_t CustomPakData_t::PreloadAndAddPak(const char* const pakFile)
 //-----------------------------------------------------------------------------
 // Purpose: unloads all non-preloaded custom pak handles
 //-----------------------------------------------------------------------------
-void CustomPakData_t::UnloadAndRemoveNonPreloaded()
+void CustomPakData_s::UnloadAndRemoveNonPreloaded()
 {
     // Preloaded paks should not be unloaded here, but only right before sdk /
     // engine paks are unloaded. Only unload user requested and level settings
@@ -103,7 +103,7 @@ void CustomPakData_t::UnloadAndRemoveNonPreloaded()
     // that of the newer pak. If we remove the newer pak, the engine will try
     // and revert the asset to its original state. However we asynchronously
     // unload everything on a single FIFO lock so this is undefined behavior.
-    for (int i = CustomPakData_t::PAK_TYPE_COUNT+numPreload, n = numHandles; i < n; i++)
+    for (int i = CustomPakData_s::PAK_TYPE_COUNT+numPreload, n = numHandles; i < n; i++)
     {
         UnloadAndRemovePak(i);
     }
@@ -112,11 +112,11 @@ void CustomPakData_t::UnloadAndRemoveNonPreloaded()
 //-----------------------------------------------------------------------------
 // Purpose: unloads all preloaded custom pak handles
 //-----------------------------------------------------------------------------
-void CustomPakData_t::UnloadAndRemovePreloaded()
+void CustomPakData_s::UnloadAndRemovePreloaded()
 {
     for (int i = 0, n = numPreload; i < n; i++)
     {
-        UnloadAndRemovePak(CustomPakData_t::PAK_TYPE_COUNT + i);
+        UnloadAndRemovePak(CustomPakData_s::PAK_TYPE_COUNT + i);
         numPreload--;
     }
 }
@@ -124,7 +124,7 @@ void CustomPakData_t::UnloadAndRemovePreloaded()
 //-----------------------------------------------------------------------------
 // Purpose: loads the base SDK pak file by type
 //-----------------------------------------------------------------------------
-PakHandle_t CustomPakData_t::LoadBasePak(const char* const pakFile, const EPakType type)
+PakHandle_t CustomPakData_s::LoadBasePak(const char* const pakFile, const PakType_e type)
 {
     const PakHandle_t pakId = g_pakLoadApi->LoadAsync(pakFile, AlignedMemAlloc(), 4, 0);
 
@@ -138,7 +138,7 @@ PakHandle_t CustomPakData_t::LoadBasePak(const char* const pakFile, const EPakTy
 //-----------------------------------------------------------------------------
 // Purpose: unload the SDK base pak file by type
 //-----------------------------------------------------------------------------
-void CustomPakData_t::UnloadBasePak(const EPakType type)
+void CustomPakData_s::UnloadBasePak(const PakType_e type)
 {
     const PakHandle_t pakId = handles[type];
 
@@ -274,11 +274,11 @@ void Mod_QueuedPakCacheFrame()
 
     const int numToProcess = startIndex;
 
-    if (startIndex <= CommonPakData_t::PAK_TYPE_LEVEL)
+    if (startIndex <= CommonPakData_s::PAK_TYPE_LEVEL)
     {
         bool keepLoaded = false;
         int numLeftToProcess = 4;
-        CommonPakData_t* data = &g_commonPakData[4];
+        CommonPakData_s* data = &g_commonPakData[4];
 
         do
         {
@@ -307,17 +307,17 @@ void Mod_QueuedPakCacheFrame()
                     switch (numLeftToProcess)
                     {
 #ifndef DEDICATED
-                    case CommonPakData_t::PAK_TYPE_UI_GM:
-                        s_customPakData.UnloadBasePak(CustomPakData_t::PAK_TYPE_UI_SDK);
+                    case CommonPakData_s::PakType_e::PAK_TYPE_UI_GM:
+                        s_customPakData.UnloadBasePak(CustomPakData_s::PakType_e::PAK_TYPE_UI_SDK);
                         break;
 #endif // !DEDICATED
 
-                    case CommonPakData_t::PAK_TYPE_COMMON:
+                    case CommonPakData_s::PakType_e::PAK_TYPE_COMMON:
                         g_StudioMdlFallbackHandler.Clear();
                         break;
 
-                    case CommonPakData_t::PAK_TYPE_COMMON_GM:
-                        s_customPakData.UnloadBasePak(CustomPakData_t::PAK_TYPE_COMMON_SDK);
+                    case CommonPakData_s::PakType_e::PAK_TYPE_COMMON_GM:
+                        s_customPakData.UnloadBasePak(CustomPakData_s::PakType_e::PAK_TYPE_COMMON_SDK);
                         break;
 
                     default:
@@ -326,7 +326,7 @@ void Mod_QueuedPakCacheFrame()
 
                     g_pakLoadApi->UnloadAsync(data->pakId);
 
-                    if (numLeftToProcess == CommonPakData_t::PAK_TYPE_LEVEL)
+                    if (numLeftToProcess == CommonPakData_s::PakType_e::PAK_TYPE_LEVEL)
                     {
                         Mod_UnloadLevelPaks(); // Unload mod pak files.
 
@@ -337,7 +337,7 @@ void Mod_QueuedPakCacheFrame()
                             s_pLevelSetKV = nullptr;
                         }
                     }
-                    else if (numLeftToProcess == CommonPakData_t::PAK_TYPE_LOBBY)
+                    else if (numLeftToProcess == CommonPakData_s::PakType_e::PAK_TYPE_LOBBY)
                     {
                         Mod_UnloadPreloadedPaks();
                         s_customPakData.basePaksLoaded = false;
@@ -358,7 +358,7 @@ void Mod_QueuedPakCacheFrame()
     }
 
     *g_pPakPrecacheJobFinished = true;
-    CommonPakData_t* commonData = g_commonPakData;
+    CommonPakData_s* commonData = g_commonPakData;
 
     int it = 0;
 
@@ -438,7 +438,7 @@ void Mod_QueuedPakCacheFrame()
         }
     }
 
-    if (it == CommonPakData_t::PAK_TYPE_LOBBY)
+    if (it == CommonPakData_s::PakType_e::PAK_TYPE_LOBBY)
     {
         Mod_PreloadPaks();
         s_customPakData.basePaksLoaded = true;
@@ -453,11 +453,11 @@ void Mod_QueuedPakCacheFrame()
     commonData->pakId = g_pakLoadApi->LoadAsync(name, AlignedMemAlloc(), 4, 0);
 
 #ifndef DEDICATED
-    if (it == CommonPakData_t::PAK_TYPE_UI_GM)
-        s_customPakData.LoadBasePak("ui_sdk.rpak", CustomPakData_t::PAK_TYPE_UI_SDK);
+    if (it == CommonPakData_s::PakType_e::PAK_TYPE_UI_GM)
+        s_customPakData.LoadBasePak("ui_sdk.rpak", CustomPakData_s::PakType_e::PAK_TYPE_UI_SDK);
 #endif // !DEDICATED
-    if (it == CommonPakData_t::PAK_TYPE_COMMON_GM)
-        s_customPakData.LoadBasePak("common_sdk.rpak", CustomPakData_t::PAK_TYPE_COMMON_SDK);
+    if (it == CommonPakData_s::PakType_e::PAK_TYPE_COMMON_GM)
+        s_customPakData.LoadBasePak("common_sdk.rpak", CustomPakData_s::PakType_e::PAK_TYPE_COMMON_SDK);
 
 CHECK_FOR_FAILURE:
 

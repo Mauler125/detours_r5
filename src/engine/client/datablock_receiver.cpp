@@ -158,5 +158,5 @@ static bool HK_ProcessDataBlock(ClientDataBlockReceiver* receiver, const double 
 
 void VClientDataBlockReceiver::Detour(const bool bAttach) const
 {
-	DetourAttach(&ClientDataBlockReceiver__ProcessDataBlock, HK_ProcessDataBlock);
+	DetourSetup(&ClientDataBlockReceiver__ProcessDataBlock, HK_ProcessDataBlock, bAttach);
 }

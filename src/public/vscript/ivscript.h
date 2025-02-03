@@ -129,6 +129,8 @@ struct ScriptVariant_t
 		SV_FREE = 0x01,
 	};
 
+	~ScriptVariant_t() { Free(); }
+
 	ScriptVariant_t() : m_flags(0), m_type(FIELD_VOID) { m_Vec3D = Vector3D(0, 0, 0); };
 	ScriptVariant_t(int val) : m_flags(0), m_type(FIELD_INTEGER) { m_int = val; }
 	ScriptVariant_t(float val) : m_flags(0), m_type(FIELD_FLOAT) { m_float = val; }

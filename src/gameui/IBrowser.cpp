@@ -818,7 +818,7 @@ void CBrowser::UpdateHostingStatus(void)
         {
             hostname->GetString(),
             hostdesc.GetString(),
-            serverVisibility == ServerVisibility_e::PUBLIC,
+            serverVisibility == ServerVisibility_e::HIDDEN,
             g_pHostState->m_levelName,
             v_Playlists_GetCurrent(),
             hostip->GetString(),

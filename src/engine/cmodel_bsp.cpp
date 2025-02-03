@@ -97,15 +97,11 @@ void CustomPakData_s::UnloadAndRemoveNonPreloaded()
 {
     // Preloaded paks should not be unloaded here, but only right before sdk /
     // engine paks are unloaded. Only unload user requested and level settings
-    // paks from here. Also, the load and unload order here is FIFO, this is
-    // needed because when you load a pak, and then load another pak which
-    // happens to have an overlapping asset, the asset will be updated with
-    // that of the newer pak. If we remove the newer pak, the engine will try
-    // and revert the asset to its original state. However we asynchronously
-    // unload everything on a single FIFO lock so this is undefined behavior.
-    for (int i = CustomPakData_s::PAK_TYPE_COUNT+numPreload, n = numHandles; i < n; i++)
+    // paks from here. Unload them in reverse order, the last pak loaded should
+    // be the first one to be unloaded.
+    for (int n = numHandles-1; n >= CustomPakData_s::PAK_TYPE_COUNT + numPreload; n--)
     {
-        UnloadAndRemovePak(i);
+        UnloadAndRemovePak(n);
     }
 }
 
@@ -114,10 +110,11 @@ void CustomPakData_s::UnloadAndRemoveNonPreloaded()
 //-----------------------------------------------------------------------------
 void CustomPakData_s::UnloadAndRemovePreloaded()
 {
-    for (int i = 0, n = numPreload; i < n; i++)
+    // Unload them in reverse order, the last pak loaded should be the first
+    // one to be unloaded.
+    for (; numPreload > 0; numPreload--)
     {
-        UnloadAndRemovePak(CustomPakData_s::PAK_TYPE_COUNT + i);
-        numPreload--;
+        UnloadAndRemovePak(CustomPakData_s::PAK_TYPE_COUNT + (numPreload-1));
     }
 }
 
@@ -444,17 +441,18 @@ void Mod_QueuedPakCacheFrame()
         s_customPakData.basePaksLoaded = true;
     }
 
+    commonData->pakId = g_pakLoadApi->LoadAsync(name, AlignedMemAlloc(), 4, 0);
+
     if (s_customPakData.basePaksLoaded && !s_customPakData.levelResourcesLoaded)
     {
         Mod_LoadLevelPaks(s_CurrentLevelName.String());
         s_customPakData.levelResourcesLoaded = true;
     }
 
-    commonData->pakId = g_pakLoadApi->LoadAsync(name, AlignedMemAlloc(), 4, 0);
-
 #ifndef DEDICATED
     if (it == CommonPakData_s::PakType_e::PAK_TYPE_UI_GM)
         s_customPakData.LoadBasePak("ui_sdk.rpak", CustomPakData_s::PakType_e::PAK_TYPE_UI_SDK);
+    else
 #endif // !DEDICATED
     if (it == CommonPakData_s::PakType_e::PAK_TYPE_COMMON_GM)
         s_customPakData.LoadBasePak("common_sdk.rpak", CustomPakData_s::PakType_e::PAK_TYPE_COMMON_SDK);

@@ -159,13 +159,12 @@ public:
 extern ConVarFlags g_ConVarFlags;
 
 ///////////////////////////////////////////////////////////////////////////////
-bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName = "<<unspecified>>");
-void ConVar_PrintDescription(ConCommandBase* pVar);
+bool ConVar_ParseFlagString(const char* const pszFlags, int& nFlags, const char* const pszConVarName = "<<unspecified>>");
 
 inline bool (*CCvar__Connect)(CCvar* thisptr, CreateInterfaceFn factory);
 inline void (*CCvar__Disconnect)(CCvar* thisptr);
 
-inline void (*v_ConVar_PrintDescription)(ConCommandBase* pVar);
+inline void (*v_ConVar_PrintDescription)(const ConCommandBase* const pVar);
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCVar : public IDetour

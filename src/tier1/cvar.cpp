@@ -100,7 +100,7 @@ bool ConVar_ParseFlagString(const char* pszFlags, int& nFlags, const char* pszCo
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void ConVar_AppendFlags(ConCommandBase* var, char* buf, size_t bufsize)
+static void ConVar_AppendFlags(const ConCommandBase* const var, char* buf, size_t bufsize)
 {
 	for (int i = 0; i < ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc); ++i)
 	{
@@ -117,35 +117,31 @@ void ConVar_AppendFlags(ConCommandBase* var, char* buf, size_t bufsize)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void ConVar_PrintDescription(ConCommandBase* pVar)
+static void ConVar_PrintDescription(const ConCommandBase* const pVar)
 {
-	bool bMin, bMax;
-	float fMin, fMax;
-	const char* pStr;
-
 	Assert(pVar);
-
-	Color clr(255, 100, 100, 255);
 
 	char outstr[4096];
 	outstr[0] = 0;
 
 	if (!pVar->IsCommand())
 	{
-		ConVar* var = (ConVar*)pVar;
+		const ConVar* const var = (const ConVar*)pVar;
 
-		bMin = var->GetMin(fMin);
-		bMax = var->GetMax(fMax);
+		float fMin, fMax;
+
+		const bool bMin = var->GetMin(fMin);
+		const bool bMax = var->GetMax(fMax);
 
 		const char* value = NULL;
-		char tempVal[256];
+		char tempVal[1024];
 
 		if (var->IsFlagSet(FCVAR_NEVER_AS_STRING))
 		{
 			value = tempVal;
 
-			int intVal = var->GetInt();
-			float floatVal = var->GetFloat();
+			const int intVal = var->GetInt();
+			const float floatVal = var->GetFloat();
 
 			if (fabs((float)intVal - floatVal) < 0.000001)
 			{
@@ -182,31 +178,46 @@ void ConVar_PrintDescription(ConCommandBase* pVar)
 	}
 	else
 	{
-		ConCommand* var = (ConCommand*)pVar;
+		const ConCommand* const var = (const ConCommand*)pVar;
 
 		AppendPrintf(outstr, sizeof(outstr), "\"%s\" ", var->GetName());
 	}
 
 	ConVar_AppendFlags(pVar, outstr, sizeof(outstr));
 
-	pStr = pVar->GetHelpText();
-	if (pStr && *pStr)
+	const char* const pHelpStr = pVar->GetHelpText();
+	if (pHelpStr && *pHelpStr)
 	{
-		Msg(eDLL_T::COMMON, "%-80s - %.80s\n", outstr, pStr);
+		const char* const pUsageStr = pVar->GetUsageText();
+		if (pUsageStr && *pUsageStr)
+		{
+			Msg(eDLL_T::COMMON, "%-80s - %s ( %s )\n", outstr, pHelpStr, pUsageStr);
+		}
+		else
+		{
+			Msg(eDLL_T::COMMON, "%-80s - %s\n", outstr, pHelpStr);
+		}
 	}
 	else
 	{
-		Msg(eDLL_T::COMMON, "%-80s\n", outstr);
+		const char* const pUsageStr = pVar->GetUsageText();
+		if (pUsageStr && *pUsageStr)
+		{
+			Msg(eDLL_T::COMMON, "%-80s - ( %s )\n", outstr, pUsageStr);
+		}
+		else
+		{
+			Msg(eDLL_T::COMMON, "%-80s\n", outstr);
+		}
 	}
 }
 
 static void PrintListHeader(FileHandle_t& f)
 {
 	char csvflagstr[1024];
-
 	csvflagstr[0] = 0;
 
-	int c = ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc);
+	const int c = ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc);
 	for (int i = 0; i < c; ++i)
 	{
 		char csvf[64];
@@ -226,7 +237,7 @@ static void PrintListHeader(FileHandle_t& f)
 //-----------------------------------------------------------------------------
 static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 {
-	char flagstr[128];
+	char flagstr[512];
 	char csvflagstr[1024];
 
 	flagstr[0] = 0;
@@ -255,8 +266,7 @@ static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 	}
 
 
-	char valstr[32];
-	char tempbuff[512] = { 0 };
+	char valstr[64];
 
 	// Clean up integers
 	if (var->GetInt() == (int)var->GetFloat())
@@ -268,13 +278,19 @@ static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 		Q_snprintf(valstr, sizeof(valstr), "%-8.3f", var->GetFloat());
 	}
 
+	char tempHelpBuff[2048];
+	char tempUsageBuff[2048];
+
 	// Print to console
-	Msg(eDLL_T::COMMON, "%-40s : %-8s : %-16s : %s\n", var->GetName(),
-		valstr, flagstr, StripTabsAndReturns(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
+	Msg(eDLL_T::COMMON, "%-40s : %-8s : %-16s : %s ( %s )\n", var->GetName(), valstr, flagstr,
+		StripTabsAndReturns(var->GetHelpText(), tempHelpBuff, sizeof(tempHelpBuff)),
+		StripTabsAndReturns(var->GetUsageText(), tempUsageBuff, sizeof(tempUsageBuff)));
+
 	if (logging)
 	{
-		FileSystem()->FPrintf(fh, "\"%s\",\"%s\",%s,\"%s\"\n", var->GetName(),
-			valstr, csvflagstr, StripQuotes(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
+		FileSystem()->FPrintf(fh, "\"%s\",\"%s\",%s,\"%s\",\"%s\"\n", var->GetName(), valstr, csvflagstr,
+			StripQuotes(var->GetHelpText(), tempHelpBuff, sizeof(tempHelpBuff)),
+			StripQuotes(var->GetUsageText(), tempUsageBuff, sizeof(tempUsageBuff)));
 	}
 }
 
@@ -286,14 +302,16 @@ static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 {
 	// Print to console
-	char tempbuff[512] = { 0 };
-	Msg(eDLL_T::COMMON, "%-40s : %-8s : %-16s : %s\n", cmd->GetName(),
-		"cmd", "", StripTabsAndReturns(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+	char tempHelpBuff[2048];
+	char tempUsageBuff[2048];
+
+	Msg(eDLL_T::COMMON, "%-40s : %-8s : %-16s : %s ( %s )\n", cmd->GetName(), "cmd", "", 
+		StripTabsAndReturns(cmd->GetHelpText(), tempHelpBuff, sizeof(tempHelpBuff)),
+		StripTabsAndReturns(cmd->GetUsageText(), tempUsageBuff, sizeof(tempUsageBuff)));
 
 	if (logging)
 	{
-		char emptyflags[256];
-
+		char emptyflags[512];
 		emptyflags[0] = 0;
 
 		int c = ARRAYSIZE(g_ConVarFlags.m_FlagsToDesc);
@@ -312,8 +330,10 @@ static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 		{
 			Q_snprintf(nameBuf, sizeof(nameBuf), "'%s'", cmd->GetName());
 		}
-		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", nameBuf, "cmd",
-			emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+
+		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\",\"%s\"\n", nameBuf, "cmd", emptyflags,
+			StripQuotes(cmd->GetHelpText(), tempHelpBuff, sizeof(tempHelpBuff)),
+			StripQuotes(cmd->GetUsageText(), tempUsageBuff, sizeof(tempUsageBuff)));
 	}
 }
 
@@ -412,7 +432,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 
 	if (!Q_strcasecmp(args[1], "log") && iArgs >= 3)
 	{
-		char fn[256];
+		char fn[MAX_PATH];
 		Q_snprintf(fn, sizeof(fn), "%s", args[2]);
 		f = FileSystem()->Open(fn, "wb", nullptr, 0);
 		if (f)
@@ -515,9 +535,6 @@ void CCvarUtilities::CvarList(const CCommand& args)
 //-----------------------------------------------------------------------------
 void CCvarUtilities::CvarHelp(const CCommand& args)
 {
-	const char* search;
-	ConCommandBase* var;
-
 	if (args.ArgC() != 2)
 	{
 		Msg(eDLL_T::COMMON, "Usage:  help <cvarname>\n");
@@ -525,10 +542,10 @@ void CCvarUtilities::CvarHelp(const CCommand& args)
 	}
 
 	// Get name of var to find
-	search = args[1];
+	const char* const search = args[1];
 
 	// Search for it
-	var = g_pCVar->FindCommandBase(search);
+	const ConCommandBase* var = g_pCVar->FindCommandBase(search);
 	if (!var)
 	{
 		Msg(eDLL_T::COMMON, "help:  no cvar or command named %s\n", search);

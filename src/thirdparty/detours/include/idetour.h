@@ -27,7 +27,7 @@ public:
 };
 
 extern std::vector<IDetour*> g_DetourVec;
-std::size_t AddDetour(IDetour* pDetour);
+std::size_t AddDetour(IDetour* const pDetour);
 
 #define ADDDETOUR(x,y) static std::size_t dummy_reg_##y = AddDetour( new x() );
 #define XREGISTER(x,y)  ADDDETOUR(x, y)

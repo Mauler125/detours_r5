@@ -5,7 +5,9 @@
 //===========================================================================//
 #include <cassert>
 #include <vector>
+#ifdef _DEBUG
 #include <unordered_set>
+#endif // _DEBUG
 #include <Windows.h>
 #include "../include/detours.h"
 #include "../include/idetour.h"
@@ -15,18 +17,21 @@
 // used by one class instance. This is to avoid duplicate registrations.
 //-----------------------------------------------------------------------------
 std::vector<IDetour*> g_DetourVec;
-std::unordered_set<IDetour*> g_DetourSet;
+#ifdef _DEBUG
+static std::unordered_set<const IDetour*> s_DetourSet;
+#endif // _DEBUG
 
 //-----------------------------------------------------------------------------
 // Purpose: adds a detour context to the list
 //-----------------------------------------------------------------------------
-std::size_t AddDetour(IDetour* pDetour)
+std::size_t AddDetour(IDetour* const pDetour)
 {
-	IDetour* pVFTable = reinterpret_cast<IDetour**>(pDetour)[0];
-	auto p = g_DetourSet.insert(pVFTable); // Only register if VFTable isn't already registered.
+#ifdef _DEBUG
+	const IDetour* const pVFTable = reinterpret_cast<IDetour**>(pDetour)[0];
+	const auto p = s_DetourSet.insert(pVFTable); // Track duplicate registrations.
 
 	assert(p.second); // Code bug: duplicate registration!!! (called 'REGISTER(...)' from a header file?).
-	p.second ? g_DetourVec.push_back(pDetour) : delete pDetour;
-
+#endif // _DEBUG
+	g_DetourVec.push_back(pDetour);
 	return g_DetourVec.size();
 }

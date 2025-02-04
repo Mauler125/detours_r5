@@ -113,6 +113,8 @@ target_link_libraries( ${PROJECT_NAME} PRIVATE
     "vgui"
     "rui"
 
+    "particles"
+
     "d3d11.lib"
     "${THIRDPARTY_SOURCE_DIR}/nvapi/amd64/nvapi64.lib"
 )

@@ -8,8 +8,21 @@
 #include "windows/id3dx.h"
 #endif // !DEDICATED
 
-#ifndef DEDICATED
 static void DoNothing(){};
+
+static const char* const s_paksToLoad[] =
+{
+	// Used to store assets that must be loaded after common_early.rpak, but
+	// before common.rpak is being loaded. One use case is to preserve the
+	// fixed linked list structure for the player settings layouts, we must
+	// load SDK layouts before common.rpak as the Game DLL expects the linked
+	// list to be ordered in a specific manner that is determined by bakery.
+	"common_roots.rpak",
+#ifndef DEDICATED
+	// Used to load UI assets associated with the main menu.
+	"ui_mainmenu.rpak"
+#endif // !DEDICATED
+};
 
 /*
 ==================
@@ -26,19 +39,28 @@ static void Host_SetupUIMaterials()
 	void* const oldSyncFn = g_pakGlobals->threadSyncFunc;
 	g_pakGlobals->threadSyncFunc = DoNothing;
 
-	static const char* const pakFileName = "ui_mainmenu.rpak";
-	const PakHandle_t pak = g_pakLoadApi->LoadAsync(pakFileName, AlignedMemAlloc(), 3, false);
+	for (size_t i = 0; i < V_ARRAYSIZE(s_paksToLoad); i++)
+	{
+		const char* const pakFileName = s_paksToLoad[i];
 
-	// NOTE: make sure to wait for the async load, as the pak must be loaded
-	// before we continue processing UI materials.
-	if (pak == PAK_INVALID_HANDLE || !g_pakLoadApi->WaitForAsyncLoad(pak, DoNothing))
-		Error(eDLL_T::ENGINE, EXIT_FAILURE, "Failed to load pak file '%s'\n", pakFileName);
+		// NOTE: make sure to wait for the async load request, as these paks
+		// must be loaded before we continue processing anything else.
+		const PakHandle_t pakHandle = g_pakLoadApi->LoadAsyncAndWait(pakFileName, AlignedMemAlloc(), 3, DoNothing);
+
+		if (pakHandle == PAK_INVALID_HANDLE)
+			Error(eDLL_T::ENGINE, EXIT_FAILURE, "Failed to load pak file '%s'\n", pakFileName);
+	}
 
 	g_pakGlobals->threadSyncFunc = oldSyncFn;
 
+	// For dedicated, we shouldn't continue with setting up ui materials.
+	// Return out here. This is the only place we can reliably load core
+	// paks directly after common_early.rpak and ui.rpak without having
+	// the engine do anything in between.
+#ifndef DEDICATED
 	v_Host_SetupUIMaterials();
-}
 #endif // !DEDICATED
+}
 
 /*
 ==================
@@ -114,9 +136,7 @@ static bool DFS_InitializeFeatureFlagDefinitions(const char* pszFeatureFlags)
 ///////////////////////////////////////////////////////////////////////////////
 void VHostCmd::Detour(const bool bAttach) const
 {
-#ifndef DEDICATED
 	DetourSetup(&v_Host_SetupUIMaterials, &Host_SetupUIMaterials, bAttach);
-#endif // !DEDICATED
 	DetourSetup(&v_Host_Shutdown, &Host_Shutdown, bAttach);
 	DetourSetup(&v_Host_Status_PrintClient, &Host_Status_PrintClient, bAttach);
 	DetourSetup(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions, bAttach);

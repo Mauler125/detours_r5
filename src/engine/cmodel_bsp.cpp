@@ -237,7 +237,11 @@ static bool CustomPakData_IsPakLoadFinished(const CommonPakData_s::PakType_e com
     switch (commonType)
     {
     case CommonPakData_s::PakType_e::PAK_TYPE_UI_GM:
+#ifndef DEDICATED
         return Mod_IsPakLoadFinished(s_customPakData.handles[CustomPakData_s::PakType_e::PAK_TYPE_UI_SDK]);
+#else // Dedicated doesn't load UI paks.
+        return true;
+#endif // DEDICATED
     case CommonPakData_s::PakType_e::PAK_TYPE_COMMON:
         return true;
     case CommonPakData_s::PakType_e::PAK_TYPE_COMMON_GM:

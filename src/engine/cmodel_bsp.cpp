@@ -328,7 +328,7 @@ static void Mod_QueuedPakCacheFrame()
 
     const int numToProcess = startIndex;
 
-    if (startIndex <= CommonPakData_s::PAK_TYPE_LEVEL)
+    if (startIndex < CommonPakData_s::PAK_TYPE_COUNT)
     {
         bool keepLoaded = false;
         int numLeftToProcess = 4;
@@ -437,7 +437,7 @@ static void Mod_QueuedPakCacheFrame()
         } while (c);
 
         if (!v20)
-            goto CHECK_FOR_FAILURE;
+            goto CHECK_LOAD_STATUS;
 
         V_strncpy(name, commonData->basePakName, MAX_PATH);
 
@@ -515,7 +515,7 @@ static void Mod_QueuedPakCacheFrame()
     if (it == CommonPakData_s::PakType_e::PAK_TYPE_COMMON_GM)
         s_customPakData.LoadBasePak("common_sdk.rpak", CustomPakData_s::PakType_e::PAK_TYPE_COMMON_SDK);
 
-CHECK_FOR_FAILURE:
+CHECK_LOAD_STATUS:
 
     if (!Mod_IsPakLoadFinished(commonData->pakId) || !CustomPakData_IsPakLoadFinished(CommonPakData_s::PakType_e(it)))
         *g_pPakPrecacheJobFinished = false;

@@ -47,10 +47,10 @@ static bool s_useLowLatency = false;
 InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 {
 #ifdef MATERIALSYSTEM_NODX
-	// Only load the 'startup.rpak' file, as 'common_early.rpak' has assets
+	// Only load the startup pak files, as 'common_early.rpak' has assets
 	// that references assets in 'startup.rpak'.
-	const PakHandle_t pakHandle = g_pakLoadApi->LoadAsync("startup.rpak", AlignedMemAlloc(), 5, 0);
-	g_pakLoadApi->WaitForAsyncLoad(pakHandle, nullptr);
+	g_pakLoadApi->LoadAsyncAndWait("startup.rpak", AlignedMemAlloc(), 5, 0);
+	g_pakLoadApi->LoadAsyncAndWait("startup_sdk.rpak", AlignedMemAlloc(), 5, 0);
 
 	// Trick: return INIT_FAILED to disable the loading of hardware
 	// configuration data, since we don't need it on the dedi.
@@ -71,7 +71,14 @@ InitReturnVal_t CMaterialSystem::Init(CMaterialSystem* thisptr)
 		g_PCLStatsAvailable = true;
 	}
 
-	return CMaterialSystem__Init(thisptr);
+	const InitReturnVal_t result = CMaterialSystem__Init(thisptr);
+
+	// Must be loaded after the call to CMaterialSystem::Init() as we want
+	// to load startup_sdk.rpak after startup.rpak. This pak file can be
+	// used to load paks as early as startup.rpak, while still offering the
+	// ability to patch/update its containing assets on time.
+	g_pakLoadApi->LoadAsyncAndWait("startup_sdk.rpak", AlignedMemAlloc(), 5, 0);
+	return result;
 #endif
 }
 
